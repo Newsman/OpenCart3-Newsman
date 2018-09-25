@@ -1,0 +1,40 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1>{{ 'Newsman' }} <p style="color: green; font-weight: bold;">{{ message }}</p></h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="col-md-5">
+            <div class="form-group">
+                <form method="post" id="newsman_form">
+                    <div>
+                        <label>User Id</label>
+                        <input type="text" name="userid" placeholder="user id" value="{{ newsmanuserid }}" class="form-control"/>
+                        <label>Api Key</label>
+                        <input type="text" name="apikey" placeholder="api key" value="{{ newsmanapikey }}" class="form-control"/>
+                        <input type="submit" name="newsmanSubmit" value="Save" class="btn btn-primary">
+                    </div>
+                    <div>
+                        <label>List</label>
+                        <select name="list" class="form-control">
+                            {{ list }}
+                        </select>
+                        <input type="submit" name="newsmanSubmitSaveList" value="Save List" class="btn btn-primary">
+                        <input type="submit" name="newsmanSubmitList" value="Import" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <b>CRON:</b><p>{yoursiteurl}/index.php?route=extension/module/newsman&cron=true</p>
+        </div>
+    </div>
+</div>
+{{ footer }}
