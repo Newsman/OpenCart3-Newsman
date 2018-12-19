@@ -31,9 +31,11 @@ class ControllerExtensionModuleNewsman extends Controller
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 		$data["button_save"] = "Save / Import";
+		$data["message"] = "";
 
 		if (isset($_POST["newsmanSubmit"]))
 		{
+			$this->restCall = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}";
 			$this->restCall = str_replace("{{userid}}", $_POST["userid"], $this->restCall);
 			$this->restCall = str_replace("{{apikey}}", $_POST["apikey"], $this->restCall);
 			$this->restCall = str_replace("{{method}}", "list.all.json", $this->restCall);
@@ -66,47 +68,67 @@ class ControllerExtensionModuleNewsman extends Controller
 			$data["message"] = "List is saved";
 		}
 
-		//List Import
+		if (isset($_POST["newsmanSubmitSaveSegment"]))
+		{
+			$settings = $setting;
+			$settings["newsmansegment"] = $_POST["segment"];
+
+			$this->model_setting_setting->editSetting('newsman', $settings);
+
+			$data["message"] = "Segment is saved";
+		}
+
+//List Import
 		if (isset($_POST["newsmanSubmitList"]))
 		{
+			$this->restCallParams = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}{{params}}";
 			$this->restCallParams = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCallParams);
 			$this->restCallParams = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCallParams);
 			$this->restCallParams = str_replace("{{method}}", "import.csv.json", $this->restCallParams);
-
 			$client = new Newsman_Client($setting["newsmanuserid"], $setting["newsmanapikey"]);
-
 			$csvdata = array();
-
 			$this->load->model('customer/customer');
 			$csvdata = $this->model_customer_customer->getCustomers();
-
-			$csv = "email,name,source" . PHP_EOL;
-			foreach ($csvdata as $row)
+			if (empty($csvdata))
 			{
-				if($row["newsletter"] == "1" && $row["status"] == "1")
+				$data["message"] .= PHP_EOL . "No customers in your store";
+				$this->SetOutput($data);
+				return;
+			}
+			//Import
+			$batchSize = 5000;
+			$customers_to_import = array();
+			$segments = null;
+			if ($setting["newsmansegment"] != "1" && $setting["newsmansegment"] != null)
+			{
+				$segments = array($setting["newsmansegment"]);
+			}
+			foreach ($csvdata as $item)
+			{
+				$customers_to_import[] = array(
+					"email" => $item["email"],
+					"firstname" => $item["firstname"]
+				);
+				if ((count($customers_to_import) % $batchSize) == 0)
 				{
-					$csv .= $row['email'] . ","
-						. $row['firstname'] . " " . $row["lastname"] . ","
-						. "opencart3 newsman plugin"
-						. PHP_EOL;
+					$this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
 				}
 			}
+			if (count($customers_to_import) > 0)
+			{
+				$this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
+			}
+			unset($customers_to_import);
 
-			$ret = $client->import->csv($setting["newsmanlistid"], array(), $csv);
-
-			/*$this->restCallParams = str_replace("{{params}}", "?list_id=" . $_POST["list"] . "&segments=" . "&csv_data=" . $csv, $this->restCallParams);
-die($this->restCallParams);
-			$_data = json_decode(file_get_contents($this->restCallParams), true);
-			*/
-
-			$data["message"] = "Imported successfully";
+			$data["message"] .= PHP_EOL . "Customer Newsletter subscribers imported successfully";
 		}
 		//List Import
 
-		$setting = $this->model_setting_setting->getSetting('newsman');
+		/*$setting = $this->model_setting_setting->getSetting('newsman');
 
 		if (!empty($setting["newsmanuserid"]) && !empty($setting["newsmanapikey"]))
 		{
+			$this->restCall = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}";
 			$this->restCall = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCall);
 			$this->restCall = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCall);
 			$this->restCall = str_replace("{{method}}", "list.all.json", $this->restCall);
@@ -117,18 +139,59 @@ die($this->restCallParams);
 
 			foreach ($_data as $list)
 			{
-				if(!empty($setting["newsmanlistid"]) && $setting["newsmanlistid"] == $list["list_id"])
+				if (!empty($setting["newsmanlistid"]) && $setting["newsmanlistid"] == $list["list_id"])
 				{
 					$data["list"] .= "<option selected value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
-				}
-				else{
+				} else
+				{
 					$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
 				}
 			}
 
 			$data["newsmanuserid"] = $setting["newsmanuserid"];
 			$data["newsmanapikey"] = $setting["newsmanapikey"];
+		}*/
+
+		$setting = $this->model_setting_setting->getSetting('newsman');
+		if (!empty($setting["newsmanuserid"]) && !empty($setting["newsmanapikey"]))
+		{
+			$this->restCall = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCall);
+			$this->restCall = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCall);
+			$this->restCall = str_replace("{{method}}", "list.all.json", $this->restCall);
+			$this->restCallParams = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}{{params}}";
+			$this->restCallParams = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCallParams);
+			$this->restCallParams = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCallParams);
+			$_data = json_decode(file_get_contents($this->restCall), true);
+			$data["list"] = "";
+			$data["segment"] = "";
+			$data["segment"] .= "<option value='1'>No segment</option>";
+			foreach ($_data as $list)
+			{
+				if (!empty($setting["newsmanlistid"]) && $setting["newsmanlistid"] == $list["list_id"])
+				{
+					$data["list"] .= "<option selected value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
+					$this->restCallParams = str_replace("{{method}}", "segment.all.json", $this->restCallParams);
+					$this->restCallParams = str_replace("{{params}}", "?list_id=" . $setting["newsmanlistid"], $this->restCallParams);
+					$_data = json_decode(file_get_contents($this->restCallParams), true);
+					foreach ($_data as $segment)
+					{
+						if (!empty($setting["newsmansegment"]) && $setting["newsmansegment"] == $segment["segment_id"])
+						{
+							$data["segment"] .= "<option selected value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+						} else
+						{
+							$data["segment"] .= "<option value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+						}
+					}
+				} else
+				{
+					$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
+				}
+			}
 		}
+
+		$data["userid"] = (empty($setting["newsmanuserid"])) ? "" : $setting["newsmanuserid"];
+		$data["apikey"] = (empty($setting["newsmanapikey"])) ? "" : $setting["newsmanapikey"];
 
 		$htmlOutput = $this->load->view('extension/module/newsman', $data);
 		$this->response->setOutput($htmlOutput);
@@ -137,6 +200,39 @@ die($this->restCallParams);
 	public
 	function validate()
 	{
+	}
+
+	public static function safeForCsv($str)
+	{
+		return '"' . str_replace('"', '""', $str) . '"';
+	}
+
+	public function _importData(&$data, $list, $segments = null, $client)
+	{
+		$csv = '"email","firstname","source"' . PHP_EOL;
+		$source = self::safeForCsv("opencart 3 newsman plugin");
+		foreach ($data as $_dat)
+		{
+			$csv .= sprintf(
+				"%s,%s,%s",
+				self::safeForCsv($_dat["email"]),
+				self::safeForCsv($_dat["firstname"]),
+				$source
+			);
+			$csv .= PHP_EOL;
+		}
+		$ret = null;
+		try
+		{
+			$ret = $client->import->csv($list, $segments, $csv);
+			if ($ret == "")
+			{
+				throw new Exception("Import failed");
+			}
+		} catch (Exception $e)
+		{
+		}
+		$data = array();
 	}
 
 	protected

@@ -16,9 +16,11 @@
                 <form method="post" id="newsman_form">
                     <div>
                         <label>User Id</label>
-                        <input type="text" name="userid" placeholder="user id" value="{{ newsmanuserid }}" class="form-control"/>
+                        <input type="text" name="userid" placeholder="user id" value="{{ userid }}"
+                               class="form-control"/>
                         <label>Api Key</label>
-                        <input type="text" name="apikey" placeholder="api key" value="{{ newsmanapikey }}" class="form-control"/>
+                        <input type="text" name="apikey" placeholder="api key" value="{{ apikey }}"
+                               class="form-control"/>
                         <input type="submit" name="newsmanSubmit" value="Save" class="btn btn-primary">
                     </div>
                     <div>
@@ -27,13 +29,23 @@
                             {{ list }}
                         </select>
                         <input type="submit" name="newsmanSubmitSaveList" value="Save List" class="btn btn-primary">
+                    </div>
+                    <div style="padding-top: 15px;">
+                        <label>Segment</label>
+                        <select name="segment" class="form-control">
+                            {{ segment }}
+                        </select>
+                        <input type="submit" name="newsmanSubmitSaveSegment" value="Save Segment" class="btn btn-primary">
+                    </div>
+                    <div>
                         <input type="submit" name="newsmanSubmitList" value="Import" class="btn btn-primary">
                     </div>
                 </form>
             </div>
         </div>
         <div class="col-md-12">
-            <b>CRON:</b><p>{yoursiteurl}/index.php?route=extension/module/newsman&cron=true</p>
+            <b>CRON:</b>
+            <p>{yoursiteurl}/index.php?route=extension/module/newsman&cron=true</p>
         </div>
     </div>
 </div>
