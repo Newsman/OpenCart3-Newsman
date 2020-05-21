@@ -44,6 +44,13 @@ class ControllerExtensionModuleNewsman extends Controller
 			$settings["newsmanuserid"] = $_POST["userid"];
 			$settings["newsmanapikey"] = $_POST["apikey"];
 
+			$allowAPI = "off";
+
+			if(!empty($_POST["allowAPI"]))
+				$allowAPI = "on";
+		
+			$settings["newsmanallowAPI"] = $allowAPI;
+
 			$this->model_setting_setting->editSetting('newsman', $settings);
 
 			$_data = json_decode(file_get_contents($this->restCall), true);
@@ -78,7 +85,7 @@ class ControllerExtensionModuleNewsman extends Controller
 			$data["message"] = "Segment is saved";
 		}
 
-//List Import
+		//List Import
 		if (isset($_POST["newsmanSubmitList"]))
 		{
 			$this->restCallParams = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}{{params}}";
@@ -95,6 +102,7 @@ class ControllerExtensionModuleNewsman extends Controller
 				$this->SetOutput($data);
 				return;
 			}
+
 			//Import
 			$batchSize = 5000;
 			$customers_to_import = array();
@@ -103,12 +111,20 @@ class ControllerExtensionModuleNewsman extends Controller
 			{
 				$segments = array($setting["newsmansegment"]);
 			}
+
 			foreach ($csvdata as $item)
-			{
+			{	
+				if($item["newsletter"] == "0")
+				{
+					continue;
+				}
+
 				$customers_to_import[] = array(
 					"email" => $item["email"],
-					"firstname" => $item["firstname"]
-				);
+					"firstname" => $item["firstname"],
+					"lastname" => $item["lastname"]
+				);			
+
 				if ((count($customers_to_import) % $batchSize) == 0)
 				{
 					$this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
@@ -117,7 +133,8 @@ class ControllerExtensionModuleNewsman extends Controller
 			if (count($customers_to_import) > 0)
 			{
 				$this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
-			}
+			}	
+			
 			unset($customers_to_import);
 
 			$data["message"] .= PHP_EOL . "Customer Newsletter subscribers imported successfully";
@@ -193,6 +210,14 @@ class ControllerExtensionModuleNewsman extends Controller
 		$data["userid"] = (empty($setting["newsmanuserid"])) ? "" : $setting["newsmanuserid"];
 		$data["apikey"] = (empty($setting["newsmanapikey"])) ? "" : $setting["newsmanapikey"];
 
+		$_allowAPI = "";
+
+		if(!empty($setting["newsmanallowAPI"]) && $setting["newsmanallowAPI"] == "on"){
+			$_allowAPI = "checked";
+		}
+
+		$data["allowAPI"] = $_allowAPI;
+
 		$htmlOutput = $this->load->view('extension/module/newsman', $data);
 		$this->response->setOutput($htmlOutput);
 	}
@@ -209,18 +234,20 @@ class ControllerExtensionModuleNewsman extends Controller
 
 	public function _importData(&$data, $list, $segments = null, $client)
 	{
-		$csv = '"email","firstname","source"' . PHP_EOL;
-		$source = self::safeForCsv("opencart 3 newsman plugin");
-		foreach ($data as $_dat)
-		{
-			$csv .= sprintf(
-				"%s,%s,%s",
-				self::safeForCsv($_dat["email"]),
-				self::safeForCsv($_dat["firstname"]),
-				$source
-			);
-			$csv .= PHP_EOL;
+        $csv = '"email","firstname","lastname","source"' . PHP_EOL;
+
+        $source = self::safeForCsv("opencart 3 customer subscribers newsman plugin");
+        foreach ($data as $_dat) {
+            $csv .= sprintf(
+                "%s,%s,%s,%s",
+                self::safeForCsv($_dat["email"]),
+                self::safeForCsv($_dat["firstname"]),
+                self::safeForCsv($_dat["lastname"]),
+                $source
+            );
+            $csv .= PHP_EOL;
 		}
+		
 		$ret = null;
 		try
 		{

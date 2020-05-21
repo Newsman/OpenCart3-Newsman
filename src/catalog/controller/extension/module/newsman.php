@@ -44,21 +44,31 @@ class ControllerExtensionmoduleNewsman extends Controller
             foreach ($csvdata as $item) {
                 $customers_to_import[] = array(
                     "email" => $item["email"],
-                    "firstname" => $item["firstname"]
+                    "firstname" => $item["firstname"],
+                    "lastname" => $item["lastname"]
                 );
                 if ((count($customers_to_import) % $batchSize) == 0) {
                     $this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
                 }
             }
             if (count($customers_to_import) > 0) {
-                $this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
+               $this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
             }
+
             unset($customers_to_import);
 
             echo "Cron successfully executed";
 
         } //List Import
         else {
+            $allowAPI = $setting["newsmanallowAPI"];
+            if(empty($allowAPI) || $allowAPI != "on")
+            {
+                $this->response->addHeader('Content-Type: application/json');
+                $this->response->setOutput(json_encode("403"));           
+                return;
+            }
+
             $this->newsmanFetchData($setting["newsmanapikey"]);
         }
 
@@ -69,6 +79,9 @@ class ControllerExtensionmoduleNewsman extends Controller
     {
         $apikey = (empty($_GET["apikey"])) ? "" : $_GET["apikey"];
         $newsman = (empty($_GET["newsman"])) ? "" : $_GET["newsman"];
+        $start = (!empty($_GET["start"]) && $_GET["start"] >= 0) ? $_GET["start"] : "";
+        $limit = (empty($_GET["limit"])) ? "" : $_GET["limit"];
+        $startLimit = array();
 
         if (!empty($newsman) && !empty($apikey)) {
             $apikey = $_GET["apikey"];
@@ -80,12 +93,20 @@ class ControllerExtensionmoduleNewsman extends Controller
                 return;
             }
 
+            if(!empty($start) && $start >= 0 && !empty($limit))
+                $startLimit = array(
+                    "start" => $start,
+                    "limit" => $limit
+                );
+
             switch ($_GET["newsman"]) {
                 case "orders.json":
 
                     $ordersObj = array();
 
-                    $orders = $this->getOrders();
+                    $orders = $this->getOrders(
+                        $startLimit
+                    );
 
                     foreach ($orders as $item) {
 
@@ -129,7 +150,9 @@ class ControllerExtensionmoduleNewsman extends Controller
 
                 case "products.json":
 
-                    $products = $this->getProducts();
+                    $products = $this->getProducts(
+                        $startLimit
+                    );
                     $productsJson = array();
 
                     foreach ($products as $prod) {
@@ -149,7 +172,9 @@ class ControllerExtensionmoduleNewsman extends Controller
 
                 case "customers.json":
 
-                    $wp_cust = $this->getCustomers();
+                    $wp_cust = $this->getCustomers(
+                        $startLimit
+                    );
                     $custs = array();
 
                     foreach ($wp_cust as $users) {
@@ -168,7 +193,21 @@ class ControllerExtensionmoduleNewsman extends Controller
 
                 case "subscribers.json":
 
-                    $wp_subscribers = $this->getCustomers(array("filter_newsletter" => 1));
+                    if(!empty($startLimit))
+                    {
+                        $startLimit = array(
+                            "start" => $start,
+                            "limit" => $limit,
+                            "filter_newsletter" => 1
+                        );
+                    }
+                    else{
+                        $startLimit = array(
+                            "filter_newsletter" => 1
+                        );
+                    }
+            
+                    $wp_subscribers = $this->getCustomers($startLimit);
                     $subs = array();
 
                     foreach ($wp_subscribers as $users) {
@@ -276,9 +315,17 @@ class ControllerExtensionmoduleNewsman extends Controller
         return $order_product_query->rows;
     }
 
-    public function getProducts()
+    public function getProducts($startLimit)
     {
-        $order_product_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product");
+        $query;
+        if(!empty($startLimit)){
+            $query = "SELECT * FROM " . DB_PREFIX . "product LIMIT {$startLimit['limit']} OFFSET {$startLimit['start']}";
+        }
+        else{
+            $query = "SELECT * FROM " . DB_PREFIX . "product";
+        }
+
+        $order_product_query = $this->db->query($query);
 
         return $order_product_query->rows;
     }
@@ -295,13 +342,15 @@ class ControllerExtensionmoduleNewsman extends Controller
 
     public function _importDatas(&$data, $list, $segments = null, $client)
     {
-        $csv = '"email","source"' . PHP_EOL;
+        $csv = '"email","firstname","lastname","source"' . PHP_EOL;
 
-        $source = self::safeForCsv("opencart 2.3 subscribers newsman plugin");
+        $source = self::safeForCsv("opencart 3 customer subscribers newsman plugin");
         foreach ($data as $_dat) {
             $csv .= sprintf(
-                "%s,%s",
+                "%s,%s,%s,%s",
                 self::safeForCsv($_dat["email"]),
+                self::safeForCsv($_dat["firstname"]),
+                self::safeForCsv($_dat["lastname"]),
                 $source
             );
             $csv .= PHP_EOL;
@@ -328,14 +377,15 @@ class ControllerExtensionmoduleNewsman extends Controller
 
     public function _importData(&$data, $list, $segments = null, $client)
     {
-        $csv = '"email","firstname","source"' . PHP_EOL;
+        $csv = '"email","firstname","lastname","source"' . PHP_EOL;
 
-        $source = self::safeForCsv("opencart 2.3 customers with newsletter newsman plugin");
+        $source = self::safeForCsv("opencart 3 customer subscribers newsman plugin");
         foreach ($data as $_dat) {
             $csv .= sprintf(
-                "%s,%s,%s",
+                "%s,%s,%s,%s",
                 self::safeForCsv($_dat["email"]),
                 self::safeForCsv($_dat["firstname"]),
+                self::safeForCsv($_dat["lastname"]),
                 $source
             );
             $csv .= PHP_EOL;

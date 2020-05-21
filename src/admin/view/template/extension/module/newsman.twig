@@ -21,6 +21,8 @@
                         <label>Api Key</label>
                         <input type="text" name="apikey" placeholder="api key" value="{{ apikey }}"
                                class="form-control"/>
+                        <label for="allowAPI">Allow API access to (Orders, Products, Customers, Subscribers)</label>
+                        <input id="allowAPI" type="checkbox" name="allowAPI" class="form-control" {{ allowAPI }}/>
                         <input type="submit" name="newsmanSubmit" value="Save" class="btn btn-primary">
                     </div>
                     <div>
@@ -38,6 +40,7 @@
                         <input type="submit" name="newsmanSubmitSaveSegment" value="Save Segment" class="btn btn-primary">
                     </div>
                     <div>
+                        <label style="width: 100%;">(Import customers subscribed to newsletter)</label>
                         <input type="submit" name="newsmanSubmitList" value="Import" class="btn btn-primary">
                     </div>
                 </form>
