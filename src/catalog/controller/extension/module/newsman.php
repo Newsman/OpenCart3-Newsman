@@ -59,7 +59,7 @@ class ControllerExtensionmoduleNewsman extends Controller
 
             echo "Cron successfully executed";
 
-        } //List Import
+        }
         else {
             $allowAPI = $setting["newsmanallowAPI"];
             if(empty($allowAPI) || $allowAPI != "on")
@@ -104,27 +104,53 @@ class ControllerExtensionmoduleNewsman extends Controller
 
                     $ordersObj = array();
 
-                    $orders = $this->getOrders(
-                        $startLimit
-                    );
+                    $this->load->model('catalog/product');
+                    $this->load->model('checkout/order');
+
+                    $orders = $this->getOrders(array("start" => $start, "limit" => $limit));                    
+                    
+                    if(!empty($orderId))
+                    {
+                        $orders = $this->model_checkout_order->getOrder($orderId);                        
+                        $orders = array(
+                            $orders
+                        );
+                    }                    
 
                     foreach ($orders as $item) {
 
                         $products = $this->getProductsByOrder($item["order_id"]);
                         $productsJson = array();
 
-                        foreach ($products as $prod) {
+                        foreach ($products as $prodOrder) {
+                            
+                            $prod = $this->model_catalog_product->getProduct($prodOrder["product_id"]);
+
+                            $image = "";
+
+                            if(!empty($prod["image"]))
+                            {
+                                $image = explode(".", $prod["image"]);
+                                $image = $image[1];  
+                                $image = str_replace("." . $image, "-500x500" . '.' . $image, $prod["image"]);    
+                                $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                                
+                            }
 
                             $productsJson[] = array(
-                                "id" => $prod['product_id'],
-                                "name" => $prod['name'],
-                                "quantity" => $prod['quantity'],
-                                "price" => $prod['price']
+                                "id" => $prodOrder['product_id'],
+                                "name" => $prodOrder['name'],
+                                "quantity" => $prodOrder['quantity'],
+                                "price" => $prodOrder['price'],
+                                "price_old" => (empty($prodOrder["special"]) ? "" : $prodOrder["special"]),
+                                "image_url" => $image,
+                                "url" => 'https://' . $_SERVER['SERVER_NAME'] . '/index.php?route=product/product&product_id=' . $prodOrder["product_id"]
                             );
                         }
 
                         $ordersObj[] = array(
                             "order_no" => $item["order_id"],
+                            "date" => "",
+                            "status" => "",
                             "lastname" => "",
                             "firstname" => $item["firstname"],
                             "email" => $item["email"],
@@ -142,30 +168,58 @@ class ControllerExtensionmoduleNewsman extends Controller
                         );
                     }
 
-                    $this->response->addHeader('Content-Type: application/json');
-                    $this->response->setOutput(json_encode($ordersObj, JSON_PRETTY_PRINT));
+					$this->response->addHeader('Content-Type: application/json');
+					$this->response->setOutput(json_encode($ordersObj, JSON_PRETTY_PRINT));
                     return;
 
                     break;
 
                 case "products.json":
 
-                    $products = $this->getProducts(
-                        $startLimit
-                    );
-                    $productsJson = array();
+                    $this->load->model('catalog/product');
 
-                    foreach ($products as $prod) {
-                        $productsJson[] = array(
-                            "id" => $prod["product_id"],
-                            "name" => $prod["model"],
-                            "stock_quantity" => $prod["quantity"],
-                            "price" => $prod["price"]
+                    $products = $this->model_catalog_product->getProducts(array("start" => $start, "limit" => $limit));
+
+                    if(!empty($productId))
+                    {
+                        $products = $this->model_catalog_product->getProduct($productId);
+                        $products = array(
+                            $products
                         );
                     }
 
-                    $this->response->addHeader('Content-Type: application/json');
-                    $this->response->setOutput(json_encode($productsJson, JSON_PRETTY_PRINT));
+                    $productsJson = array();
+
+                    foreach ($products as $prod) {
+
+                        $image = "";
+
+                        //price old special becomes price
+                        $price = (!empty($prod["special"])) ? $prod["special"] : $prod["price"];
+                        //price becomes price old
+                        $priceOld = (!empty($prod["special"])) ? $prod["price"] : "";
+
+                        if(!empty($prod["image"]))
+                        {
+                            $image = explode(".", $prod["image"]);
+                            $image = $image[1];  
+                            $image = str_replace("." . $image, "-500x500" . '.' . $image, $prod["image"]);    
+                            $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                                
+                        }
+
+                        $productsJson[] = array(
+                            "id" => $prod["product_id"],
+                            "name" => $prod["name"],
+                            "stock_quantity" => $prod["quantity"],
+                            "price" => $price,
+                            "price_old" => $priceOld,
+                            "image_url" => $image,
+                            "url" => 'https://' . $_SERVER['SERVER_NAME'] . '/index.php?route=product/product&product_id=' . $prod["product_id"]
+                        );
+                    }
+
+					$this->response->addHeader('Content-Type: application/json');
+					$this->response->setOutput(json_encode($productsJson, JSON_PRETTY_PRINT));
                     return;
 
                     break;
@@ -223,6 +277,17 @@ class ControllerExtensionmoduleNewsman extends Controller
                     return;
 
                     break;
+                case "version.json":
+                    $version = array(
+                    "version" => "Opencart 3"
+                    );
+
+                    $this->response->addHeader('Content-Type: application/json');
+                            $this->response->setOutput(json_encode($version, JSON_PRETTY_PRINT));
+                    return;
+            
+                    break;
+
             }
         } else {
             $this->response->addHeader('Content-Type: application/json');
