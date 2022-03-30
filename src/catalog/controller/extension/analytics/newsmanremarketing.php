@@ -283,7 +283,7 @@ $(document).ready(function(){
 					$this->load->model('catalog/product');
 					$this->load->model('catalog/category');
 
-					$prod = (!empty($this->session->data['ga_orderDetails'])) ? $this->session->data['ga_orderDetails'] : array();
+					$prod = $this->session->data['ga_orderDetails'];
 
 					$tag .= "";
 
@@ -346,7 +346,7 @@ TAG;
 				$f = $orderDetails["firstname"];
 				$l = $orderDetails["lastname"];
 				
-				$order_id = $orderDetails["order_id"];
+				$order_id = (!empty($orderDetails["order_id"])) ? $orderDetails["order_id"] : null;
 				$order_totals = $this->model_checkout_order->getOrderTotals($order_id);
 				// $this->log->write(print_r($order_totals, TRUE));
 
@@ -368,13 +368,18 @@ TAG;
 						"} );";
 				}
 
-				$ob_order = [
-					"id" => $order_id,
-					"affiliation" => $orderDetails["store_name"],
-					"value" => $orderDetails["total"],
-					"tax" => $this->getTax($order_totals),
-					"shipping" => $this->getShipping($order_totals)
-				];
+				$ob_order = [];
+
+				if(!empty($order_id))
+				{
+					$ob_order = [
+						"id" => $order_id,
+						"affiliation" => $orderDetails["store_name"],
+						"value" => $orderDetails["total"],
+						"tax" => $this->getTax($order_totals),
+						"shipping" => $this->getShipping($order_totals)
+					];
+				}
 
 				$purchase_event = json_encode($ob_order);
 			}
