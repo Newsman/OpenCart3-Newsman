@@ -283,7 +283,7 @@ $(document).ready(function(){
 					$this->load->model('catalog/product');
 					$this->load->model('catalog/category');
 
-					$prod = $this->session->data['ga_orderDetails'];
+					$prod = (!empty($this->session->data['ga_orderDetails'])) ? $this->session->data['ga_orderDetails'] : array();
 
 					$tag .= "";
 
