@@ -60,6 +60,10 @@ class ControllerExtensionmoduleNewsman extends Controller
             echo "Cron successfully executed";
 
         }
+        elseif(!empty($_GET["newsman"]) && $_GET["newsman"] == "getCart.json")
+        {
+            $this->getCart();
+        }
         else {
             $allowAPI = $setting["newsmanallowAPI"];
             if(empty($allowAPI) || $allowAPI != "on")
@@ -73,6 +77,26 @@ class ControllerExtensionmoduleNewsman extends Controller
         }
 
         return $this->load->view('extension/module/newsman', $data);
+    }
+
+    public function getCart(){
+        $prod = array();
+        $cart = $this->cart->getProducts();
+        
+        foreach ( $cart as $cart_item_key => $cart_item ) {
+
+            $prod[] = array(
+                "id" => $cart_item['product_id'],
+                "name" => $cart_item["name"],
+                "price" => $cart_item["price"],
+                "quantity" => $cart_item['quantity']
+            );
+                                    
+         }
+        
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($prod, JSON_PRETTY_PRINT));
+        return;
     }
 
     public function newsmanFetchData($_apikey)
