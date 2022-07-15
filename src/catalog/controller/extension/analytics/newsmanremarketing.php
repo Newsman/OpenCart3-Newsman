@@ -168,7 +168,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 				var firstLoad = true;
 				var bufferedXHR = false;
 				var unlockClearCart = true;
-				var ajaxurl = '/index.php?route=extension/module/newsman&newsman=getCart.json';
+				var ajaxurl = 'https://' + document.location.hostname + '/index.php?route=extension/module/newsman&newsman=getCart.json';
 				var documentComparer = '$_domain';
 				var documentUrl = document.URL;
 				var sameOrigin = (documentUrl.indexOf(documentComparer) !== -1);
@@ -206,6 +206,12 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 				
 					detectXHR();
 				}
+
+				function timestamp(min, max) {
+					min = Math.ceil(min);
+					max = Math.floor(max);
+					return Math.floor(Math.random() * (max - min + 1)) + min;
+				}
 				
 				function NewsmanAutoEvents() {
 				
@@ -216,6 +222,8 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 				
 					if (bufferedXHR || firstLoad) {
 				
+						ajaxurl += "?t=" + Date.now();
+
 						xhr.open('GET', ajaxurl, true);
 				
 						startTimePassed();
@@ -361,7 +369,16 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 				
 						}, 1);
 				
+						try{
 						return proxied.apply(this, [].slice.call(arguments));
+						}
+						catch (error){
+							if (!isProd)
+							{
+								console.log('newsman remarketing: error');
+								console.log(error);
+							}
+						}
 					};
 				
 				}
@@ -603,7 +620,7 @@ TAG;
 					var firstLoad = true;
 					var bufferedXHR = false;
 					var unlockClearCart = true;
-					var ajaxurl = '/index.php?route=extension/module/newsman&newsman=getCart.json';
+					var ajaxurl = 'https://' + document.location.hostname + '/index.php?route=extension/module/newsman&newsman=getCart.json';
 					var documentComparer = '$_domain';
 					var documentUrl = document.URL;
 					var sameOrigin = (documentUrl.indexOf(documentComparer) !== -1);
@@ -651,6 +668,8 @@ TAG;
 					
 						if (bufferedXHR || firstLoad) {
 					
+							ajaxurl += "?t=" + Date.now();
+
 							xhr.open('GET', ajaxurl, true);
 					
 							startTimePassed();

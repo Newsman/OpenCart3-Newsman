@@ -60,7 +60,7 @@ class ControllerExtensionmoduleNewsman extends Controller
             echo "Cron successfully executed";
 
         }
-        elseif(!empty($_GET["newsman"]) && $_GET["newsman"] == "getCart.json")
+        elseif(!empty($_GET["newsman"]) && strpos($_GET["newsman"], 'getCart.json') !== false)
         {
             $this->getCart();
         }
@@ -93,10 +93,13 @@ class ControllerExtensionmoduleNewsman extends Controller
             );
                                     
          }
-        
-        $this->response->addHeader('Content-Type: application/json');
-        $this->response->setOutput(json_encode($prod, JSON_PRETTY_PRINT));
-        return;
+
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
+        header('Content-Type:application/json');
+        echo json_encode($prod, JSON_PRETTY_PRINT);
+        exit;
     }
 
     public function newsmanFetchData($_apikey)
@@ -580,7 +583,4 @@ class ControllerExtensionmoduleNewsman extends Controller
         return $query->rows;
     }
 
-}
-
-?>
-
+}?>
