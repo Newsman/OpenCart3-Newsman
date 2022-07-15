@@ -219,12 +219,12 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 						return;
 				
 					let xhr = new XMLHttpRequest()
-				
-					if (bufferedXHR || firstLoad) {
-				
-						ajaxurl += "?t=" + Date.now();
 
-						xhr.open('GET', ajaxurl, true);
+					if (bufferedXHR || firstLoad) {	
+						
+						var timestamp = "?t=" + Date.now();
+
+						xhr.open('GET', ajaxurl + timestamp, true);
 				
 						startTimePassed();
 				
@@ -668,9 +668,9 @@ TAG;
 					
 						if (bufferedXHR || firstLoad) {
 					
-							ajaxurl += "?t=" + Date.now();
+							var timestamp = "?t=" + Date.now();
 
-							xhr.open('GET', ajaxurl, true);
+							xhr.open('GET', ajaxurl + timestamp, true);
 					
 							startTimePassed();
 					
