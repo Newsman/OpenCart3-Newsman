@@ -222,7 +222,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 
 					if (bufferedXHR || firstLoad) {	
 						
-						var timestamp = "?t=" + Date.now();
+						var timestamp = "?t=" + Date.now() + timestamp();
 
 						xhr.open('GET', ajaxurl + timestamp, true);
 				
