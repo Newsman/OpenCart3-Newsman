@@ -621,7 +621,6 @@ TAG;
 				
 				$order_id = (!empty($orderDetails["order_id"])) ? $orderDetails["order_id"] : null;
 				$order_totals = $this->model_checkout_order->getOrderTotals($order_id);
-				// $this->log->write(print_r($order_totals, TRUE));
 
 				$ob_products = [];
 				if (isset($this->session->data['ga_orderProducts']))
@@ -648,9 +647,9 @@ TAG;
 					$ob_order = [
 						"id" => $order_id,
 						"affiliation" => $orderDetails["store_name"],
-						"value" => $orderDetails["total"],
-						"tax" => $this->getTax($order_totals),
-						"shipping" => $this->getShipping($order_totals)
+						"revenue" => $orderDetails["total"],
+						"tax" => 0,
+						"shipping" => 0
 					];
 				}
 
@@ -1035,4 +1034,6 @@ TAG;
 			return $tag;
 		}
 	}
-}?>
+}
+
+?>
