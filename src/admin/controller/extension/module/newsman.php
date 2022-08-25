@@ -13,6 +13,8 @@ class ControllerExtensionModuleNewsman extends Controller
 	public
 	function index()
 	{
+		error_reporting(0);
+
 		$this->document->addStyle('./view/stylesheet/newsman.css');
 
 		$this->editModule();
@@ -22,6 +24,9 @@ class ControllerExtensionModuleNewsman extends Controller
 	function editModule()
 	{
 		$this->load->model('setting/setting');
+
+		$msg = "Credentials are valid";
+		$error = false;
 
 		$setting = $this->model_setting_setting->getSetting('newsman');
 
@@ -53,16 +58,31 @@ class ControllerExtensionModuleNewsman extends Controller
 
 			$this->model_setting_setting->editSetting('newsman', $settings);
 
-			$_data = json_decode(file_get_contents($this->restCall), true);
+			try{
+				$_data = file_get_contents($this->restCall);
+			
+				if($_data != false)
+					$_data = json_decode($_data, true);
+				else
+					$error = true;
+			}
+			catch(Exception $e)
+			{
+				$msg = "An error occurred, credentials might not be valid.";
+				$error = true;
+			}
 
 			$data["list"] = "";
 
-			foreach ($_data as $list)
+			if(!$error)
 			{
-				$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
+				foreach ($_data as $list)
+				{
+					$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
+				}
 			}
 
-			$data["message"] = "Credentials are valid";
+			$data["message"] = $msg;
 		}
 
 		if (isset($_POST["newsmanSubmitSaveList"]))
@@ -170,7 +190,7 @@ class ControllerExtensionModuleNewsman extends Controller
 		}*/
 
 		$setting = $this->model_setting_setting->getSetting('newsman');
-		if (!empty($setting["newsmanuserid"]) && !empty($setting["newsmanapikey"]))
+		if (!empty($setting["newsmanuserid"]) && !empty($setting["newsmanapikey"]) && $error == false)
 		{
 			$this->restCall = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCall);
 			$this->restCall = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCall);
@@ -178,31 +198,47 @@ class ControllerExtensionModuleNewsman extends Controller
 			$this->restCallParams = "https://ssl.newsman.app/api/1.2/rest/{{userid}}/{{apikey}}/{{method}}{{params}}";
 			$this->restCallParams = str_replace("{{userid}}", $setting["newsmanuserid"], $this->restCallParams);
 			$this->restCallParams = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCallParams);
-			$_data = json_decode(file_get_contents($this->restCall), true);
+
+			try{
+				$_data = json_decode(file_get_contents($this->restCall), true);
+
+				if($_data != false)
+					$_data = json_decode($_data, true);
+				else
+					$error = true;
+			}
+			catch(Exception $e){
+				$msg = "An error occurred, credentials might not be valid.";
+				$error = true;
+			}
+
 			$data["list"] = "";
 			$data["segment"] = "";
 			$data["segment"] .= "<option value='1'>No segment</option>";
-			foreach ($_data as $list)
+			if(!$error)
 			{
-				if (!empty($setting["newsmanlistid"]) && $setting["newsmanlistid"] == $list["list_id"])
+				foreach ($_data as $list)
 				{
-					$data["list"] .= "<option selected value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
-					$this->restCallParams = str_replace("{{method}}", "segment.all.json", $this->restCallParams);
-					$this->restCallParams = str_replace("{{params}}", "?list_id=" . $setting["newsmanlistid"], $this->restCallParams);
-					$_data = json_decode(file_get_contents($this->restCallParams), true);
-					foreach ($_data as $segment)
+					if (!empty($setting["newsmanlistid"]) && $setting["newsmanlistid"] == $list["list_id"])
 					{
-						if (!empty($setting["newsmansegment"]) && $setting["newsmansegment"] == $segment["segment_id"])
+						$data["list"] .= "<option selected value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
+						$this->restCallParams = str_replace("{{method}}", "segment.all.json", $this->restCallParams);
+						$this->restCallParams = str_replace("{{params}}", "?list_id=" . $setting["newsmanlistid"], $this->restCallParams);
+						$_data = json_decode(file_get_contents($this->restCallParams), true);
+						foreach ($_data as $segment)
 						{
-							$data["segment"] .= "<option selected value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
-						} else
-						{
-							$data["segment"] .= "<option value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+							if (!empty($setting["newsmansegment"]) && $setting["newsmansegment"] == $segment["segment_id"])
+							{
+								$data["segment"] .= "<option selected value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+							} else
+							{
+								$data["segment"] .= "<option value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+							}
 						}
+					} else
+					{
+						$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
 					}
-				} else
-				{
-					$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
 				}
 			}
 		}
@@ -217,6 +253,11 @@ class ControllerExtensionModuleNewsman extends Controller
 		}
 
 		$data["allowAPI"] = $_allowAPI;
+
+		if($error)
+			$msg = "An error occurred, credentials might not be valid.";
+
+		$data["message"] = $msg;
 
 		$htmlOutput = $this->load->view('extension/module/newsman', $data);
 		$this->response->setOutput($htmlOutput);
