@@ -582,9 +582,9 @@ TAG;
 					<script>
  _nzm.run('ec:addImpression', {
                     'id': " . $item['product_id'] . ",
-                    'name': '" . $item['name'] . "',
+                    'name': '" .addslashes($item['name']) . "',
                     'category': '" . $oc_category['path'] . "',
-                    price: " . substr($item['price'], 1, strlen($item['price'])) . ",
+                    price: " . filter_var(substr($item['price'], 1, strlen($item['price'])), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION) . ",
                     list: 'Category Page',
                     position: '" . $pos . "'
                     });
