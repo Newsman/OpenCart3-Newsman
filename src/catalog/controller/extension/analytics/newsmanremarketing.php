@@ -584,7 +584,7 @@ TAG;
                     'id': " . $item['product_id'] . ",
                     'name': '" .addslashes($item['name']) . "',
                     'category': '" . $oc_category['path'] . "',
-                    price: " . filter_var(substr($item['price'], 1, strlen($item['price'])), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION) . ",
+                    price: " . filter_var($item['price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION) . ",
                     list: 'Category Page',
                     position: '" . $pos . "'
                     });
