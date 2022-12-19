@@ -36,3 +36,5 @@ For the automatic synchronization to work, you must setup a webcron to run this 
 
 1. Fill in your Newsman Remarketing ID and save
 ![](https://raw.githubusercontent.com/Newsman/OpenCart3-Newsman/master/assets/nr1.png)
+
+After the plugin is installed, you will also have: feed products, events (product impressions, AddToCart, purchase) automatically implemented.
