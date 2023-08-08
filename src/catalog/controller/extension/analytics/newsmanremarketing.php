@@ -579,9 +579,9 @@ TAG;
 					$ob_order = [
 						"id" => $order_id,
 						"affiliation" => $orderDetails["store_name"],
-						"value" => $orderDetails["total"],
-						"tax" => $this->getTax($order_totals),
-						"shipping" => $this->getShipping($order_totals)
+						"revenue" => $orderDetails["total"],
+						"tax" => 0,
+						"shipping" => 0
 					];
 				}
 
