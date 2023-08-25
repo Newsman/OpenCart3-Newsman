@@ -116,7 +116,7 @@ class ControllerExtensionModuleNewsman extends Controller
             
 			$csvdata = array();
 			$this->load->model('customer/customer');
-			$csvdata = $this->model_customer_customer->getCustomers();
+			$csvdata = $this->model_customer_customer->getCustomers(array("filter_newsletter" => 1));
             
 			if (empty($csvdata))
 			{

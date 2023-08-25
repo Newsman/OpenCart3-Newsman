@@ -26,7 +26,7 @@ class ControllerExtensionmoduleNewsman extends Controller
 
             $client = new Newsman_Client($setting["newsmanuserid"], $setting["newsmanapikey"]);
 
-            $csvdata = $this->getCustomers();
+            $csvdata = $this->getCustomers(array("filter_newsletter" => 1));
 
             if (empty($csvdata)) {
                 $data["message"] = PHP_EOL . "No customers in your store";
