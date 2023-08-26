@@ -1,6 +1,6 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/library/Newsman/Client.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/system/library/Newsman/Client.php");
 
 //Admin Controller
 class ControllerExtensionModuleNewsman extends Controller
@@ -59,7 +59,7 @@ class ControllerExtensionModuleNewsman extends Controller
 			$this->model_setting_setting->editSetting('newsman', $settings);
 
 			try{
-				$_data = file_get_contents($this->restCall);
+				$_data = $this->curlGet($this->restCall);
 			
 				if($_data != false)
 					$_data = json_decode($_data, true);
@@ -174,7 +174,7 @@ class ControllerExtensionModuleNewsman extends Controller
 			$this->restCallParams = str_replace("{{apikey}}", $setting["newsmanapikey"], $this->restCallParams);
 
             try{
-                $_data = file_get_contents($this->restCall);
+                $_data = $this->curlGet($this->restCall);
             
                 if($_data != false)
                     $_data = json_decode($_data, true);
@@ -200,7 +200,7 @@ class ControllerExtensionModuleNewsman extends Controller
 						$this->restCallParams = str_replace("{{method}}", "segment.all.json", $this->restCallParams);
 						$this->restCallParams = str_replace("{{params}}", "?list_id=" . $setting["newsmanlistid"], $this->restCallParams);
                         
-						$_data = json_decode(file_get_contents($this->restCallParams), true);
+						$_data = json_decode($this->curlGet($this->restCallParams), true);
                         
 						foreach ($_data as $segment)
 						{
@@ -289,6 +289,21 @@ class ControllerExtensionModuleNewsman extends Controller
 	{
 		$this->load->model('setting/setting');
 		$this->model_setting_setting->deleteSetting('newsman');
+	}
+
+	function curlGet($url) {
+		$ch = curl_init();
+	
+		curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);       
+	
+		$data = curl_exec($ch);
+		curl_close($ch);
+	
+		return $data;
 	}
 }
 

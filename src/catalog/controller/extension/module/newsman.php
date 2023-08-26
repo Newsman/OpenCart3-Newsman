@@ -1,7 +1,7 @@
 <?php
 //Catalog Controller
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/library/Newsman/Client.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/system/library/Newsman/Client.php");
 
 class ControllerExtensionmoduleNewsman extends Controller
 {
