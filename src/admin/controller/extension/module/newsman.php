@@ -279,13 +279,16 @@ class ControllerExtensionModuleNewsman extends Controller
 		$data = array();
 	}
 
-	protected function install()
+	public function install()
 	{
 		$this->load->model('setting/setting');
-		$this->model_setting_setting->editSetting('newsman', ['newsman_status' => 1]);
+
+		$setting['module_newsman_status'] = 1;
+
+		$this->model_setting_setting->editSetting('module_newsman', $setting);
 	}
 
-	protected function uninstall()
+	public function uninstall()
 	{
 		$this->load->model('setting/setting');
 		$this->model_setting_setting->deleteSetting('newsman');
