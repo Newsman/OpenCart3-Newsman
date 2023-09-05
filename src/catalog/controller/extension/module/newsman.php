@@ -106,8 +106,12 @@ class ControllerExtensionmoduleNewsman extends Controller
     {
         $apikey = (empty($_GET["apikey"])) ? "" : $_GET["apikey"];
         $newsman = (empty($_GET["newsman"])) ? "" : $_GET["newsman"];
+        $productId = (empty($_GET["product_id"])) ? "" : $_GET["product_id"];
         $start = (!empty($_GET["start"]) && $_GET["start"] >= 0) ? $_GET["start"] : "";
         $limit = (empty($_GET["limit"])) ? "" : $_GET["limit"];
+        $height = (empty($_GET["height"])) ? "" : $_GET["height"];
+        $heightLast = (empty($_GET["heightlast"])) ? "" : $_GET["heightlast"];
+        $extension = (empty($_GET["extension"])) ? "" : $_GET["extension"];
         $startLimit = array();
 
         if (!empty($newsman) && !empty($apikey)) {
@@ -230,8 +234,19 @@ class ControllerExtensionmoduleNewsman extends Controller
                         {
                             $image = explode(".", $prod["image"]);
                             $image = $image[1];  
-                            $image = str_replace("." . $image, "-500x500" . '.' . $image, $prod["image"]);    
-                            $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                                
+                            if(empty($height))
+                               $height = "500x500"; 
+
+                            $image = str_replace("." . $image, "-" . $height . '.' . $image, $prod["image"]);    
+                            $lastExt = explode(".", $prod["image"]);
+                            $lastExtIndex = count($lastExt) - 1;
+                            $lastExt = $lastExt[$lastExtIndex];
+                            if(!empty($heightLast))
+                                $image = str_replace("." . $lastExt, "-" . $height . '.' . $lastExt, $prod["image"]);    
+
+                            $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                  
+                            if(!empty($extension))
+                                $image .= "." . $extension;              
                         }
 
                         $productsJson[] = array(
