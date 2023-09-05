@@ -14,7 +14,9 @@ class ControllerExtensionModuleNewsman extends Controller
 	function index()
 	{
 		error_reporting(0);
-
+		ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
 		$this->document->addStyle('./view/stylesheet/newsman.css');
 
 		$this->editModule();
@@ -25,18 +27,16 @@ class ControllerExtensionModuleNewsman extends Controller
 	{
 		$this->load->model('setting/setting');
 
-		$msg = "Credentials are valid";
+		$data = array();
+		$data["message"] = "Credentials are valid";
 		$error = false;
 
 		$setting = $this->model_setting_setting->getSetting('newsman');
-
-		$data = array();
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 		$data["button_save"] = "Save / Import";
-		$data["message"] = "";
 
 		if (isset($_POST["newsmanSubmit"]))
 		{
@@ -68,7 +68,7 @@ class ControllerExtensionModuleNewsman extends Controller
 			}
 			catch(Exception $e)
 			{
-				$msg = "An error occurred, credentials might not be valid.";
+				$data["message"] .= PHP_EOL . "An error occurred, credentials might not be valid.";
 				$error = true;
 			}
 
@@ -81,8 +81,6 @@ class ControllerExtensionModuleNewsman extends Controller
 					$data["list"] .= "<option value='" . $list["list_id"] . "'>" . $list["list_name"] . "</option>";
 				}
 			}
-
-			$data["message"] = $msg;
 		}
 
 		if (isset($_POST["newsmanSubmitSaveList"]))
@@ -92,7 +90,7 @@ class ControllerExtensionModuleNewsman extends Controller
 
 			$this->model_setting_setting->editSetting('newsman', $settings);
 
-			$data["message"] = "List is saved";
+			$data["message"] .= PHP_EOL . "List is saved";
 		}
 
 		if (isset($_POST["newsmanSubmitSaveSegment"]))
@@ -102,7 +100,7 @@ class ControllerExtensionModuleNewsman extends Controller
 
 			$this->model_setting_setting->editSetting('newsman', $settings);
 
-			$data["message"] = "Segment is saved";
+			$data["message"] .= PHP_EOL . "Segment is saved";
 		}
 
 		//List Import
@@ -120,9 +118,7 @@ class ControllerExtensionModuleNewsman extends Controller
             
 			if (empty($csvdata))
 			{
-				$data["message"] .= PHP_EOL . "No customers in your store";
-				$this->SetOutput($data);
-				return;
+				$data["message"] .= "\nNo customers in your store";
 			}
 
 			//Import
@@ -182,7 +178,7 @@ class ControllerExtensionModuleNewsman extends Controller
                     $error = true;
             }
 			catch(Exception $e){
-				$msg = "An error occurred, credentials might not be valid.";
+				$data["message"] .= PHP_EOL . "An error occurred, credentials might not be valid.";
 				$error = true;
 			}
 
@@ -232,9 +228,8 @@ class ControllerExtensionModuleNewsman extends Controller
 		$data["allowAPI"] = $_allowAPI;
 
 		if($error)
-			$msg = "An error occurred, credentials might not be valid.";
+			$data["message"] .= PHP_EOL . "An error occurred, credentials might not be valid.";
 
-		$data["message"] = $msg;
         
 		$htmlOutput = $this->load->view('extension/module/newsman', $data);
 		$this->response->setOutput($htmlOutput);
