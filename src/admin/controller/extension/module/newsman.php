@@ -197,15 +197,18 @@ class ControllerExtensionModuleNewsman extends Controller
 						$this->restCallParams = str_replace("{{params}}", "?list_id=" . $setting["newsmanlistid"], $this->restCallParams);
                         
 						$_data = json_decode($this->curlGet($this->restCallParams), true);
-                        
+
 						foreach ($_data as $segment)
 						{
-							if (!empty($setting["newsmansegment"]) && $setting["newsmansegment"] == $segment["segment_id"])
+							$segmentId = isset($segment["segment_id"]) ? $segment["segment_id"] : "1";
+							$segmentName = isset($segment["segment_name"]) ? $segment["segment_name"] : "";
+
+							if (array_key_exists("newsmansegment", $setting) && isset($setting["newsmansegment"]) && isset($segment["segment_id"]) && $setting["newsmansegment"] == $segment["segment_id"])
 							{
-								$data["segment"] .= "<option selected value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+								$data["segment"] .= "<option selected value='" . $segmentId . "'>" . $segmentName . "</option>";
 							} else
 							{
-								$data["segment"] .= "<option value='" . $segment["segment_id"] . "'>" . $segment["segment_name"] . "</option>";
+								$data["segment"] .= "<option value='" . $segmentId . "'>" . $segmentName . "</option>";
 							}
 						}
 					} else
