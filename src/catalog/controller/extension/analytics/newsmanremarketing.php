@@ -7,10 +7,6 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 		$path = '';
 		$category = $this->model_catalog_category->getCategory($category_id);
 
-		if(!array_key_exists('name', $category)){
-			return '';
-		}
-		
 		if ($category['parent_id'] != 0)
 		{
 			$path .= $this->getCategoryPath($category['parent_id']) . ' / ';
@@ -491,7 +487,10 @@ TAG;
 					$this->load->model('catalog/product');
 					$this->load->model('catalog/category');
 
-					$prod = (!empty($this->session->data['ga_orderDetails'])) ? $this->session->data['ga_orderDetails'] : array();
+					//Obsolete
+					/*$prod = (!empty($this->session->data['ga_orderDetails'])) ? $this->session->data['ga_orderDetails'] : array();*/
+
+					$prod = array();
 
 					$tag .= "";
 
