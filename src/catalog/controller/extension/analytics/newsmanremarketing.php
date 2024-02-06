@@ -126,42 +126,59 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 			$tag .= <<<TAG
 				<script>
 
+				//Newsman remarketing tracking code REPLACEABLE
+
+				var remarketingid = '$tracking_id';
+				var _nzmPluginInfo = '1.3:opencart3';
+						
+				//Newsman remarketing tracking code REPLACEABLE
+
 				//Newsman remarketing tracking code  
 
-				var endpoint = 'https://retargeting.newsmanapp.com';
-				var remarketingEndpoint = endpoint + '/js/retargeting/track.js';
-				var remarketingid = '$tracking_id';
-				var ajaxurl = '/index.php?route=extension/module/newsman&newsman=getCart.json';
-				
-				var _nzmPluginInfo = '1.2:opencart3';
-				var _nzm = _nzm || [];
-				var _nzm_config = _nzm_config || [];
-				_nzm_config['disable_datalayer'] = 1;
-				_nzm_tracking_server = endpoint;
-				(function() {
-					var a, methods, i;
-					a = function(f) {
-						return function() {
-							_nzm.push([f].concat(Array.prototype.slice.call(arguments, 0)));
-						}
-					};
-					methods = ['identify', 'track', 'run'];
-					for (i = 0; i < methods.length; i++) {
-						_nzm[methods[i]] = a(methods[i])
-					};
-					s = document.getElementsByTagName('script')[0];
-					var script_dom = document.createElement('script');
-					script_dom.async = true;
-					script_dom.id = 'nzm-tracker';
-					script_dom.setAttribute('data-site-id', remarketingid);
-					script_dom.src = remarketingEndpoint;
-					s.parentNode.insertBefore(script_dom, s);
-				})();
-				_nzm.run('require', 'ec');
-				
-				//Newsman remarketing tracking code     
-				
-				//Newsman remarketing auto events
+var endpoint = 'https://retargeting.newsmanapp.com';
+var remarketingEndpoint = endpoint + '/js/retargeting/track.js';
+
+var _nzm = _nzm || [];
+var _nzm_config = _nzm_config || [];
+_nzm_config['disable_datalayer'] = 1;
+_nzm_tracking_server = endpoint;
+(function() {
+    var a, methods, i;
+    a = function(f) {
+        return function() {
+            _nzm.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+        }
+    };
+    methods = ['identify', 'track', 'run'];
+    for (i = 0; i < methods.length; i++) {
+        _nzm[methods[i]] = a(methods[i])
+    };
+    s = document.getElementsByTagName('script')[0];
+    var script_dom = document.createElement('script');
+    script_dom.async = true;
+    script_dom.id = 'nzm-tracker';
+    script_dom.setAttribute('data-site-id', remarketingid);
+    script_dom.src = remarketingEndpoint;
+
+    if (_nzmPluginInfo.indexOf('shopify') !== -1) {
+        script_dom.onload = function(){
+            if (typeof newsmanRemarketingLoad === 'function')
+                newsmanRemarketingLoad();
+        }
+    }
+    s.parentNode.insertBefore(script_dom, s);
+})();
+_nzm.run('require', 'ec');
+
+//Newsman remarketing tracking code      
+
+//Newsman remarketing auto events REPLACEABLE
+
+var ajaxurl = '/index.php?route=extension/module/newsman&newsman=getCart.json';
+
+//Newsman remarketing auto events REPLACEABLE
+
+//Newsman remarketing auto events
 
 		var isProd = true;
 		let lastCart = sessionStorage.getItem('lastCart');
@@ -369,7 +386,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 					}
 					var msClickPassed = new Date();
 					var timeDiff = msClickPassed.getTime() - msClick.getTime();
-					if (timeDiff > 1000) {
+					if (timeDiff > 5000) {
 						validate = false;
 					} else {
 						timeValidate = true;
