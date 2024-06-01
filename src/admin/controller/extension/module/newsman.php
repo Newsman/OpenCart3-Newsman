@@ -337,7 +337,7 @@ class ControllerExtensionModuleNewsman extends Controller
 				$remarketingId = $ret["site_id"] . "-" . $ret["list_id"] . "-" . $ret["form_id"] . "-" . $ret["control_list_hash"];
 
 				//set feed
-				$url = "https://" . $_SERVER['SERVER_NAME'] . "/index.php?route=extension/module/newsman&newsman=products.json&apikey=" . $creds["newsman_apikey"];		
+				$url = "https://" . $_SERVER['SERVER_NAME'] . "/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=" . $creds["newsman_apikey"];		
 
 				try{
 					$ret = $client->feeds->setFeedOnList($_POST["newsman_list"], $url, $_SERVER['SERVER_NAME'], "NewsMAN");	
