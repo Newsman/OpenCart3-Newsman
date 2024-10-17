@@ -65,13 +65,11 @@ class ControllerExtensionmoduleNewsman extends Controller
             $this->getCart();
         }
         else {
-            $allowAPI = $setting["newsmanallowAPI"];
-            if(empty($allowAPI) || $allowAPI != "on")
-            {
-                $this->response->addHeader('Content-Type: application/json');
-                $this->response->setOutput(json_encode("403"));           
-                return;
-            }
+	if (!isset($setting["newsmanallowAPI"]) || $setting["newsmanallowAPI"] != "on") {
+	    $this->response->addHeader('Content-Type: application/json');
+	    $this->response->setOutput(json_encode("403"));           
+	    return;
+	}
 
             $this->newsmanFetchData($setting["newsmanapikey"]);
         }
