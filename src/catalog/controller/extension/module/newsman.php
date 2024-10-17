@@ -48,11 +48,11 @@ class ControllerExtensionmoduleNewsman extends Controller
                     "lastname" => $item["lastname"]
                 );
                 if ((count($customers_to_import) % $batchSize) == 0) {
-                    $this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
+                    $this->_importData($customers_to_import, $setting["newsmanlistid"], $client, $segments);
                 }
             }
             if (count($customers_to_import) > 0) {
-               $this->_importData($customers_to_import, $setting["newsmanlistid"], $segments, $client);
+               $this->_importData($customers_to_import, $setting["newsmanlistid"], $client, $segments);
             }
 
             unset($customers_to_import);
@@ -573,7 +573,7 @@ class ControllerExtensionmoduleNewsman extends Controller
         return $query->rows;
     }
 
-    public function _importDatas(&$data, $list, $segments = null, $client)
+    public function _importDatas(&$data, $list, $client, $segments = null)
     {
         $csv = '"email","firstname","lastname","source"' . PHP_EOL;
 
@@ -608,7 +608,7 @@ class ControllerExtensionmoduleNewsman extends Controller
         return '"' . str_replace('"', '""', $str) . '"';
     }
 
-    public function _importData(&$data, $list, $segments = null, $client)
+    public function _importData(&$data, $list, $client, $segments = null)
     {
         $csv = '"email","firstname","lastname","source"' . PHP_EOL;
 
