@@ -451,6 +451,7 @@ TAG;
 						}
 					}
 
+	       if ($oc_product && is_array($oc_product)) {
 					$tag .= "
 					<script>
  					_nzm.run('ec:addProduct', {
@@ -462,6 +463,7 @@ TAG;
 
                  </script>
                  ";
+		}
 					break;
 
 				case "checkout/cart":
