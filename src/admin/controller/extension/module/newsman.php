@@ -127,9 +127,8 @@ class ControllerExtensionModuleNewsman extends Controller
 			$batchSize = 9999;
 			$customers_to_import = array();
 			$segments = null;
-			if ($setting["newsmansegment"] != "1" && $setting["newsmansegment"] != null)
-			{
-				$segments = array($setting["newsmansegment"]);
+			if (isset($setting["newsmansegment"]) && $setting["newsmansegment"] != "1" && $setting["newsmansegment"] != null) {
+			    $segments = array($setting["newsmansegment"]);
 			}
 
 			foreach ($csvdata as $item)
