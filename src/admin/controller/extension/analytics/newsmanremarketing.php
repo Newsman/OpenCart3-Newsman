@@ -30,9 +30,11 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 			'href' => $this->url->link($this->location['module'], $this->names['token'] . '=' . $this->session->data[$this->names['token']], true)
 		);
 
+		$store_id = isset($this->request->get['store_id']) ? $this->request->get['store_id'] : null;
+
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->request->get['store_id'], true)
+			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $store_id, true)
 		);
 		return $breadcrumbs;
 	}
@@ -43,12 +45,14 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 		$this->load->model('setting/setting');
 		$this->document->setTitle($this->language->get('heading_title'));
 
+		$store_id = isset($this->request->get['store_id']) ? $this->request->get['store_id'] : null;
+
 		// Initialize $data with values from the settings
 		$data = [
 			$this->names['setting'] . '_status' =>
-				$this->model_setting_setting->getSettingValue($this->names['setting'] . '_status', $this->request->get['store_id']),
+				$this->model_setting_setting->getSettingValue($this->names['setting'] . '_status', $store_id),
 			$this->names['setting'] . '_trackingid' =>
-				$this->model_setting_setting->getSettingValue($this->names['setting'] . '_trackingid', $this->request->get['store_id'])
+				$this->model_setting_setting->getSettingValue($this->names['setting'] . '_trackingid', $store_id)
 		];
 
 		// If form is submitted
@@ -80,7 +84,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 		$data['breadcrumbs'] = $this->breadcrumbs();
 
 		// form
-		$data[$this->names['action']] = $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->request->get['store_id'], true);
+		$data[$this->names['action']] = $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $store_id, true);
 		$data['cancel'] = $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true);
 
 		// check if form submitted. Load settings posted if we reached this point.
