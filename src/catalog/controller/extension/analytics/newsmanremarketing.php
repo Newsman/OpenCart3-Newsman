@@ -452,17 +452,18 @@ TAG;
 					}
 
 	       if ($oc_product && is_array($oc_product)) {
-					$tag .= "
-					<script>
- 					_nzm.run('ec:addProduct', {
-                    'id': " . $oc_product['product_id'] . ",
-                    'name': '" . $oc_product['name'] . "',
-                    'category': '" . $oc_category['path'] . "',
-                    price: " . $oc_product['price'] . ",
-                    list: 'Product Page'});_nzm.run('ec:setAction', 'detail');
-
-                 </script>
-                 ";
+			$tag .= "
+			<script>
+			_nzm.run('ec:addProduct', {
+			    'id': " . $oc_product['product_id'] . ",
+			    'name': '" . $oc_product['name'] . "',
+			    'category': '" . (isset($oc_category['path']) ? $oc_category['path'] : 'Unknown Category') . "',
+			    price: " . $oc_product['price'] . ",
+			    list: 'Product Page'
+			});
+			_nzm.run('ec:setAction', 'detail');
+			</script>
+			";
 		}
 					break;
 
