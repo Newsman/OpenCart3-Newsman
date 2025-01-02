@@ -455,11 +455,11 @@ TAG;
 			$tag .= "
 			<script>
 			_nzm.run('ec:addProduct', {
-			    'id': " . $oc_product['product_id'] . ",
-			    'name': '" . $oc_product['name'] . "',
-			    'category': '" . (isset($oc_category['path']) ? $oc_category['path'] : 'Unknown Category') . "',
-			    price: " . $oc_product['price'] . ",
-			    list: 'Product Page'
+			    'id': '" . (isset($oc_product['product_id']) ? $oc_product['product_id'] : '') . "',
+			    'name': '" . (isset($oc_product['name']) ? $oc_product['name'] : '') . "',
+			    'category': '" . (isset($oc_category['path']) ? $oc_category['path'] : '') . "',
+			    'price': '" . (isset($oc_product['price']) ? $oc_product['price'] : '') . "',
+			    'list': '" . (isset($list) ? $list : 'Product Page') . "'
 			});
 			_nzm.run('ec:setAction', 'detail');
 			</script>
