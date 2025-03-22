@@ -82,7 +82,7 @@ class ControllerExtensionmoduleNewsman extends Controller
     public function getCart(){
         $prod = array();
         $cart = $this->cart->getProducts();
-        file_put_contents('/home/biosanat/cart_debug.log', json_encode($cart, JSON_PRETTY_PRINT));
+        //file_put_contents('/home/biosanat/cart_debug.log', json_encode($cart, JSON_PRETTY_PRINT));
         
         foreach ( $cart as $cart_item_key => $cart_item ) {
 
