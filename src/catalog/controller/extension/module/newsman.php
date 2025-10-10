@@ -67,7 +67,7 @@ class ControllerExtensionmoduleNewsman extends Controller
         else {
 	if (!isset($setting["newsmanallowAPI"]) || $setting["newsmanallowAPI"] != "on") {
 	    $this->response->addHeader('Content-Type: application/json');
-	    $this->response->setOutput(json_encode("403"));           
+	    $this->response->setOutput(json_encode("403"));
 	    return;
 	}
 
@@ -80,7 +80,7 @@ class ControllerExtensionmoduleNewsman extends Controller
     public function getCart(){
         $prod = array();
         $cart = $this->cart->getProducts();
-        
+
         foreach ( $cart as $cart_item_key => $cart_item ) {
 
             $prod[] = array(
@@ -89,7 +89,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                 "price" => $cart_item["price"],
                 "quantity" => $cart_item['quantity']
             );
-                                    
+
          }
 
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -100,6 +100,30 @@ class ControllerExtensionmoduleNewsman extends Controller
         exit;
     }
 
+    public function eventAddOrderHistory($route,$data) {
+
+        $this->load->model('setting/setting');
+
+        $setting = $this->model_setting_setting->getSetting('newsman');
+
+        if(empty($setting["newsmanuserid"]) || empty($setting["newsmanlistid"]))
+            return;
+
+        $userId = $setting["newsmanuserid"];
+        $apiKey = $setting["newsmanapikey"];
+        $list = $setting["newsmanlistid"];
+
+        $status = $this->getOrderStatus($data[1]);
+
+        $url = "https://ssl.newsman.app/api/1.2/rest/" . $userId . "/" . $apiKey . "/remarketing.setPurchaseStatus.json?list_id=" . $list . "&order_id=" . $data[0] . "&status=" . $status;
+
+        $cURLConnection = curl_init();
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+        $ret = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+    }
     public function newsmanFetchData($_apikey)
     {
         $apikey = (empty($_GET["nzmhash"])) ? "" : $_GET["nzmhash"];
@@ -110,12 +134,12 @@ class ControllerExtensionmoduleNewsman extends Controller
         if(empty($apikey))
         {
             $apikey = empty($_POST['nzmhash']) ? '' : $_POST['nzmhash'];
-        }	    
+        }
         $newsman = (empty($_GET["newsman"])) ? "" : $_GET["newsman"];
         if(empty($newsman))
         {
             $newsman = empty($_POST['newsman']) ? '' : $_POST['newsman'];
-        }	    
+        }
         $productId = (empty($_GET["product_id"])) ? "" : $_GET["product_id"];
         $start = (!empty($_GET["start"]) && $_GET["start"] >= 0) ? $_GET["start"] : "";
         $limit = (empty($_GET["limit"])) ? "" : $_GET["limit"];
@@ -147,15 +171,15 @@ class ControllerExtensionmoduleNewsman extends Controller
                     $this->load->model('catalog/product');
                     $this->load->model('checkout/order');
 
-                    $orders = $this->getOrders(array("start" => $start, "limit" => $limit));                    
-                    
+                    $orders = $this->getOrders(array("start" => $start, "limit" => $limit));
+
                     if(!empty($orderId))
                     {
-                        $orders = $this->model_checkout_order->getOrder($orderId);                        
+                        $orders = $this->model_checkout_order->getOrder($orderId);
                         $orders = array(
                             $orders
                         );
-                    }                    
+                    }
 
                     foreach ($orders as $item) {
 
@@ -163,7 +187,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                         $productsJson = array();
 
                         foreach ($products as $prodOrder) {
-                            
+
                             $prod = $this->model_catalog_product->getProduct($prodOrder["product_id"]);
 
                             $image = "";
@@ -171,9 +195,9 @@ class ControllerExtensionmoduleNewsman extends Controller
                             if(!empty($prod["image"]))
                             {
                                 $image = explode(".", $prod["image"]);
-                                $image = $image[1];  
-                                $image = str_replace("." . $image, "-500x500" . '.' . $image, $prod["image"]);    
-                                $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                                
+                                $image = $image[1];
+                                $image = str_replace("." . $image, "-500x500" . '.' . $image, $prod["image"]);
+                                $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;
                             }
 
                             $productsJson[] = array(
@@ -242,20 +266,20 @@ class ControllerExtensionmoduleNewsman extends Controller
                         if(!empty($prod["image"]))
                         {
                             $image = explode(".", $prod["image"]);
-                            $image = $image[1];  
+                            $image = $image[1];
                             if(empty($height))
-                               $height = "500x500"; 
+                               $height = "500x500";
 
-                            $image = str_replace("." . $image, "-" . $height . '.' . $image, $prod["image"]);    
+                            $image = str_replace("." . $image, "-" . $height . '.' . $image, $prod["image"]);
                             $lastExt = explode(".", $prod["image"]);
                             $lastExtIndex = count($lastExt) - 1;
                             $lastExt = $lastExt[$lastExtIndex];
                             if(!empty($heightLast))
-                                $image = str_replace("." . $lastExt, "-" . $height . '.' . $lastExt, $prod["image"]);    
+                                $image = str_replace("." . $lastExt, "-" . $height . '.' . $lastExt, $prod["image"]);
 
-                            $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;                  
+                            $image = 'https://' . $_SERVER['SERVER_NAME'] . '/image/cache/' . $image;
                             if(!empty($extension))
-                                $image .= "." . $extension;              
+                                $image .= "." . $extension;
                         }
 
                         $productsJson[] = array(
@@ -311,7 +335,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                             "filter_newsletter" => 1
                         );
                     }
-            
+
                     $wp_subscribers = $this->getCustomers($startLimit);
                     $subs = array();
 
@@ -336,7 +360,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                     $this->response->addHeader('Content-Type: application/json');
                             $this->response->setOutput(json_encode($version, JSON_PRETTY_PRINT));
                     return;
-            
+
                     break;
 
                 case "coupons.json":
@@ -353,32 +377,32 @@ class ControllerExtensionmoduleNewsman extends Controller
 			if(empty($discountType))
 			{
 			    $discountType = empty($_POST['type']) ? '' : $_POST['type'];
-			}			    
+			}
 			if(empty($value))
 			{
 			    $value = empty($_POST['value']) ? '' : $_POST['value'];
-			}			    
+			}
 			if(empty($batch_size))
 			{
 			    $batch_size = empty($_POST['batch_size']) ? '' : $_POST['batch_size'];
-			}			    
+			}
 			if(empty($prefix))
 			{
 			    $prefix = empty($_POST['prefix']) ? '' : $_POST['prefix'];
-			}			    
+			}
 			if(empty($expire_date))
 			{
 			    $expire_date = empty($_POST['expire_date']) ? '' : $_POST['expire_date'];
-			}			    
+			}
 			if(empty($min_amount))
 			{
 			    $min_amount = empty($_POST['min_amount']) ? '' : $_POST['min_amount'];
-			}			    
+			}
 			if(empty($currency))
 			{
 			    $currency = empty($_POST['currency']) ? '' : $_POST['currency'];
-			}			    
-                    
+			}
+
                         if ($discountType == -1) {
                             $this->response->setOutput(json_encode(array(
                                 "status" => 0,
@@ -393,13 +417,13 @@ class ControllerExtensionmoduleNewsman extends Controller
                             )));
                             return;
                         }
-                    
+
                         $couponsList = array();
-                    
+
                         for ($int = 0; $int < $batch_size; $int++) {
                             $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                             $coupon_code = '';
-                    
+
                             do {
                                 $coupon_code = '';
                                 for ($i = 0; $i < 8; $i++) {
@@ -408,7 +432,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                                 $full_coupon_code = $prefix . $coupon_code;
                                 $existing_coupon = $this->db->query("SELECT coupon_id FROM " . DB_PREFIX . "coupon WHERE code = '" . $this->db->escape($full_coupon_code) . "'");
                             } while ($existing_coupon->num_rows > 0);
-                    
+
                             $coupon_data = array(
                                 'name' => 'Generated Coupon ' . $full_coupon_code,
                                 'code' => $full_coupon_code,
@@ -423,7 +447,7 @@ class ControllerExtensionmoduleNewsman extends Controller
                                 'uses_customer' => 1,
                                 'status' => 1
                             );
-                    
+
                             $this->db->query("INSERT INTO " . DB_PREFIX . "coupon SET " .
                                 "name = '" . $this->db->escape($coupon_data['name']) . "', " .
                                 "code = '" . $this->db->escape($coupon_data['code']) . "', " .
@@ -437,10 +461,10 @@ class ControllerExtensionmoduleNewsman extends Controller
                                 "uses_total = '" . (int)$coupon_data['uses_total'] . "', " .
                                 "uses_customer = '" . (int)$coupon_data['uses_customer'] . "', " .
                                 "status = '" . (int)$coupon_data['status'] . "'");
-                    
+
                             $couponsList[] = $full_coupon_code;
                         }
-                    
+
                         $this->response->setOutput(json_encode(array(
                             "status" => 1,
                             "codes" => $couponsList
@@ -450,8 +474,8 @@ class ControllerExtensionmoduleNewsman extends Controller
                             "status" => 0,
                             "msg" => $exception->getMessage()
                         )));
-                    }                    
-                    
+                    }
+
                     break;
 
             }
