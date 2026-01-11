@@ -1,0 +1,79 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div id="alerts">
+            {% if success %}
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><span aria-hidden="true"><i class="fa fa-close"></i></span></button>
+                    <i class="fa fa-check-circle" aria-hidden="true"></i>&nbsp;{{ success }}
+                </div>
+            {% endif %}
+            {% if error %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><span aria-hidden="true"><i class="fa fa-close"></i></span></button>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;{{ error }}
+                </div>
+            {% endif %}
+            {% if warning %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><i class="fa fa-close"></i></button>
+                    <i class="fa fa-info-circle"></i>&nbsp;{{ warning }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <table class="form-table">
+            <tr>
+                <td>
+                    <p class="description"><b>{{ text_step1_connect }}</b></p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="description">- {{ text_step1_sync }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="description">- {{ text_step1_remarketing }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="description">- {{ text_step1_forms }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="description">- {{ text_step1_popups }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="description">- {{ text_step1_automation }}</p>
+                </td>
+            </tr>
+        </table>
+        <div style="padding-top: 5px;">
+            <a style="background: #ad0100" href="{{ oauth_url }}"
+               class="button button-primary btn btn-primary">{{ button_login }}</a>
+            {% if newsman_api_key is not empty and newsman_user_id is not empty %}
+                <a style="margin-left: 20px;" href="{{ back }}" class="btn btn-default">{{ button_cancel }}</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{{ footer }}

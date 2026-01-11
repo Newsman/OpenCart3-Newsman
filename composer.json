@@ -1,0 +1,35 @@
+{
+	"name": "newsman/opencart3-extension",
+	"description": "Newsman extension for OpenCart 3.",
+	"license": "Apache-2.0",
+	"type": "opencart-plugin",
+	"authors": [
+		{
+			"name": "Newsman",
+			"homepage": "https://www.newsman.ro/"
+		}
+	],
+	"homepage": "https://www.newsman.ro/",
+	"support": {
+		"issues": "https://github.com/Newsman/OpenCart3-Newsman/issues",
+		"wiki": "https://kb.newsman.ro/api/",
+		"docs": "https://github.com/Newsman/OpenCart3-Newsman/blob/master/README.md",
+		"source": "https://github.com/Newsman/OpenCart3-Newsman",
+		"chat": "https://www.newsman.ro/",
+		"email": "info@newsman.ro"
+	},
+	"keywords": [
+		"newsman",
+		"opencart",
+		"opencart3",
+		"newsletter",
+		"search",
+		"remarketing",
+		"marketing",
+		"email",
+		"subscriber"
+	],
+	"require": {
+		"php": ">=5.3.0"
+	}
+}

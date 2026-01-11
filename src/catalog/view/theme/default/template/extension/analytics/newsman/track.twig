@@ -1,0 +1,12 @@
+<script{{ tag_attrib }}>
+{{ tracking_script_js }}
+{% if is_anonymize_ip %}
+{{ nzm_run }}('set', 'anonymizeIp', true);
+{%  endif %}
+{% if no_track_script is not empty %}
+{{ no_track_script }}
+{%  endif %}
+{% if currency_code is not empty %}
+{{ nzm_run }}('set', 'currencyCode', '{{ currency_code }}' );
+{%  endif %}
+</script>

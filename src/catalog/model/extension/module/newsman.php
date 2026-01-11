@@ -1,5 +1,5 @@
 <?php
-class ModelExtensionModuleNewsman extends Model
-{
+
+class ModelExtensionModuleNewsman extends Model {
 
 }

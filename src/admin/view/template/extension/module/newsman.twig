@@ -2,131 +2,274 @@
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
-            <h1>{{ 'Newsman' }} <p style="font-weight: bold;">{{ message|nl2br}} </p></h1>
+            <div class="pull-right">
+                <button type="submit" form="form-newsman" data-toggle="tooltip" title="{{ button_save }}"
+                        class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i
+                            class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
             <ul class="breadcrumb">
                 {% for breadcrumb in breadcrumbs %}
                     <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
                 {% endfor %}
             </ul>
+            |&nbsp;<a href="{{ url_remarketing_settings }}" title="{{ text_remarketing_settings }}">{{ text_remarketing_settings }}</a>
         </div>
     </div>
-
-{% if isOauth %}
-    <div id="contentOauth" style="margin: 20px;">
-        <!--oauth step-->
-       {% if oauthStep == 1 %}
-        <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="newsman_oauth" value="Y" />
-            <input type="hidden" name="step" value="1" />
-            <table class="form-table newsmanTable newsmanTblFixed newsmanOauth">
-                <tr>
-                    <td>
-                        <p class="description"><b>Connect your site with NewsMAN for:</b></p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="description">- Subscribers Sync</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="description">- Ecommerce Remarketing</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="description">- Create and manage forms</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="description">- Create and manage popups</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="description">- Connect your forms to automation</p>
-                    </td>
-                </tr>
-            </table>
-            <div style="padding-top: 5px;">
-                <a style="background: #ad0100" href="{{ oauthUrl }}"
-                    class="button button-primary btn btn-primary">Login with NewsMAN</a>
-            </div>
-        </form>
-        <!--List step-->
-        {% elseif oauthStep == 2 %}
-        <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="oauthstep2" value="Y" />
-            <input type="hidden" name="step" value="1" />
-            <input type="hidden" name="creds" value="{{ creds|e('html_attr') }}" />
-            <table class="form-table newsmanTable newsmanTblFixed newsmanOauth">
-                <tr>
-                    <td>
-                        <select name="newsman_list" id="">
-                            <option value="0">-- select list --</option>
-                            {% for l in dataLists %}
-                                <option value="{{ l.id }}">
-                                    {{ l.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                </tr>
-            </table>
-
-            <div style="padding-top: 5px;">
-                <button type="submit" style="background: #ad0100" class="button button-primary btn btn-primary">Save</a>
-            </div>
-        </form>
-
-    </div>
-    {% endif %}
-    {% else %}
-
-    <div class="container">
-        <div class="col-md-5">
-            <div class="form-group">
-                <form method="post" id="newsman_form">
-                    <div>
-                        <label>User Id</label>
-                        <input type="text" name="userid" placeholder="user id" value="{{ userid }}"
-                               class="form-control"/>
-                        <label>Api Key</label>
-                        <input type="text" name="apikey" placeholder="api key" value="{{ apikey }}"
-                               class="form-control"/>
-                        <label for="allowAPI">Allow API access to (Orders, Products, Customers, Subscribers)</label>
-                        <input id="allowAPI" type="checkbox" name="allowAPI" class="form-control" {{ allowAPI }}/>
-                        <input type="submit" name="newsmanSubmit" value="Save" class="btn btn-primary">
-                    </div>
-                    <div>
-                        <label>List</label>
-                        <select name="list" class="form-control">
-                            {{ list }}
-                        </select>
-                        <input type="submit" name="newsmanSubmitSaveList" value="Save List" class="btn btn-primary">
-                    </div>
-                    <div style="padding-top: 15px;">
-                        <label>Segment</label>
-                        <select name="segment" class="form-control">
-                            {{ segment }}
-                        </select>
-                        <input type="submit" name="newsmanSubmitSaveSegment" value="Save Segment" class="btn btn-primary">
-                    </div>
-                    <div>
-                        <label style="width: 100%;">(Import customers subscribed to newsletter)</label>
-                        <input type="submit" name="newsmanSubmitList" value="Import" class="btn btn-primary">
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <b>CRON:</b>
-            <p>{yoursiteurl}/index.php?route=extension/module/newsman&cron=true</p>
+    <div class="container-fluid">
+        <div id="alerts">
+            {% if success %}
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><span aria-hidden="true"><i class="fa fa-close"></i></span></button>
+                    <i class="fa fa-check-circle" aria-hidden="true"></i>&nbsp;{{ success }}
+                </div>
+            {% endif %}
+            {% if error %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><span aria-hidden="true"><i class="fa fa-close"></i></span></button>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;{{ error }}
+                </div>
+            {% endif %}
+            {% if warning %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ text_close }}"><i class="fa fa-close"></i></button>
+                    <i class="fa fa-info-circle"></i>&nbsp;{{ warning }}
+                </div>
+            {% endif %}
         </div>
     </div>
-
-    {% endif %}
+    <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-newsman"
+          class="form-horizontal">
+        <div class="container-fluid">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_header_edit }}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-api-status">
+                            <span data-toggle="tooltip" title="" data-original-title="{{ text_api_status_hint }}">{{ entry_api_status }}</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <label class="control-label" for="input-api-status">
+                                {% if is_connected %}
+                                    <strong style="color: #40826D;">{{ text_credentials_valid }}</strong>
+                                {% else %}
+                                    <strong style="color: #D2042D;">{{ text_credentials_invalid }}</strong>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-module-newsman-status">{{ entry_module_status }}</label>
+                        <div class="col-sm-10">
+                            <select name="module_newsman_status" id="input-module-newsman-status" class="form-control">
+                                <option value="1"
+                                        {% if module_newsman_status %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not module_newsman_status %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-user-id">{{ entry_user_id }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_user_id" placeholder="{{ entry_user_id }}"
+                                   id="input-user-id" class="form-control"
+                                   value="{{ newsman_user_id }}">
+                        </div>
+                    </div>
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-api-key">{{ entry_api_key }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_api_key" placeholder="{{ entry_api_key }}"
+                                   id="input-api-key" class="form-control"
+                                   value="{{ newsman_api_key }}">
+                        </div>
+                    </div>
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-list-id">{{ entry_list_id }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_list_id" id="input-list-id" class="form-control">
+                                <option value=""
+                                        {% if newsman_list_id == '' %}selected{% endif %}>{{ text_please_select_list }}</option>
+                                {% for list_item in list_options %}
+                                    <option value="{{ list_item.list_id }}"
+                                            {% if newsman_list_id == list_item.list_id %}selected{% endif %}>{{ list_item.list_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-segment">{{ entry_segment }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_segment" id="input-segment" class="form-control">
+                                <option value=""
+                                        {% if newsman_segment == '' %}selected{% endif %}>{{ text_please_select_segment }}</option>
+                                {% for segment_item in segment_options %}
+                                    <option value="{{ segment_item.segment_id }}"
+                                            {% if newsman_segment == segment_item.segment_id %}selected{% endif %}>{{ segment_item.segment_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-newsletter-double-optin">{{ entry_newsletter_double_optin }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_newsletter_double_optin" id="input-newsletter-double-optin" class="form-control">
+                                <option value="1"
+                                        {% if newsman_newsletter_double_optin %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_newsletter_double_optin %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-send-user-ip">{{ entry_send_user_ip }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_send_user_ip" id="input-send-user-ip" class="form-control">
+                                <option value="1"
+                                        {% if newsman_send_user_ip %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_send_user_ip %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                            <span class="help-block">{{ entry_send_user_ip_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-server-ip">{{ entry_server_ip }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_server_ip" placeholder="{{ entry_server_ip }}"
+                                   id="input-server-ip" class="form-control"
+                                   value="{{ newsman_server_ip }}">
+                            <span class="help-block">{{ entry_server_ip_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-export-authorize-header-name">
+                            <span data-toggle="tooltip" title="" data-original-title="{{ text_export_authorize_header_name_hint }}">{{ entry_export_authorize_header_name }}</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <input name="newsman_export_authorize_header_name" placeholder="{{ entry_export_authorize_header_name }}"
+                                   id="input-export-authorize-header-name" class="form-control"
+                                   value="{{ newsman_export_authorize_header_name }}">
+                            <span class="help-block">{{ text_export_authorize_header_name_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-export-authorize-header-key">
+                            <span data-toggle="tooltip" title="" data-original-title="{{ text_export_authorize_header_key_hint }}">{{ entry_export_authorize_header_key }}</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <input name="newsman_export_authorize_header_key" placeholder="{{ entry_export_authorize_header_key }}"
+                                   id="input-export-authorize-header-key" class="form-control"
+                                   value="{{ newsman_export_authorize_header_key }}">
+                            <span class="help-block">{{ text_export_authorize_header_key_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-checkout-newsletter">{{ entry_checkout_newsletter }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_checkout_newsletter" id="input-checkout-newsletter" class="form-control">
+                                <option value="1"
+                                        {% if newsman_checkout_newsletter %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_checkout_newsletter %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-checkout-newsletter-default">{{ entry_checkout_newsletter_default }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_checkout_newsletter_default" id="input-checkout-newsletter-default" class="form-control">
+                                <option value="1"
+                                        {% if newsman_checkout_newsletter_default %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_checkout_newsletter_default %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-checkout-newsletter-label">{{ entry_checkout_newsletter_label }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_checkout_newsletter_label" placeholder="{{ entry_checkout_newsletter_label }}"
+                                   id="input-checkout-newsletter-label" class="form-control"
+                                   value="{{ newsman_checkout_newsletter_label }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{ text_cron }}</label>
+                        <div style="padding-top: 7px;" class="col-sm-10">
+                            {yoursiteurl}/index.php?route=extension/module/newsman&cron=true&nzmhash={{ newsman_api_key }}
+                            <br>
+                            {yoursiteurl}/index.php?route=extension/module/newsman&cron-orders=true&last-days=60&nzmhash={{ newsman_api_key }}
+                            <br><br>
+                            <a href="{{ export_subscribers }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_subscribers }}</a>
+                            <a style="margin-left: 25px;" href="{{ export_orders }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_orders }}</a>
+                            <a style="margin-left: 25px;" href="{{ export_orders_60_days }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_orders_60_days }}</a>
+                            <br><br>
+                            <a href="{{ reconfigure }}" class="btn btn-primary" onclick="return confirm('{{ text_reconfigure }} ?');"><i class="fa fa-cog"></i> {{ button_reconfigure }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_header_developer_edit }}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-developer-log-severity">{{ entry_developer_log_severity }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_developer_log_severity" id="input-developer-log-severity" class="form-control">
+                                {% for level_debug in developer_log_severity_options %}
+                                    <option value="{{ level_debug.code }}"
+                                        {% if newsman_developer_log_severity == level_debug.code %}selected{% endif %}>{{ level_debug.type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-developer-log-clean-days">{{ entry_developer_log_clean_days }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_developer_log_clean_days" placeholder="{{ entry_developer_log_clean_days }}"
+                                   id="input-developer-log-clean-days" class="form-control"
+                                   value="{{ newsman_developer_log_clean_days }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-developer-api-timeout">{{ entry_developer_api_timeout }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_developer_api_timeout" placeholder="{{ entry_developer_api_timeout }}"
+                                   id="input-developer-api-timeout" class="form-control"
+                                   value="{{ newsman_developer_api_timeout }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-developer-active-user-ip">{{ entry_developer_active_user_ip }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_developer_active_user_ip" id="input-developer-active-user-ip" class="form-control">
+                                <option value="1"
+                                        {% if newsman_developer_active_user_ip %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_developer_active_user_ip %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                            <span class="help-block">{{ entry_developer_active_user_ip_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-developer-user-ip">{{ entry_developer_user_ip }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_developer_user_ip" placeholder="{{ entry_developer_user_ip }}"
+                                   id="input-developer-user-ip" class="form-control"
+                                   value="{{ newsman_developer_user_ip }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 {{ footer }}
