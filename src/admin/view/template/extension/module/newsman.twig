@@ -271,5 +271,54 @@
             </div>
         </div>
     </form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var sendUserIp = $('#input-send-user-ip');
+            var serverIpRow = $('#input-server-ip').closest('.form-group');
+
+            function toggleServerIp() {
+                if (sendUserIp.val() == '1') {
+                    serverIpRow.hide();
+                } else {
+                    serverIpRow.show();
+                }
+            }
+
+            sendUserIp.on('change', toggleServerIp);
+            toggleServerIp();
+
+            var checkoutNewsletter = $('#input-checkout-newsletter');
+            var checkoutNewsletterDefaultRow = $('#input-checkout-newsletter-default').closest('.form-group');
+            var checkoutNewsletterLabelRow = $('#input-checkout-newsletter-label').closest('.form-group');
+
+            function toggleCheckoutNewsletter() {
+                if (checkoutNewsletter.val() == '0') {
+                    checkoutNewsletterDefaultRow.hide();
+                    checkoutNewsletterLabelRow.hide();
+                } else {
+                    checkoutNewsletterDefaultRow.show();
+                    checkoutNewsletterLabelRow.show();
+                }
+            }
+
+            checkoutNewsletter.on('change', toggleCheckoutNewsletter);
+            toggleCheckoutNewsletter();
+
+            // 3. When "Enable User IP" is Disabled hide "Test IP"
+            var activeUserIp = $('#input-developer-active-user-ip');
+            var userIpRow = $('#input-developer-user-ip').closest('.form-group');
+
+            function toggleUserIp() {
+                if (activeUserIp.val() == '0') {
+                    userIpRow.hide();
+                } else {
+                    userIpRow.show();
+                }
+            }
+
+            activeUserIp.on('change', toggleUserIp);
+            toggleUserIp();
+        });
+    </script>
 </div>
 {{ footer }}
