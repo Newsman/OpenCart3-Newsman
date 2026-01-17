@@ -9,6 +9,14 @@
  * @property \ModelSettingSetting          $model_setting_setting
  * @property \ModelExtensionNewsmanSetting $model_extension_newsman_setting
  * @property \Loader                       $load
+ * @property \Request                      $request
+ * @property \Response                     $response
+ * @property \Session                      $session
+ * @property \Language                     $language
+ * @property \Url                          $url
+ * @property \Config                       $config
+ * @property \Document                     $document
+ * @property \Cart\User                    $user
  */
 class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 	/**
