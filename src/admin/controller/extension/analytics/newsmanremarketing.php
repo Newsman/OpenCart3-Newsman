@@ -5,6 +5,7 @@
  *
  * @property \Newsman\Nzmconfig            $nzmconfig
  * @property \Newsman\Nzmsetup             $nzmsetup
+ * @property \Newsman\Nzmlogger            $nzmlogger
  * @property \ModelSettingSetting          $model_setting_setting
  * @property \ModelExtensionNewsmanSetting $model_extension_newsman_setting
  * @property \Loader                       $load
@@ -63,6 +64,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 
 		$this->load->library('newsman/nzmconfig');
 		$this->load->library('newsman/nzmsetup');
+		$this->load->library('newsman/nzmlogger');
 	}
 
 	protected function breadcrumbs() {
@@ -135,6 +137,29 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 
 		$data['url_newsman_settings'] = $this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true);
 
+		$data['is_remarketing_connected'] = false;
+		$newsman_user_id = $this->model_setting_setting->getSettingValue('newsman_user_id', $this->store_id);
+		$newsman_api_key = $this->model_setting_setting->getSettingValue('newsman_api_key', $this->store_id);
+		$newsman_list_id = $this->model_setting_setting->getSettingValue('newsman_list_id', $this->store_id);
+
+		if ($newsman_user_id && $newsman_api_key && $newsman_list_id) {
+			$remarketing_response = $this->getRemarketingSettings($newsman_list_id, $newsman_user_id, $newsman_api_key);
+
+			if ($remarketing_response) {
+				$remarketing_id = $remarketing_response['site_id'] . '-' . $remarketing_response['list_id'] . '-' .
+					$remarketing_response['form_id'] . '-' . $remarketing_response['control_list_hash'];
+
+				if ($remarketing_id === $data[$this->names['setting'] . '_trackingid']) {
+					$data['is_remarketing_connected'] = true;
+				}
+			}
+		}
+
+		$data['text_credentials_valid'] = $this->language->get('text_credentials_valid');
+		$data['text_credentials_invalid'] = $this->language->get('text_credentials_invalid');
+		$data['text_api_status_hint'] = $this->language->get('text_api_status_hint');
+		$data['entry_api_status'] = $this->language->get('entry_api_status');
+
 		// Load translations
 		if (VERSION < '3') {
 			$translation_text = array(
@@ -149,6 +174,10 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 				'text_disabled',
 				'text_button_save',
 				'text_button_cancel',
+				'text_credentials_valid',
+				'text_credentials_invalid',
+				'text_api_status_hint',
+				'entry_api_status',
 				'entry_tracking',
 				'entry_status',
 				'entry_anonymize_ip',
@@ -173,5 +202,37 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		}
 
 		return !$this->error;
+	}
+
+	/**
+	 * API get remarketing settings
+	 *
+	 * @param string      $list_id List ID.
+	 * @param null|string $user_id User ID.
+	 * @param null|string $api_key API key.
+	 *
+	 * @return array|false
+	 */
+	public function getRemarketingSettings($list_id, $user_id = null, $api_key = null) {
+		try {
+			if ($user_id === null) {
+				$user_id = $this->nzmconfig->getUserId($this->store_id);
+			}
+			if ($api_key === null) {
+				$api_key = $this->nzmconfig->getApiKey($this->store_id);
+			}
+
+			$context = new \Newsman\Service\Context\Configuration\EmailList();
+			$context->setUserId($user_id)
+				->setApiKey($api_key)
+				->setListId($list_id);
+			$get_settings = new \Newsman\Service\Configuration\Remarketing\GetSettings($this->registry);
+
+			return $get_settings->execute($context);
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
+
+			return false;
+		}
 	}
 }
