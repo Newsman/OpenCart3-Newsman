@@ -65,9 +65,14 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	protected $image_width;
 
 	/**
-	 * @var int
+	 * @var array
 	 */
-	protected $image_height;
+	protected $cache_stock_checkout = array();
+
+	/**
+	 * @var array
+	 */
+	protected $cache_seo_url = array();
 
 	/**
 	 * Class construct
@@ -338,7 +343,8 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 			}
 		}
 
-		$this->language_id_cache[$store_id] = (int)$this->registry->get('config')->get('config_language_id');
+		$config_data = $this->getConfigCache($store_id);
+		$this->language_id_cache[$store_id] = (int)(isset($config_data['config_language_id']) ? $config_data['config_language_id'] : $this->registry->get('config')->get('config_language_id'));
 
 		return $this->language_id_cache[$store_id];
 	}
@@ -412,11 +418,10 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 		$config_data = $this->setting->getSetting('theme_' . $theme, $store_id);
 		if (isset($config_data['theme_' . $theme . '_image_popup_width'])) {
 			$this->cache_image_width[$store_id] = (int)$config_data['theme_' . $theme . '_image_popup_width'];
-
-			return $this->cache_image_width[$store_id];
+		} else {
+			$config_data = $this->getConfigCache($store_id);
+			$this->cache_image_width[$store_id] = (int)(isset($config_data['theme_' . $theme . '_image_popup_width']) ? $config_data['theme_' . $theme . '_image_popup_width'] : 0);
 		}
-
-		$this->cache_image_width[$store_id] = (int)$this->registry->config->get('theme_' . $theme . '_image_popup_width');
 
 		return $this->cache_image_width[$store_id];
 	}
@@ -442,11 +447,10 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 		$config_data = $this->setting->getSetting('theme_' . $theme, $store_id);
 		if (isset($config_data['theme_' . $theme . '_image_popup_height'])) {
 			$this->cache_image_height[$store_id] = (int)$config_data['theme_' . $theme . '_image_popup_height'];
-
-			return $this->cache_image_height[$store_id];
+		} else {
+			$config_data = $this->getConfigCache($store_id);
+			$this->cache_image_height[$store_id] = (int)(isset($config_data['theme_' . $theme . '_image_popup_height']) ? $config_data['theme_' . $theme . '_image_popup_height'] : 0);
 		}
-
-		$this->cache_image_height[$store_id] = (int)$this->registry->config->get('theme_' . $theme . '_image_popup_height');
 
 		return $this->cache_image_height[$store_id];
 	}
@@ -507,13 +511,14 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	 * @return bool
 	 */
 	public function getConfigStockCheckout($store_id) {
-		$config_data = $this->getConfigCache($store_id);
-		if (isset($config_data['config_stock_checkout'])) {
-			return (bool)$config_data['config_stock_checkout'];
+		if (isset($this->cache_stock_checkout[$store_id])) {
+			return $this->cache_stock_checkout[$store_id];
 		}
-		$this->cache_image_height[$store_id] = (bool)$this->registry->config->get('config_stock_checkout');
 
-		return $this->cache_image_height[$store_id];
+		$config_data = $this->getConfigCache($store_id);
+		$this->cache_stock_checkout[$store_id] = (bool)(isset($config_data['config_stock_checkout']) ? $config_data['config_stock_checkout'] : false);
+
+		return $this->cache_stock_checkout[$store_id];
 	}
 
 	/**
@@ -524,12 +529,13 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	 * @return bool
 	 */
 	public function getConfigSeoUrl($store_id) {
-		$config_data = $this->getConfigCache($store_id);
-		if (isset($config_data['config_seo_url'])) {
-			return (bool)$config_data['config_seo_url'];
+		if (isset($this->cache_seo_url[$store_id])) {
+			return $this->cache_seo_url[$store_id];
 		}
-		$this->cache_image_height[$store_id] = (bool)$this->registry->config->get('config_seo_url');
 
-		return $this->cache_image_height[$store_id];
+		$config_data = $this->getConfigCache($store_id);
+		$this->cache_seo_url[$store_id] = (bool)(isset($config_data['config_seo_url']) ? $config_data['config_seo_url'] : false);
+
+		return $this->cache_seo_url[$store_id];
 	}
 }
