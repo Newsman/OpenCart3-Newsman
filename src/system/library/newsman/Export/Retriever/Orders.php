@@ -66,6 +66,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 		$products_extra_data = $this->prefetchProductsData($product_ids, $store_id);
 
 		$result = array();
+		$count_orders = 0;
 		foreach ($orders as $order) {
 			try {
 				$order_id = $order['order_id'];
@@ -73,12 +74,13 @@ class Orders extends BaseOrders implements RetrieverInterface {
 				$order_totals = isset($all_order_totals[$order_id]) ? $all_order_totals[$order_id] : array();
 
 				$result[] = $this->processOrder($order, $order_products, $order_totals, $products_extra_data, $store_id);
+				++$count_orders;
 			} catch (\Exception $e) {
 				$this->logger->logException($e);
 			}
 		}
 
-		$this->logger->info(sprintf('Exported orders %s, store ID %s', print_r($parameters, true), $store_id));
+		$this->logger->info(sprintf('Exported orders %s, store ID %s, count %d', print_r($parameters, true), $store_id, $count_orders));
 
 		return $result;
 	}
