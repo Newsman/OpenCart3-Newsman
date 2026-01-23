@@ -56,7 +56,7 @@ class SendOrders extends BaseOrders implements RetrieverInterface {
 
 		$this->logger->info(sprintf('Send orders %s, store ID %s', print_r($parameters, true), $store_id));
 
-		$orders = $this->getOrders($data, $store_id);
+		$orders = $this->getOrders($parameters, $store_id);
 
 		if (empty($orders)) {
 			return array();
