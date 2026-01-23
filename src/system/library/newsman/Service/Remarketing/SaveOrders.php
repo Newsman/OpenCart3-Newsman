@@ -55,7 +55,7 @@ class SaveOrders extends AbstractService {
 
 		$this->logger->info(
 			sprintf(
-				$this->escapeHtml('Saved %s save orders'),
+				$this->escapeHtml('Saved %s orders'),
 				count($context->getOrders())
 			)
 		);
