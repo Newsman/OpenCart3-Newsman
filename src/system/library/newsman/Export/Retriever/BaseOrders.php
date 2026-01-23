@@ -41,17 +41,23 @@ class BaseOrders extends AbstractRetriever implements RetrieverInterface {
 
 		$where = array();
 		if ($store_id !== null) {
-			$where[] = "o.store_id = '" . (int)$store_id . "'";
+			$where[] = "o.store_id = " . (int)$store_id;
 		}
 
-		if (isset($params['where']) && !empty($params['where'])) {
-			$where = array_merge($where, $params['where']);
+		if (!empty($params['filters'])) {
+			foreach ($params['filters'] as $filter) {
+				if (is_array($filter)) {
+					$where[] = implode(' AND ', $filter);
+				} else {
+					$where[] = $filter;
+				}
+			}
+		} else {
+			$where[] = "o.order_status_id > 0";
 		}
 
 		if (!empty($where)) {
 			$sql .= ' WHERE ' . implode(' AND ', $where);
-		} else {
-			$sql .= " WHERE o.order_status_id > '0'";
 		}
 
 		if (isset($params['sort']) && isset($params['order'])) {
