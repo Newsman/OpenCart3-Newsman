@@ -320,8 +320,11 @@ js/retargeting/modal_{{api_key}}.js';
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_delete_before');
 		$this->model_setting_event->addEvent('newsman_admin_customer_delete_before', 'admin/controller/customer/customer/delete/before', 'extension/module/newsman/eventCustomerDeleteBefore');
 
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_add_before');
+		$this->model_setting_event->addEvent('newsman_admin_customer_add_before', 'admin/controller/customer/customer/add/before', 'extension/module/newsman/eventCustomerAddBefore');
+
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_add_after');
-		$this->model_setting_event->addEvent('newsman_admin_customer_add_after', 'admin/controller/customer/customer/add/after', 'extension/module/newsman/eventCustomerAddAfter');
+		$this->model_setting_event->addEvent('newsman_admin_customer_add_after', 'admin/model/customer/customer/addCustomer/after', 'extension/module/newsman/eventModelCustomerAddAfter');
 	}
 
 	/**

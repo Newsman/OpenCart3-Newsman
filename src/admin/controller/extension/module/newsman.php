@@ -24,6 +24,11 @@
  */
 class ControllerExtensionModuleNewsman extends Controller {
 	/**
+	 * @var bool
+	 */
+	public static $is_admin_customer_add = false;
+
+	/**
 	 * @var int
 	 */
 	protected $store_id;
@@ -1009,26 +1014,52 @@ class ControllerExtensionModuleNewsman extends Controller {
 	}
 
 	/**
-	 * Event handler for customer add after.
+	 * Event handler for customer add before.
 	 *
 	 * @param string $route
 	 * @param array  $args
-	 * @param string $output
 	 *
 	 * @return void
 	 */
-	public function eventCustomerAddAfter($route, $args, &$output) {
-		if (!isset($this->request->post['newsletter']) || !$this->request->post['newsletter']) {
+	public function eventCustomerAddBefore($route, $args) {
+		self::$is_admin_customer_add = true;
+	}
+
+	/**
+	 * Event handler for model customer add after.
+	 *
+	 * @param string $route
+	 * @param array  $args
+	 * @param int    $output
+	 *
+	 * @return void
+	 */
+	public function eventModelCustomerAddAfter($route, $args, $output) {
+		if (!self::$is_admin_customer_add) {
 			return;
+		}
+
+		$data = $args[0];
+		$customer_id = $output;
+
+		if (!(isset($data['newsletter']) && $data['newsletter'])) {
+			return;
+		}
+
+		$store_id = 0;
+		if (isset($this->request->get['store_id'])) {
+			$store_id = $this->request->get['store_id'];
+		} elseif (isset($data['store_id'])) {
+			$store_id = $data['store_id'];
 		}
 
 		try {
 			$this->subscribeCustomer(
-				$this->request->post['email'],
-				$this->request->post['firstname'],
-				$this->request->post['lastname'],
-				isset($this->request->post['telephone']) ? $this->request->post['telephone'] : '',
-				isset($this->request->post['store_id']) ? (int)$this->request->post['store_id'] : 0
+				$data['email'],
+				$data['firstname'],
+				$data['lastname'],
+				isset($data['telephone']) ? $data['telephone'] : '',
+				$store_id
 			);
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
@@ -1040,7 +1071,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 *
 	 * @return void
 	 */
-	private function autoloadNewsman() {
+	protected function autoloadNewsman() {
 		$this->load->library('newsman/nzmloader');
 		$this->nzmloader->autoload();
 	}
@@ -1057,7 +1088,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 * @return void
 	 * @throws \Exception
 	 */
-	private function subscribeCustomer($email, $firstname, $lastname, $telephone, $store_id) {
+	protected function subscribeCustomer($email, $firstname, $lastname, $telephone, $store_id) {
 		$this->autoloadNewsman();
 
 		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
@@ -1095,7 +1126,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 * @return void
 	 * @throws \Exception
 	 */
-	private function unsubscribeCustomer($email, $store_id = 0) {
+	protected function unsubscribeCustomer($email, $store_id = 0) {
 		$this->autoloadNewsman();
 
 		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
