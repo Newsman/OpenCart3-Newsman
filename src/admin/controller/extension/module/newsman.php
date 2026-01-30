@@ -9,6 +9,7 @@
  * @property \ModelSettingSetting          $model_setting_setting
  * @property \ModelSettingStore            $model_setting_store
  * @property \ModelExtensionNewsmanSetting $model_extension_newsman_setting
+ * @property \ModelCustomerCustomer        $model_customer_customer
  * @property \Loader                       $load
  * @property \Request                      $request
  * @property \Response                     $response
@@ -18,6 +19,8 @@
  * @property \Config                       $config
  * @property \Document                     $document
  * @property \Cart\User                    $user
+ * @property \DB                           $db
+ * @property \Event                        $event
  */
 class ControllerExtensionModuleNewsman extends Controller {
 	/**
@@ -927,5 +930,107 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 */
 	public function eventSetupUpgrade() {
 		$this->nzmsetup->upgrade();
+	}
+
+	/**
+	 * Event handler for customer edit before.
+	 *
+	 * @param string $route
+	 * @param array  $args
+	 *
+	 * @return void
+	 */
+	public function eventCustomerEditBefore($route, $args) {
+		if (!isset($this->request->get['customer_id']) || !isset($this->request->post['newsletter'])) {
+			return;
+		}
+
+		$customer_id = (int)$this->request->get['customer_id'];
+
+		$this->load->model('customer/customer');
+		$customer_info = $this->model_customer_customer->getCustomer($customer_id);
+
+		if (!$customer_info) {
+			return;
+		}
+
+		$old_newsletter = (int)$customer_info['newsletter'];
+		$new_newsletter = (int)$this->request->post['newsletter'];
+
+		if ($old_newsletter === $new_newsletter) {
+			return;
+		}
+
+		$this->load->library('newsman/nzmloader');
+		$this->nzmloader->autoload();
+
+		try {
+			$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+
+			if ($new_newsletter) {
+				$properties = array();
+
+				$customer_store_id = (int)$customer_info['store_id'];
+
+				if ($this->nzmconfig->isSendTelephone($customer_store_id)) {
+					$telephone = isset($this->request->post['telephone']) ? $this->request->post['telephone'] : $customer_info['telephone'];
+
+					if (!empty($telephone)) {
+						$properties['phone'] = $telephone;
+					}
+				}
+
+				$options = array();
+				$segment_id = $this->nzmconfig->getSegmentId($customer_store_id);
+				if (!empty($segment_id)) {
+					$options['segments'] = array($segment_id);
+				}
+
+				$email_action->execute(
+					$customer_info['email'],
+					isset($this->request->post['firstname']) ? $this->request->post['firstname'] : $customer_info['firstname'],
+					isset($this->request->post['lastname']) ? $this->request->post['lastname'] : $customer_info['lastname'],
+					$properties,
+					$options
+				);
+			} else {
+				$email_action->unsubscribe($customer_info['email']);
+			}
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
+		}
+	}
+
+	/**
+	 * Event handler for customer delete before.
+	 *
+	 * @param string $route
+	 * @param array  $args
+	 *
+	 * @return void
+	 */
+	public function eventCustomerDeleteBefore($route, $args) {
+		if (empty($this->request->post['selected'])) {
+			return;
+		}
+
+		$this->load->model('customer/customer');
+		$this->load->library('newsman/nzmloader');
+		$this->nzmloader->autoload();
+
+		foreach ($this->request->post['selected'] as $customer_id) {
+			$customer_info = $this->model_customer_customer->getCustomer($customer_id);
+
+			if (!$customer_info || empty($customer_info['email'])) {
+				continue;
+			}
+
+			try {
+				$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+				$email_action->unsubscribe($customer_info['email']);
+			} catch (\Exception $e) {
+				$this->nzmlogger->logException($e);
+			}
+		}
 	}
 }

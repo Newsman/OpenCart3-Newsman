@@ -6,6 +6,17 @@
  * @property \Newsman\Nzmloader $nzmloader
  * @property \Newsman\Nzmconfig $nzmconfig
  * @property \Newsman\Nzmlogger $nzmlogger
+ * @property \Loader           $load
+ * @property \Request          $request
+ * @property \Response         $response
+ * @property \Session          $session
+ * @property \Language         $language
+ * @property \Url              $url
+ * @property \Config           $config
+ * @property \Cart\Customer    $customer
+ * @property \Cart\Cart        $cart
+ * @property \DB               $db
+ * @property \Event            $event
  */
 class ControllerExtensionmoduleNewsman extends Controller {
 	/**

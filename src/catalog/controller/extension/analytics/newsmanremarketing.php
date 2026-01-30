@@ -5,6 +5,17 @@
  *
  * @property \Newsman\Nzmconfig    $nzmconfig
  * @property \Loader               $load
+ * @property \Request              $request
+ * @property \Response             $response
+ * @property \Session              $session
+ * @property \Language             $language
+ * @property \Url                  $url
+ * @property \Config               $config
+ * @property \Document             $document
+ * @property \Cart\Customer        $customer
+ * @property \Cart\Cart            $cart
+ * @property \DB                   $db
+ * @property \Event                $event
  * @property \ModelCatalogProduct  $model_catalog_product
  * @property \ModelCatalogCategory $model_catalog_category
  * @property \ModelCheckoutOrder   $model_checkout_order

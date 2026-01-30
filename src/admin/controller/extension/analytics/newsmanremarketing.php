@@ -17,6 +17,8 @@
  * @property \Config                       $config
  * @property \Document                     $document
  * @property \Cart\User                    $user
+ * @property \DB                           $db
+ * @property \Event                        $event
  */
 class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 	/**

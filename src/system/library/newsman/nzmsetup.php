@@ -102,6 +102,9 @@ class Nzmsetup extends \Newsman\Library {
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_guest_save_after');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_guest_view_before');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_guest_view_after');
+
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_edit_before');
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_delete_before');
 	}
 
 	/**
@@ -309,6 +312,12 @@ js/retargeting/modal_{{api_key}}.js';
 
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_guest_view_after');
 		$this->model_setting_event->addEvent('newsman_checkout_guest_view_after', 'catalog/view/checkout/guest/after', 'extension/module/newsman/eventCheckoutGuestAfter');
+
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_edit_before');
+		$this->model_setting_event->addEvent('newsman_admin_customer_edit_before', 'admin/controller/customer/customer/edit/before', 'extension/module/newsman/eventCustomerEditBefore');
+
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_delete_before');
+		$this->model_setting_event->addEvent('newsman_admin_customer_delete_before', 'admin/controller/customer/customer/delete/before', 'extension/module/newsman/eventCustomerDeleteBefore');
 	}
 
 	/**
