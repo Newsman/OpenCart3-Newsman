@@ -77,45 +77,21 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			return;
 		}
 
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
-		$this->load->library('newsman/nzmconfig');
-		$this->load->library('newsman/nzmlogger');
-
 		try {
 			$new = $this->request->post['newsletter'];
 			if (!$this->customer->getNewsletter() && $new) {
-				$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-
-				$properties = array();
-
-				if ($this->nzmconfig->isSendTelephone()) {
-					$telephone = $this->customer->getTelephone();
-
-					if (!empty($telephone)) {
-						$properties['phone'] = $telephone;
-					}
-				}
-
-				$options = array();
-				$segment_id = $this->nzmconfig->getSegmentId();
-				if (!empty($segment_id)) {
-					$options['segments'] = array($segment_id);
-				}
-
-				$email_action->execute(
+				$this->subscribeCustomer(
 					$this->customer->getEmail(),
 					$this->customer->getFirstName(),
 					$this->customer->getLastName(),
-					$properties,
-					$options,
-					$this->config->get('config_store_id')
+					$this->customer->getTelephone(),
+					(int)$this->config->get('config_store_id')
 				);
 			} elseif ($this->customer->getNewsletter() && !$new) {
-				$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-				$email_action->unsubscribe($this->customer->getEmail(), $this->config->get('config_store_id'));
+				$this->unsubscribeCustomer($this->customer->getEmail(), (int)$this->config->get('config_store_id'));
 			}
 		} catch (\Exception $e) {
+			$this->load->library('newsman/nzmlogger');
 			$this->nzmlogger->logException($e);
 		}
 	}
@@ -134,39 +110,46 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			return;
 		}
 
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
-		$this->load->library('newsman/nzmconfig');
-		$this->load->library('newsman/nzmlogger');
-
-		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-
-		$properties = array();
-
 		try {
-			if ($this->nzmconfig->isSendTelephone()) {
-				$telephone = (isset($this->request->post['telephone'])) ? $this->request->post['telephone'] : '';
-
-				if (!empty($telephone)) {
-					$properties['phone'] = $telephone;
-				}
-			}
-
-			$options = array();
-			$segment_id = $this->nzmconfig->getSegmentId();
-			if (!empty($segment_id)) {
-				$options['segments'] = array($segment_id);
-			}
-
-			$email_action->execute(
+			$this->subscribeCustomer(
 				$this->request->post['email'],
 				$this->request->post['firstname'],
 				$this->request->post['lastname'],
-				$properties,
-				$options,
-				$this->config->get('config_store_id')
+				isset($this->request->post['telephone']) ? $this->request->post['telephone'] : '',
+				(int)$this->config->get('config_store_id')
 			);
 		} catch (\Exception $e) {
+			$this->load->library('newsman/nzmlogger');
+			$this->nzmlogger->logException($e);
+		}
+	}
+
+	/**
+	 * Event account register after
+	 *
+	 * @param string $route
+	 * @param array  $args
+	 * @param int    $output Customer ID
+	 *
+	 * @return void
+	 */
+	public function eventAccountRegisterAfter($route, $args, $output) {
+		$this->load->library('newsman/nzmconfig');
+
+		if (!(isset($this->request->post['newsletter']) && $this->request->post['newsletter'])) {
+			return;
+		}
+
+		try {
+			$this->subscribeCustomer(
+				$this->request->post['email'],
+				$this->request->post['firstname'],
+				$this->request->post['lastname'],
+				isset($this->request->post['telephone']) ? $this->request->post['telephone'] : '',
+				(int)$this->config->get('config_store_id')
+			);
+		} catch (\Exception $e) {
+			$this->load->library('newsman/nzmlogger');
 			$this->nzmlogger->logException($e);
 		}
 	}
@@ -191,38 +174,16 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			return;
 		}
 
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
-		$this->load->library('newsman/nzmlogger');
-
-		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-
-		$properties = array();
-
 		try {
-			if ($this->nzmconfig->isSendTelephone()) {
-				$telephone = (isset($this->request->post['telephone'])) ? $this->request->post['telephone'] : '';
-
-				if (!empty($telephone)) {
-					$properties['phone'] = $telephone;
-				}
-			}
-
-			$options = array();
-			$segment_id = $this->nzmconfig->getSegmentId();
-			if (!empty($segment_id)) {
-				$options['segments'] = array($segment_id);
-			}
-
-			$email_action->execute(
+			$this->subscribeCustomer(
 				$this->request->post['email'],
 				$this->request->post['firstname'],
 				$this->request->post['lastname'],
-				$properties,
-				$options,
-				$this->config->get('config_store_id')
+				isset($this->request->post['telephone']) ? $this->request->post['telephone'] : '',
+				(int)$this->config->get('config_store_id')
 			);
 		} catch (\Exception $e) {
+			$this->load->library('newsman/nzmlogger');
 			$this->nzmlogger->logException($e);
 		}
 	}
@@ -290,8 +251,7 @@ class ControllerExtensionmoduleNewsman extends Controller {
 	 * @return void
 	 */
 	public function eventCheckoutOrderAddAfter($route, $data, $output) {
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
+		$this->autoloadNewsman();
 		$this->load->library('newsman/nzmlogger');
 
 		$order_id = $output;
@@ -344,8 +304,7 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			}
 
 			if ($this->request->post['order_status_id'] != $order_info['order_status_id']) {
-				$this->load->library('newsman/nzmloader');
-				$this->nzmloader->autoload();
+				$this->autoloadNewsman();
 
 				$status_action = new \Newsman\Action\Order\Status($this->registry);
 				$status_action->execute($order_id, $this->request->post['order_status_id'], true);
@@ -375,8 +334,7 @@ class ControllerExtensionmoduleNewsman extends Controller {
 
 		$order_id = $this->request->get['order_id'];
 
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
+		$this->autoloadNewsman();
 		$this->load->library('newsman/nzmlogger');
 
 		try {
@@ -385,5 +343,73 @@ class ControllerExtensionmoduleNewsman extends Controller {
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
 		}
+	}
+
+	/**
+	 * Helper method to autoload Newsman libraries.
+	 *
+	 * @return void
+	 */
+	protected function autoloadNewsman() {
+		$this->load->library('newsman/nzmloader');
+		$this->nzmloader->autoload();
+	}
+
+	/**
+	 * Helper method to subscribe a customer to Newsman.
+	 *
+	 * @param string $email
+	 * @param string $firstname
+	 * @param string $lastname
+	 * @param string $telephone
+	 * @param int    $store_id
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	protected function subscribeCustomer($email, $firstname, $lastname, $telephone, $store_id) {
+		$this->autoloadNewsman();
+		$this->load->library('newsman/nzmconfig');
+
+		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+
+		$properties = array();
+
+		if ($this->nzmconfig->isSendTelephone($store_id)) {
+			if (!empty($telephone)) {
+				$properties['phone'] = $telephone;
+			}
+		}
+
+		$options = array();
+		$segment_id = $this->nzmconfig->getSegmentId($store_id);
+		if (!empty($segment_id)) {
+			$options['segments'] = array($segment_id);
+		}
+
+		$email_action->execute(
+			$email,
+			$firstname,
+			$lastname,
+			$properties,
+			$options,
+			$store_id
+		);
+	}
+
+	/**
+	 * Helper method to unsubscribe a customer from Newsman.
+	 *
+	 * @param string $email
+	 * @param int    $store_id
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	protected function unsubscribeCustomer($email, $store_id = 0) {
+		$this->autoloadNewsman();
+
+		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+		$email_action->unsubscribe($email, $store_id);
 	}
 }
