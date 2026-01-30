@@ -108,11 +108,12 @@ class ControllerExtensionmoduleNewsman extends Controller {
 					$this->customer->getFirstName(),
 					$this->customer->getLastName(),
 					$properties,
-					$options
+					$options,
+					$this->config->get('config_store_id')
 				);
 			} elseif ($this->customer->getNewsletter() && !$new) {
 				$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-				$email_action->unsubscribe($this->customer->getEmail());
+				$email_action->unsubscribe($this->customer->getEmail(), $this->config->get('config_store_id'));
 			}
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
@@ -162,7 +163,8 @@ class ControllerExtensionmoduleNewsman extends Controller {
 				$this->request->post['firstname'],
 				$this->request->post['lastname'],
 				$properties,
-				$options
+				$options,
+				$this->config->get('config_store_id')
 			);
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
@@ -217,7 +219,8 @@ class ControllerExtensionmoduleNewsman extends Controller {
 				$this->request->post['firstname'],
 				$this->request->post['lastname'],
 				$properties,
-				$options
+				$options,
+				$this->config->get('config_store_id')
 			);
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);

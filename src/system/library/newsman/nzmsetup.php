@@ -105,6 +105,7 @@ class Nzmsetup extends \Newsman\Library {
 
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_edit_before');
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_delete_before');
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_add_after');
 	}
 
 	/**
@@ -318,6 +319,9 @@ js/retargeting/modal_{{api_key}}.js';
 
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_delete_before');
 		$this->model_setting_event->addEvent('newsman_admin_customer_delete_before', 'admin/controller/customer/customer/delete/before', 'extension/module/newsman/eventCustomerDeleteBefore');
+
+		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_add_after');
+		$this->model_setting_event->addEvent('newsman_admin_customer_add_after', 'admin/controller/customer/customer/add/after', 'extension/module/newsman/eventCustomerAddAfter');
 	}
 
 	/**

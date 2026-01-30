@@ -961,40 +961,17 @@ class ControllerExtensionModuleNewsman extends Controller {
 			return;
 		}
 
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
-
 		try {
-			$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-
 			if ($new_newsletter) {
-				$properties = array();
-
-				$customer_store_id = (int)$customer_info['store_id'];
-
-				if ($this->nzmconfig->isSendTelephone($customer_store_id)) {
-					$telephone = isset($this->request->post['telephone']) ? $this->request->post['telephone'] : $customer_info['telephone'];
-
-					if (!empty($telephone)) {
-						$properties['phone'] = $telephone;
-					}
-				}
-
-				$options = array();
-				$segment_id = $this->nzmconfig->getSegmentId($customer_store_id);
-				if (!empty($segment_id)) {
-					$options['segments'] = array($segment_id);
-				}
-
-				$email_action->execute(
+				$this->subscribeCustomer(
 					$customer_info['email'],
 					isset($this->request->post['firstname']) ? $this->request->post['firstname'] : $customer_info['firstname'],
 					isset($this->request->post['lastname']) ? $this->request->post['lastname'] : $customer_info['lastname'],
-					$properties,
-					$options
+					isset($this->request->post['telephone']) ? $this->request->post['telephone'] : $customer_info['telephone'],
+					(int)$customer_info['store_id']
 				);
 			} else {
-				$email_action->unsubscribe($customer_info['email']);
+				$this->unsubscribeCustomer($customer_info['email'], (int)$customer_info['store_id']);
 			}
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
@@ -1015,8 +992,6 @@ class ControllerExtensionModuleNewsman extends Controller {
 		}
 
 		$this->load->model('customer/customer');
-		$this->load->library('newsman/nzmloader');
-		$this->nzmloader->autoload();
 
 		foreach ($this->request->post['selected'] as $customer_id) {
 			$customer_info = $this->model_customer_customer->getCustomer($customer_id);
@@ -1026,11 +1001,104 @@ class ControllerExtensionModuleNewsman extends Controller {
 			}
 
 			try {
-				$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
-				$email_action->unsubscribe($customer_info['email']);
+				$this->unsubscribeCustomer($customer_info['email'], (int)$customer_info['store_id']);
 			} catch (\Exception $e) {
 				$this->nzmlogger->logException($e);
 			}
 		}
+	}
+
+	/**
+	 * Event handler for customer add after.
+	 *
+	 * @param string $route
+	 * @param array  $args
+	 * @param string $output
+	 *
+	 * @return void
+	 */
+	public function eventCustomerAddAfter($route, $args, &$output) {
+		if (!isset($this->request->post['newsletter']) || !$this->request->post['newsletter']) {
+			return;
+		}
+
+		try {
+			$this->subscribeCustomer(
+				$this->request->post['email'],
+				$this->request->post['firstname'],
+				$this->request->post['lastname'],
+				isset($this->request->post['telephone']) ? $this->request->post['telephone'] : '',
+				isset($this->request->post['store_id']) ? (int)$this->request->post['store_id'] : 0
+			);
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
+		}
+	}
+
+	/**
+	 * Helper method to autoload Newsman libraries.
+	 *
+	 * @return void
+	 */
+	private function autoloadNewsman() {
+		$this->load->library('newsman/nzmloader');
+		$this->nzmloader->autoload();
+	}
+
+	/**
+	 * Helper method to subscribe a customer to Newsman.
+	 *
+	 * @param string $email
+	 * @param string $firstname
+	 * @param string $lastname
+	 * @param string $telephone
+	 * @param int    $store_id
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	private function subscribeCustomer($email, $firstname, $lastname, $telephone, $store_id) {
+		$this->autoloadNewsman();
+
+		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+
+		$properties = array();
+
+		if ($this->nzmconfig->isSendTelephone($store_id)) {
+			if (!empty($telephone)) {
+				$properties['phone'] = $telephone;
+			}
+		}
+
+		$options = array();
+		$segment_id = $this->nzmconfig->getSegmentId($store_id);
+		if (!empty($segment_id)) {
+			$options['segments'] = array($segment_id);
+		}
+
+		$email_action->execute(
+			$email,
+			$firstname,
+			$lastname,
+			$properties,
+			$options,
+			$store_id
+		);
+	}
+
+	/**
+	 * Helper method to unsubscribe a customer from Newsman.
+	 *
+	 * @param string $email
+	 * @param int    $store_id
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	private function unsubscribeCustomer($email, $store_id = 0) {
+		$this->autoloadNewsman();
+
+		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
+		$email_action->unsubscribe($email, $store_id);
 	}
 }
