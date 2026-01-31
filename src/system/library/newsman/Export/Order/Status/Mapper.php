@@ -57,7 +57,8 @@ class Mapper extends \Newsman\Nzmbase {
 			return 'pending';
 		}
 
-		$config_data = $this->getConfigCache($store_id);
+		// These 2 settings are for the default store.
+		$config_data = $this->getConfigCache(0);
 
 		$complete_status = array();
 		if (isset($config_data['config_complete_status'])) {
