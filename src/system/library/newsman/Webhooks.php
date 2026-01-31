@@ -77,7 +77,7 @@ class Webhooks extends \Newsman\Nzmbase {
 		$email = $event['data']['email'];
 		$this->logger->debug(sprintf('Unsubscribe email: %s', $email));
 
-		$this->registry->db->query("UPDATE " . DB_PREFIX . "customer SET newsletter = '0' WHERE email = '" . $this->registry->db->escape($email) . "' AND store_id = '" . (int)$this->config->getCurrentStoreId() . "'");
+		$this->registry->db->query("UPDATE " . DB_PREFIX . "customer SET newsletter = '0' WHERE email = '" . $this->registry->db->escape($email) . "'");
 
 		return array('success' => true, 'email' => $email);
 	}
@@ -97,7 +97,7 @@ class Webhooks extends \Newsman\Nzmbase {
 		$email = $event['data']['email'];
 		$this->logger->debug(sprintf('Subscribe email: %s', $email));
 
-		$this->registry->db->query("UPDATE " . DB_PREFIX . "customer SET newsletter = '1' WHERE email = '" . $this->registry->db->escape($email) . "' AND store_id = '" . (int)$this->config->getCurrentStoreId() . "'");
+		$this->registry->db->query("UPDATE " . DB_PREFIX . "customer SET newsletter = '1' WHERE email = '" . $this->registry->db->escape($email) . "'");
 
 		return array('success' => true, 'email' => $email);
 	}
