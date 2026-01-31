@@ -7,10 +7,12 @@ $_['text_success'] = 'Success: You have modified NewsMAN Remarketing!';
 $_['text_edit'] = 'Edit NewsMAN Remarketing';
 $_['text_signup'] = 'Login to your <a href="https://www.newsman.app/" target="_blank"><u>NewsMAN account</u></a> and get your ID';
 $_['text_default'] = 'Default';
+$_['text_store'] = 'Store';
 $_['text_newsman_settings'] = 'Newsman Settings';
 $_['text_credentials_valid'] = 'Remarketing ID is valid';
 $_['text_credentials_invalid'] = 'Remarketing ID is invalid or there is temporarily API error!';
 $_['text_api_status_hint'] = 'The Remarketing ID is valid and matches the one in NewsMAN.';
+$_['text_config_for_store'] = 'Reconfigure for store: %s (ID: %s)';
 $_['entry_api_status'] = 'Remarketing ID Status';
 
 // Entry

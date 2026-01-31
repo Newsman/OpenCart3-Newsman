@@ -121,9 +121,9 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 			foreach ($this->field_names as $field) {
 				$settings[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
 			}
-			$this->model_extension_newsman_setting->editSetting($this->names['setting'], $settings, $this->request->get['store_id']);
+			$this->model_extension_newsman_setting->editSetting($this->names['setting'], $settings, $this->store_id);
 			$this->session->data['success'] = $this->language->get('text_success');
-			$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=analytics', true));
+			$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=analytics&store_id=' . $this->store_id, true));
 		}
 
 		if (isset($this->error['warning'])) {
@@ -137,7 +137,38 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$data['breadcrumbs'] = $this->breadcrumbs();
-		$data['cancel'] = $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true);
+		$data['cancel'] = $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=analytics', true);
+
+		$this->load->model('setting/store');
+
+		$data['stores'] = array();
+
+		$data['stores'][] = array(
+			'store_id' => 0,
+			'name'     => $this->config->get('config_name') . $this->language->get('text_default'),
+			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true)
+		);
+
+		$results = $this->model_setting_store->getStores();
+
+		foreach ($results as $result) {
+			$data['stores'][] = array(
+				'store_id' => $result['store_id'],
+				'name'     => $result['name'],
+				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true)
+			);
+		}
+
+		$data['store_id'] = $this->store_id;
+
+		$store_info = $this->model_setting_store->getStore($this->store_id);
+		if ($store_info) {
+			$data['store_name'] = $store_info['name'];
+		} else {
+			$data['store_name'] = $this->config->get('config_name') . $this->language->get('text_default');
+		}
+
+		$data['action'] = $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true);
 
 		if (strcasecmp($this->request->server['REQUEST_METHOD'], 'POST') == 0) {
 			foreach ($this->field_names as $field) {
@@ -145,7 +176,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 			}
 		}
 
-		$data['url_newsman_settings'] = $this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true);
+		$data['url_newsman_settings'] = $this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true);
 
 		$data['is_remarketing_connected'] = false;
 		$newsman_user_id = $this->model_setting_setting->getSettingValue('newsman_user_id', $this->store_id);
@@ -169,6 +200,8 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$data['text_credentials_invalid'] = $this->language->get('text_credentials_invalid');
 		$data['text_api_status_hint'] = $this->language->get('text_api_status_hint');
 		$data['entry_api_status'] = $this->language->get('entry_api_status');
+		$data['text_store'] = $this->language->get('text_store');
+		$data['text_config_for_store'] = sprintf($this->language->get('text_config_for_store'), $data['store_name'], $this->store_id);
 
 		// Load translations
 		if (VERSION < '3') {

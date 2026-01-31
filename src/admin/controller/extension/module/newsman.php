@@ -127,6 +127,15 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$data['newsman_api_key'] = $this->model_setting_setting->getSettingValue('newsman_api_key', $this->store_id);
 		$data['back'] = $this->url->link('extension/module/newsman', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']], true);
 
+		$this->load->model('setting/store');
+		$store_info = $this->model_setting_store->getStore($this->store_id);
+		if ($store_info) {
+			$store_name = $store_info['name'];
+		} else {
+			$store_name = $this->config->get('config_name') . $this->language->get('text_default');
+		}
+		$data['text_setup_for_store'] = sprintf($this->language->get('text_setup_for_store'), $store_name, $this->store_id);
+
 		$this->addPageLayout($data);
 
 		$step3_error = isset($this->request->get['step3_error']) ? $this->request->get['step3_error'] : '';
@@ -164,6 +173,15 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['breadcrumbs'] = $this->breadcrumbs();
 		$data['oauth_url'] = $this->getOauthUrl();
+
+		$this->load->model('setting/store');
+		$store_info = $this->model_setting_store->getStore($this->store_id);
+		if ($store_info) {
+			$store_name = $store_info['name'];
+		} else {
+			$store_name = $this->config->get('config_name') . $this->language->get('text_default');
+		}
+		$data['text_setup_for_store'] = sprintf($this->language->get('text_setup_for_store'), $store_name, $this->store_id);
 
 		// Get the error from the request. If it's not empty, then create an error message for view.
 		$oauth_error = isset($this->request->get['error']) ? $this->request->get['error'] : '';
@@ -304,6 +322,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		// Upgrade extension after the module is enabled.
 		// This is the actual execution of the upgrade on the first installation.
+		$this->nzmconfig->init(true);
 		$this->nzmsetup->upgrade();
 
 		// API get and save in admin remarketing configuration.
@@ -609,6 +628,37 @@ class ControllerExtensionModuleNewsman extends Controller {
 			'cancel'      => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true)
 		);
 
+		$this->load->model('setting/store');
+
+		$data['stores'] = array();
+
+		$data['stores'][] = array(
+			'store_id' => 0,
+			'name'     => $this->config->get('config_name') . $this->language->get('text_default'),
+			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true)
+		);
+
+		$results = $this->model_setting_store->getStores();
+
+		foreach ($results as $result) {
+			$data['stores'][] = array(
+				'store_id' => $result['store_id'],
+				'name'     => $result['name'],
+				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true)
+			);
+		}
+
+		$data['store_id'] = $this->store_id;
+
+		$store_info = $this->model_setting_store->getStore($this->store_id);
+		if ($store_info) {
+			$data['store_name'] = $store_info['name'];
+		} else {
+			$data['store_name'] = $this->config->get('config_name') . $this->language->get('text_default');
+		}
+
+		$data['action'] = $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true);
+
 		// Check for messages from other actions
 		if (!empty($this->session->data['success'])) {
 			$data['success'] = $this->session->data['success'];
@@ -623,6 +673,9 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if (!$this->user->hasPermission('modify', $this->location['module'] . '/' . $this->module_name)) {
 			$data['warning'] = $this->language->get('error_permission');
 		}
+
+		$data['text_store'] = $this->language->get('text_store');
+		$data['text_config_for_store'] = sprintf($this->language->get('text_config_for_store'), $data['store_name'], $this->store_id);
 
 		$this->addPageLayout($data);
 
@@ -647,7 +700,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->model_extension_newsman_setting->editSetting('module_newsman', $settings_status, $this->store_id);
 
 			$this->session->data['success'] = $this->language->get('text_success');
-			$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true));
+			$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module&store_id=' . $this->store_id, true));
 		}
 
 		if (strcasecmp($this->request->server['REQUEST_METHOD'], 'POST') == 0) {
@@ -681,7 +734,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			}
 		}
 
-		$data['url_remarketing_settings'] = $this->url->link('extension/analytics/newsmanremarketing', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true);
+		$data['url_remarketing_settings'] = $this->url->link('extension/analytics/newsmanremarketing', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true);
 		$data['reconfigure'] = $this->url->link('extension/module/newsman/step1', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']], true);
 
 		if (VERSION < '3') {
@@ -706,6 +759,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'text_remarketing_settings',
 				'text_cron',
 				'text_reconfigure',
+				'text_store',
 				'entry_api_status',
 				'entry_module_status',
 				'entry_user_id',
@@ -842,7 +896,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if (!$this->validate()) {
 			$this->load->language('extension/module/newsman');
 			$this->session->data['error'] = $this->language->get('error_permission');
-			$this->response->redirect($this->url->link('extension/module/newsman', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true));
+			$this->response->redirect($this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true));
 		}
 
 		$this->load->language('extension/module/newsman');
@@ -867,7 +921,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->session->data['error'] = $e->getMessage();
 		}
 
-		$this->response->redirect($this->url->link('extension/module/newsman', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true));
+		$this->response->redirect($this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true));
 	}
 
 	/**
@@ -879,7 +933,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if (!$this->validate()) {
 			$this->load->language('extension/module/newsman');
 			$this->session->data['error'] = $this->language->get('error_permission');
-			$this->response->redirect($this->url->link('extension/module/newsman', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true));
+			$this->response->redirect($this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true));
 		}
 
 		$this->load->language('extension/module/newsman');
@@ -914,7 +968,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->session->data['error'] = $e->getMessage();
 		}
 
-		$this->response->redirect($this->url->link('extension/module/newsman', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true));
+		$this->response->redirect($this->url->link('extension/module/newsman', $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true));
 	}
 
 	/**

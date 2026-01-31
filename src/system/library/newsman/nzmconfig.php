@@ -18,6 +18,11 @@ class Nzmconfig extends Library {
 	public const NAMESPACE_NEWSMAN = 'newsman';
 
 	/**
+	 * Module Newsman namespace
+	 */
+	public const NAMESPACE_MODULE_NEWSMAN = 'module_newsman';
+
+	/**
 	 * Newsman Remarketing namespace
 	 */
 	public const NAMESPACE_REMARKETING = 'analytics_newsmanremarketing';
@@ -61,8 +66,10 @@ class Nzmconfig extends Library {
 
 	/**
 	 * Initialize config
+	 *
+	 * @param bool $force
 	 */
-	public function init() {
+	public function init($force = false) {
 		$this->load->model('setting/setting');
 		$this->load->model('setting/store');
 
@@ -72,27 +79,39 @@ class Nzmconfig extends Library {
 		}
 		$store_id = (int)$store_id;
 
-		$user_id = $this->registry->config->get('newsman_user_id');
-
 		if (!isset($this->config_loaded[$store_id])) {
 			$this->config_loaded[$store_id] = false;
 		}
-		if ($user_id !== null) {
-			// Assumes that config is loaded in the registry.
-			$this->config_loaded[$store_id] = true;
 
-			return;
-		}
+		foreach ($this->getAllStoreIds() as $a_store_id) {
+			if (!$force && !empty($this->config_loaded[$a_store_id])) {
+				continue;
+			}
 
-		if (!isset($this->nzm_config[$store_id])) {
-			$this->nzm_config[$store_id] = array();
+			if ($a_store_id === $store_id) {
+				// Assumes that config is loaded in the registry.
+				// Explanation: in getConfigValue we use $this->registry->config->get($key) to get config from cache.
+				// Target: it speeds up the storefront.
+				$this->config_loaded[$a_store_id] = true;
+				continue;
+			}
+
+			// Load the other stores with SQL query so we do not run init
+			// in edge cases and repeat this many times without intent.
+			if (!isset($this->nzm_config[$a_store_id])) {
+				$this->nzm_config[$a_store_id] = array();
+			}
+			$this->nzm_config[$a_store_id] = $this->model_setting_setting->getSetting(self::NAMESPACE_NEWSMAN, $a_store_id);
+			$this->nzm_config[$a_store_id] = array_merge(
+				$this->model_setting_setting->getSetting(self::NAMESPACE_MODULE_NEWSMAN, $a_store_id),
+				$this->nzm_config[$a_store_id]
+			);
+			$this->nzm_config[$a_store_id] = array_merge(
+				$this->model_setting_setting->getSetting(self::NAMESPACE_REMARKETING, $a_store_id),
+				$this->nzm_config[$a_store_id]
+			);
+			$this->config_loaded[$a_store_id] = true;
 		}
-		$this->nzm_config[$store_id] = $this->model_setting_setting->getSetting(self::NAMESPACE_NEWSMAN, $store_id);
-		$this->nzm_config[$store_id] = array_merge(
-			$this->model_setting_setting->getSetting(self::NAMESPACE_REMARKETING, $store_id),
-			$this->nzm_config[$store_id]
-		);
-		$this->config_loaded[$store_id] = true;
 	}
 
 	/**
@@ -799,12 +818,13 @@ class Nzmconfig extends Library {
 	 * @return mixed|null
 	 */
 	public function getConfigValue($key, $store_id = null) {
-		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
-		if (!empty($this->config_loaded[$store_id])) {
+		$current_store_id = $this->getCurrentStoreId();
+		$store_id = ($store_id !== null) ? $store_id : $current_store_id;
+		if ($current_store_id === $store_id) {
 			return $this->registry->config->get($key);
 		}
 
-		if (isset($this->nzm_config[$store_id][$key])) {
+		if ($this->config_loaded[$store_id] && isset($this->nzm_config[$store_id][$key])) {
 			return $this->nzm_config[$store_id][$key];
 		}
 

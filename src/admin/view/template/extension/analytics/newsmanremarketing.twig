@@ -13,10 +13,24 @@
                     <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
                 {% endfor %}
             </ul>
-            |&nbsp;<a href="{{ url_newsman_settings }}" title="text_newsman_settings">{{ text_newsman_settings }}</a>
+            |&nbsp;<a href="{{ url_newsman_settings }}" title="{{ text_newsman_settings }}">{{ text_newsman_settings }}</a>
         </div>
     </div>
     <div class="container-fluid">
+        <div class="well">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="control-label" for="input-store">{{ text_store }}</label>
+                        <select name="store_id" id="input-store" class="form-control" onchange="location = this.value;">
+                            {% for store in stores %}
+                                <option value="{{ store.href }}" {% if store.store_id == store_id %}selected{% endif %}>{{ store.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% if error_warning %}
             <div class="alert alert-danger alert-dismissible"><i
                         class="fa fa-exclamation-circle"></i> {{ error_warning }}

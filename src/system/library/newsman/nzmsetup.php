@@ -82,7 +82,9 @@ class Nzmsetup extends \Newsman\Library {
 		$this->load->model('setting/setting');
 		$this->load->model('setting/event');
 
+		$this->model_setting_setting->deleteSetting('module_newsman');
 		$this->model_setting_setting->deleteSetting('newsman');
+		$this->model_setting_setting->deleteSetting('analytics_newsmanremarketing');
 
 		$this->model_setting_event->deleteEventByCode('newsman_upgrade_setup_sale_order');
 		$this->model_setting_event->deleteEventByCode('newsman_upgrade_setup_catalog_product');
