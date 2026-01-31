@@ -73,7 +73,9 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'developer_user_ip',
 		'checkout_newsletter',
 		'checkout_newsletter_default',
-		'checkout_newsletter_label'
+		'checkout_newsletter_label',
+		'export_subscribers_by_store',
+		'export_customers_by_store'
 	);
 
 	/**
@@ -649,6 +651,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		}
 
 		$data['store_id'] = $this->store_id;
+		$data['is_multistore'] = count($results) > 0;
 
 		$store_info = $this->model_setting_store->getStore($this->store_id);
 		if ($store_info) {

@@ -182,6 +182,8 @@ class Nzmsetup extends \Newsman\Library {
 		$data['newsman_checkout_newsletter'] = 1;
 		$data['newsman_checkout_newsletter_default'] = 1;
 		$data['newsman_checkout_newsletter_label'] = 'I wish to subscribe to the newsletter.';
+		$data['newsman_export_subscribers_by_store'] = 0;
+		$data['newsman_export_customers_by_store'] = 0;
 
 		$this->model_extension_newsman_setting->editSetting(
 			'newsman',

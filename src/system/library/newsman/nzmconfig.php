@@ -903,6 +903,32 @@ class Nzmconfig extends Library {
 	}
 
 	/**
+	 * Is export subscribers by store active
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isExportSubscribersByStore($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (bool)$this->getConfigValue('newsman_export_subscribers_by_store', $store_id);
+	}
+
+	/**
+	 * Is export customers by store active
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isExportCustomersByStore($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (bool)$this->getConfigValue('newsman_export_customers_by_store', $store_id);
+	}
+
+	/**
 	 * Get storage config
 	 *
 	 * @return \Config

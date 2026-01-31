@@ -21,6 +21,56 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 	protected $additional_attributes = array();
 
 	/**
+	 * Is subscribers retriever
+	 *
+	 * @var bool
+	 */
+	protected $is_subscribers = false;
+
+	/**
+	 * Is customers retriever
+	 *
+	 * @var bool
+	 */
+	protected $is_customers = false;
+
+	/**
+	 * @return bool
+	 */
+	public function getIsSubscriber() {
+		return $this->is_subscribers;
+	}
+
+	/**
+	 * @param bool $is_subscribers
+	 *
+	 * @return $this
+	 */
+	public function setIsSubscriber($is_subscribers) {
+		$this->is_subscribers = (bool)$is_subscribers;
+
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getIsCustomers() {
+		return $this->is_customers;
+	}
+
+	/**
+	 * @param bool $is_customers
+	 *
+	 * @return $this
+	 */
+	public function setIsCustomers($is_customers) {
+		$this->is_customers = (bool)$is_customers;
+
+		return $this;
+	}
+
+	/**
 	 * Process users retriever
 	 *
 	 * @param array    $data
@@ -33,6 +83,15 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 		$data['default_page_size'] = self::DEFAULT_PAGE_SIZE;
 
 		$this->event->trigger('newsman/export_retriever_users_process_params/before', array(&$data, $store_id));
+
+		if (isset($data['_internal_is_subscribers'])) {
+			$this->setIsSubscriber($data['_internal_is_subscribers']);
+			unset($data['_internal_is_subscribers']);
+		} elseif (isset($data['_internal_is_customers'])) {
+			$this->setIsCustomers($data['_internal_is_customers']);
+			unset($data['_internal_is_customers']);
+		}
+
 		$parameters = $this->processListParameters($data, $store_id);
 		$this->event->trigger('newsman/export_retriever_users_process_params/after', array(&$parameters, $data, $store_id));
 
@@ -109,7 +168,18 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 		}
 
 		$sql .= " WHERE cgd.language_id = '" . $this->getLanguageIdByStoreId($store_id) . "'";
-		$sql .= " AND store_id = " . $store_id;
+
+		if ($this->getIsSubscriber()) {
+			if ($this->config->isExportSubscribersByStore($store_id)) {
+				$sql .= " AND store_id = " . (int)$store_id;
+			}
+		} elseif ($this->getIsCustomers()) {
+			if ($this->config->isExportCustomersByStore($store_id)) {
+				$sql .= " AND store_id = " . (int)$store_id;
+			}
+		} else {
+			$sql .= " AND store_id = " . (int)$store_id;
+		}
 
 		$where = array();
 		foreach ($params['filters'] as $filter) {

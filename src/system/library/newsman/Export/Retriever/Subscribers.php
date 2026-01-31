@@ -19,6 +19,7 @@ class Subscribers extends Users {
 	 */
 	public function process($data = array(), $store_id = null) {
 		$data['confirmed'] = 1;
+		$data['_internal_is_subscribers'] = true;
 
 		return parent::process($data, $store_id);
 	}

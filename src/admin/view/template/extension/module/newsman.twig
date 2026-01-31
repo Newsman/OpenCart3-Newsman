@@ -211,6 +211,32 @@
                                    value="{{ newsman_checkout_newsletter_label }}">
                         </div>
                     </div>
+                    {% if is_multistore %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="input-export-subscribers-by-store">{{ entry_export_subscribers_by_store }}</label>
+                            <div class="col-sm-10">
+                                <select name="newsman_export_subscribers_by_store" id="input-export-subscribers-by-store" class="form-control">
+                                    <option value="0"
+                                            {% if not newsman_export_subscribers_by_store %}selected{% endif %}>{{ text_disabled }}</option>
+                                    <option value="1"
+                                            {% if newsman_export_subscribers_by_store %}selected{% endif %}>{{ text_enabled }}</option>
+                                </select>
+                                <span class="help-block">{{ entry_export_subscribers_by_store_help }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="input-export-customers-by-store">{{ entry_export_customers_by_store }}</label>
+                            <div class="col-sm-10">
+                                <select name="newsman_export_customers_by_store" id="input-export-customers-by-store" class="form-control">
+                                    <option value="1"
+                                            {% if newsman_export_customers_by_store %}selected{% endif %}>{{ text_enabled }}</option>
+                                    <option value="0"
+                                            {% if not newsman_export_customers_by_store %}selected{% endif %}>{{ text_disabled }}</option>
+                                </select>
+                                <span class="help-block">{{ entry_export_customers_by_store_help }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{ text_cron }}</label>
                         <div style="padding-top: 7px;" class="col-sm-10">

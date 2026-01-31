@@ -24,6 +24,7 @@ class SendSubscribers extends Users {
 	 */
 	public function process($data = array(), $store_id = null) {
 		$data['confirmed'] = 1;
+		$data['_internal_is_subscribers'] = true;
 
 		$subscribers = parent::process($data, $store_id);
 		if (empty($subscribers)) {

@@ -9,6 +9,21 @@ namespace Newsman\Export\Retriever;
  */
 class Customers extends Users {
 	/**
+	 * Process customers retriever
+	 *
+	 * @param array    $data
+	 * @param null|int $store_id
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function process($data = array(), $store_id = null) {
+		$data['_internal_is_customers'] = true;
+
+		return parent::process($data, $store_id);
+	}
+
+	/**
 	 * Process customer
 	 *
 	 * @param array    $customer
