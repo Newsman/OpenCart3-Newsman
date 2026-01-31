@@ -800,7 +800,7 @@ class Nzmconfig extends Library {
 	 */
 	public function getConfigValue($key, $store_id = null) {
 		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
-		if ($this->config_loaded[$store_id]) {
+		if (!empty($this->config_loaded[$store_id])) {
 			return $this->registry->config->get($key);
 		}
 
