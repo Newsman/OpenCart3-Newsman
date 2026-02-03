@@ -1058,7 +1058,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		foreach ($this->request->post['selected'] as $customer_id) {
 			$customer_info = $this->model_customer_customer->getCustomer($customer_id);
 
-			if (!$customer_info || empty($customer_info['email'])) {
+			if (!(is_array($customer_info) && !empty($customer_info['email']) && !empty($customer_info['newsletter']))) {
 				continue;
 			}
 
