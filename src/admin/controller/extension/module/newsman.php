@@ -134,7 +134,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if ($store_info) {
 			$store_name = $store_info['name'];
 		} else {
-			$store_name = $this->config->get('config_name') . ' (' . $this->language->get('text_default') . ')';
+			$store_name = $this->config->get('config_name') . $this->language->get('text_default');
 		}
 		$data['text_setup_for_store'] = sprintf($this->language->get('text_setup_for_store'), $store_name, $this->store_id);
 
