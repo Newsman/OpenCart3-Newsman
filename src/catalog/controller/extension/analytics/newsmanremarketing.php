@@ -211,8 +211,8 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 	{
 		$this->load->model('checkout/order');
 
-		$endpoint = "https://retargeting.newsmanapp.com/js/retargeting/track.js";
-		$endpointHost = "https://retargeting.newsmanapp.com";
+		$endpoint = "https://t.newsmanapp.com/jt/t.js";
+		$endpointHost = "https://t.newsmanapp.com";
 
 		$tag = "";
 
@@ -241,8 +241,8 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller
 
 				//Newsman remarketing tracking code
 
-var endpoint = 'https://retargeting.newsmanapp.com';
-var remarketingEndpoint = endpoint + '/js/retargeting/track.js';
+var endpoint = 'https://t.newsmanapp.com';
+var remarketingEndpoint = endpoint + '/jt/t.js';
 
 var _nzm = _nzm || [];
 var _nzm_config = _nzm_config || [];
@@ -711,8 +711,8 @@ TAG;
 
 					//Newsman remarketing tracking code
 
-					var endpoint = 'https://retargeting.newsmanapp.com';
-					var remarketingEndpoint = endpoint + '/js/retargeting/track.js';
+					var endpoint = 'https://t.newsmanapp.com';
+					var remarketingEndpoint = endpoint + '/jt/t.js';
 					var remarketingid = '$tracking_id';
 					var ajaxurl = '/index.php?route=extension/module/newsman&newsman=getCart.json';
 
