@@ -213,14 +213,14 @@ class Nzmsetup extends \Newsman\Library {
 		$data['analytics_newsmanremarketing_status'] = 1;
 		$data['analytics_newsmanremarketing_anonymize_ip'] = 0;
 		$data['analytics_newsmanremarketing_send_telephone'] = 1;
-		$data['analytics_newsmanremarketing_tracking_script_url'] = 'https://retargeting.newsmanapp.com/js/retargeting/track.js';
-		$data['analytics_newsmanremarketing_http_resource_url'] = 'https://retargeting.newsmanapp.com/';
+		$data['analytics_newsmanremarketing_tracking_script_url'] = 'https://t.newsmanapp.com/jt/t.js';
+		$data['analytics_newsmanremarketing_http_resource_url'] = 'https://t.newsmanapp.com/';
 		$data['analytics_newsman_remarketing_http_tracking_url'] = 'https://rtrack.newsmanapp.com/';
 
-		$data['analytics_newsmanremarketing_http_required_file_patterns'] = 'js/retargeting/track.js
-js/retargeting/nzm_custom_{{api_key}}.js
-js/retargeting/ecommerce.js
-js/retargeting/modal_{{api_key}}.js';
+		$data['analytics_newsmanremarketing_http_required_file_patterns'] = 'jt/t.js
+jt/nzm_custom_{{api_key}}.js
+jt/ecommerce.js
+jt/modal_{{api_key}}.js';
 
 		$data['analytics_newsmanremarketing_script_js'] = "var _nzm = _nzm || [],
     _nzm_config = _nzm_config || [];
