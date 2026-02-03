@@ -24,6 +24,7 @@ $_['text_reconfigure'] = 'Reconfigurare cu autentificare Newsman';
 $_['text_config_for_store'] = 'Reconfigurare pentru magazinul: %s (ID: %s)';
 $_['text_setup_for_store'] = 'Configurare inițială pentru magazinul: %s (ID: %s)';
 $_['text_store'] = 'Magazin';
+$_['text_version'] = 'Versiune extensie Newsman';
 $_['button_export_subscribers'] = 'Exportă Toți Abonații';
 $_['button_export_orders'] = 'Exportă Toate Comenzile';
 $_['button_export_orders_60_days'] = 'Exportă Comenzi (60 zile)';

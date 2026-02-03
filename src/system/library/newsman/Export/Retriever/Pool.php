@@ -53,6 +53,10 @@ class Pool extends \Newsman\Nzmbase {
 		'version'          => array(
 			'code'  => 'version',
 			'class' => '\Newsman\Export\Retriever\Version'
+		),
+		'newsman-version'          => array(
+			'code'  => 'newsman-version',
+			'class' => '\Newsman\Export\Retriever\NewsmanVersion'
 		)
 	);
 

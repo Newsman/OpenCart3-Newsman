@@ -24,6 +24,7 @@ $_['text_reconfigure'] = 'Reconfigure with Newsman Login';
 $_['text_config_for_store'] = 'Reconfigure for store: %s (ID: %s)';
 $_['text_setup_for_store'] = 'Setup for store: %s (ID: %s)';
 $_['text_store'] = 'Store';
+$_['text_version'] = 'Newsman Extension Version';
 $_['button_export_subscribers'] = 'Export All Subscribers';
 $_['button_export_orders'] = 'Export All Orders';
 $_['button_export_orders_60_days'] = 'Export Orders (60 days)';

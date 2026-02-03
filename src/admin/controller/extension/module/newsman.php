@@ -678,7 +678,11 @@ class ControllerExtensionModuleNewsman extends Controller {
 		}
 
 		$data['text_store'] = $this->language->get('text_store');
+		$data['text_version'] = $this->language->get('text_version');
 		$data['text_config_for_store'] = sprintf($this->language->get('text_config_for_store'), $data['store_name'], $this->store_id);
+
+		$version = new \Newsman\Util\Version($this->registry);
+		$data['newsman_version'] = $version->getVersion();
 
 		$this->addPageLayout($data);
 
