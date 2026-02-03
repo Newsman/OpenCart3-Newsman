@@ -855,7 +855,7 @@ class Nzmconfig extends Library {
 	public function getSetupVersion($store_id = null) {
 		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
 
-		return $this->getConfigValue('newsman_setup_version', $store_id);
+		return (string)$this->getConfigValue('newsman_setup_version', $store_id);
 	}
 
 	/**
