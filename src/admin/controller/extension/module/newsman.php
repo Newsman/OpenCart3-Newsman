@@ -134,7 +134,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if ($store_info) {
 			$store_name = $store_info['name'];
 		} else {
-			$store_name = $this->config->get('config_name') . $this->language->get('text_default');
+			$store_name = $this->config->get('config_name') . ' (' . $this->language->get('text_default') . ')';
 		}
 		$data['text_setup_for_store'] = sprintf($this->language->get('text_setup_for_store'), $store_name, $this->store_id);
 
@@ -884,6 +884,57 @@ class ControllerExtensionModuleNewsman extends Controller {
 		}
 
 		return $this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG;
+	}
+
+	public function addAdminLink(&$route, &$data, &$template) {
+		// Add NewsMAN menu links
+		if (!isset($data['menus']) || !is_array($data['menus'])) {
+			return;
+		}
+
+		$this->load->language('extension/module/newsman');
+
+		$has_settings = $this->user->hasPermission('access', 'extension/module/newsman');
+		$has_remarketing = $this->user->hasPermission('access', 'extension/analytics/newsmanremarketing');
+
+		if (!$has_settings && !$has_remarketing) {
+			return;
+		}
+
+		$token_param = $this->names['token'];
+		$token_value = isset($this->session->data[$token_param]) ? $this->session->data[$token_param] : '';
+
+		$children = array();
+
+		if ($has_settings) {
+			$children[] = array(
+				'name'     => $this->language->get('text_menu_settings'),
+				'children' => array(),
+				'href'     => $this->url->link('extension/module/newsman', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true)
+			);
+		}
+
+		if ($has_remarketing) {
+			$children[] = array(
+				'name'     => $this->language->get('text_menu_remarketing'),
+				'children' => array(),
+				'href'     => $this->url->link('extension/analytics/newsmanremarketing', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true)
+			);
+		}
+
+		if (empty($children)) {
+			return;
+		}
+
+		$newsman_menu = array(
+			'id'       => 'menu-newsman',
+			'icon'	   => 'fa-envelope',
+			'name'	   => $this->language->get('heading_title'),
+			'href'     => '',
+			'children' => $children
+		);
+
+		$data['menus'][] = $newsman_menu;
 	}
 
 	public function install() {

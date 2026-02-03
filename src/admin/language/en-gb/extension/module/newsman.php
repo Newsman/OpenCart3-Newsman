@@ -6,6 +6,8 @@ $_['heading_title_main'] = 'Configure NewsMAN';
 // Text
 $_['text_module'] = 'Module';
 $_['text_extension'] = 'Extensions';
+$_['text_menu_settings'] = 'Settings';
+$_['text_menu_remarketing'] = 'Remarketing';
 $_['text_header_edit'] = 'Settings';
 $_['text_header_developer_edit'] = 'Developer Settings';
 $_['text_close'] = 'Close';
