@@ -121,7 +121,7 @@ class SendSubscribers extends Users {
 	 * Process subscriber
 	 *
 	 * @param array    $subscriber Subscriber.
-	 * @param null|int $store_id WP blog ID.
+	 * @param null|int $store_id Store ID.
 	 *
 	 * @return array
 	 */
