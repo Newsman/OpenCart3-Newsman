@@ -372,4 +372,28 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 
 		return $this->additional_attributes;
 	}
+
+	/**
+	 * Get user IP from a customer
+	 *
+	 * @param array    $customer
+	 * @param null|int $store_id
+	 *
+	 * @return string
+	 */
+	public function getUserIpFromCustomer($customer, $store_id = null) {
+		$ip = '';
+		$this->event->trigger('newsman/export_retriever_users_get_user_ip', array(&$ip, $customer, $store_id));
+
+		if (!empty($ip)) {
+			return $ip;
+		}
+
+		$server_ip = $this->config->getServerIp($store_id);
+		if (!empty($server_ip) && $server_ip !== \Newsman\User\HostIpAddress::NOT_FOUND) {
+			return $server_ip;
+		}
+
+		return '';
+	}
 }

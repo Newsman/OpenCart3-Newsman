@@ -38,7 +38,8 @@ class Customers extends Users {
 			'lastname'     => $customer['lastname'],
 			'email'        => $customer['email'],
 			'phone'        => $this->cleanPhone($customer['telephone']),
-			'date_created' => $customer['date_added']
+			'date_created' => $customer['date_added'],
+			'source'       => 'Opencart3 customers'
 		);
 
 		if (!$this->config->isSendTelephone($store_id)) {

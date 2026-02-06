@@ -33,16 +33,29 @@ class Subscribers extends Users {
 	 * @return array
 	 */
 	public function processCustomer($customer, $store_id = null) {
+		$ip = '';
+		$this->event->trigger('newsman/export_retriever_customers_get_customer_ip', array(&$ip, $customer, $store_id));
+		if (empty($ip)) {
+			$ip = $customer['ip'];
+			if (empty($customer['ip'])) {
+				$ip = $this->getUserIpFromCustomer($customer, $store_id);
+			}
+		}
+
 		$row = array(
 			'subscriber_id'   => $customer['customer_id'],
 			'firstname'       => $customer['firstname'],
 			'lastname'        => $customer['lastname'],
 			'email'           => $customer['email'],
 			'phone'           => $this->cleanPhone($customer['telephone']),
-			'ip'              => $customer['ip'],
 			'date_subscribed' => $customer['date_added'],
-			'confirmed'       => 1
+			'confirmed'       => 1,
+			'source'          => 'Opencart3 subscribers'
 		);
+
+		if (!empty($ip)) {
+			$row['ip'] = $ip;
+		}
 
 		if (!$this->config->isSendTelephone($store_id)) {
 			unset($row['phone']);
