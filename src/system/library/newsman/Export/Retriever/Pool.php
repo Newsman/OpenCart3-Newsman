@@ -28,15 +28,18 @@ class Pool extends \Newsman\Nzmbase {
 		),
 		'customers'        => array(
 			'code'  => 'customers',
-			'class' => '\Newsman\Export\Retriever\Customers'
+			'class' => '\Newsman\Export\Retriever\Customers',
+			'has_filters' => true
 		),
 		'orders'           => array(
 			'code'  => 'orders',
-			'class' => '\Newsman\Export\Retriever\Orders'
+			'class' => '\Newsman\Export\Retriever\Orders',
+			'has_filters' => true
 		),
 		'products'         => array(
 			'code'  => 'products',
-			'class' => '\Newsman\Export\Retriever\Products'
+			'class' => '\Newsman\Export\Retriever\Products',
+			'has_filters' => true
 		),
 		'send-orders'      => array(
 			'code'  => 'send-orders',
@@ -48,7 +51,8 @@ class Pool extends \Newsman\Nzmbase {
 		),
 		'subscribers'      => array(
 			'code'  => 'subscribers',
-			'class' => '\Newsman\Export\Retriever\Subscribers'
+			'class' => '\Newsman\Export\Retriever\Subscribers',
+			'has_filters' => true
 		),
 		'version'          => array(
 			'code'  => 'version',
@@ -91,6 +95,23 @@ class Pool extends \Newsman\Nzmbase {
 		$this->event->trigger('newsman/export_retriever_pool_get_retriever_list/before', array(&$this->retriever_list));
 
 		return $this->retriever_list;
+	}
+
+	/**
+	 * Get retrievers with has_filters = true
+	 *
+	 * @return array
+	 */
+	public function getFiltersRetrievers() {
+		$retrievers = array();
+
+		foreach ($this->getRetrieverList() as $retriever) {
+			if (isset($retriever['has_filters']) && $retriever['has_filters'] === true) {
+				$retrievers[] = $retriever;
+			}
+		}
+
+		return $retrievers;
 	}
 
 	/**
