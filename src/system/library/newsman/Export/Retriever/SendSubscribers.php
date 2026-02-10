@@ -98,14 +98,10 @@ class SendSubscribers extends Users {
 	 */
 	public function processCustomer($customer, $store_id = null) {
 		$row = array(
-			'subscriber_id'   => $customer['customer_id'],
+			'email'           => $customer['email'],
 			'firstname'       => $customer['firstname'],
 			'lastname'        => $customer['lastname'],
-			'email'           => $customer['email'],
-			'phone'           => $this->cleanPhone($customer['telephone']),
-			'ip'              => $customer['ip'],
-			'date_subscribed' => $customer['date_added'],
-			'confirmed'       => 1
+			'phone'           => $this->cleanPhone($customer['telephone'])
 		);
 
 		if (!$this->config->isSendTelephone($store_id)) {

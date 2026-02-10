@@ -36,10 +36,14 @@ class Pool extends \Newsman\Nzmbase {
 			'class' => '\Newsman\Export\Retriever\Orders',
 			'has_filters' => true
 		),
+		'products-feed'    => array(
+			'code'  => 'products-feed',
+			'class' => '\Newsman\Export\Retriever\ProductsFeed',
+			'has_filters' => true
+		),
 		'products'         => array(
 			'code'  => 'products',
-			'class' => '\Newsman\Export\Retriever\Products',
-			'has_filters' => true
+			'class' => '\Newsman\Export\Retriever\Products'
 		),
 		'send-orders'      => array(
 			'code'  => 'send-orders',
