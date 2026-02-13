@@ -49,6 +49,8 @@ class Request extends \Newsman\Nzmbase {
 		'expire_date',
 		'min_amount',
 		'currency',
+		// Custom SQL
+		'sql',
 	);
 
 	/**
@@ -89,6 +91,8 @@ class Request extends \Newsman\Nzmbase {
 		'expire_date',
 		'min_amount',
 		'currency',
+		// Custom SQL
+		'sql',
 	);
 
 	/**

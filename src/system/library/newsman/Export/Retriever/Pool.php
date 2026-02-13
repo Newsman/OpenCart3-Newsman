@@ -65,6 +65,10 @@ class Pool extends \Newsman\Nzmbase {
 		'newsman-version'          => array(
 			'code'  => 'newsman-version',
 			'class' => '\Newsman\Export\Retriever\NewsmanVersion'
+		),
+		'custom-sql'               => array(
+			'code'  => 'custom-sql',
+			'class' => '\Newsman\Export\Retriever\CustomSql'
 		)
 	);
 
