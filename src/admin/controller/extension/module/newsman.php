@@ -338,6 +338,20 @@ class ControllerExtensionModuleNewsman extends Controller {
 		];
 		$this->model_extension_newsman_setting->editSetting('analytics_newsmanremarketing', $settings, $this->store_id);
 
+		// Save integration setup in Newsman.
+		$authenticate_token = $this->nzmconfig->getAuthenticateToken($this->store_id);
+		$integration_result = $this->saveListIntegrationSetup(
+			$list_id,
+			$this->getStorefrontUrl(),
+			$authenticate_token,
+			$user_id,
+			$api_key
+		);
+		if ($integration_result === false) {
+			$this->response->redirect($this->url->link('extension/module/newsman/step1', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&step3_error=1', true));
+			return;
+		}
+
 		// Install the product feed in Newsman.
 		$url = $this->getStorefrontUrl() . "/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=" . $api_key;
 		$result = $this->setFeedOnList(
@@ -470,6 +484,56 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$set_feed = new \Newsman\Service\Configuration\UpdateFeed($this->registry);
 
 			return $set_feed->execute($context);
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
+
+			return false;
+		}
+	}
+
+	/**
+	 * Call API saveListIntegrationSetup
+	 *
+	 * @param string      $list_id List ID.
+	 * @param string      $storefront_url Storefront URL.
+	 * @param string      $authenticate_token Authenticate token.
+	 * @param null|string $user_id User ID.
+	 * @param null|string $api_key API key.
+	 *
+	 * @return bool
+	 */
+	public function saveListIntegrationSetup($list_id, $storefront_url, $authenticate_token, $user_id = null, $api_key = null) {
+		try {
+			if ($user_id === null) {
+				$user_id = $this->nzmconfig->getUserId($this->store_id);
+			}
+			if ($api_key === null) {
+				$api_key = $this->nzmconfig->getApiKey($this->store_id);
+			}
+
+			$api_url = rtrim($storefront_url, '/') . '/index.php?route=extension/module/newsman';
+
+			$version = new \Newsman\Util\Version($this->registry);
+			$payload = array(
+				'api_url'                  => $api_url,
+				'api_key'                  => $authenticate_token,
+				'plugin_version'           => $version->getVersion(),
+				'platform_version'         => VERSION,
+				'platform_language'        => 'PHP',
+				'platform_language_version' => phpversion(),
+			);
+
+			$context = new \Newsman\Service\Context\Configuration\SaveListIntegrationSetup();
+			$context->setUserId($user_id)
+				->setApiKey($api_key)
+				->setListId($list_id)
+				->setIntegration('opencart3')
+				->setPayload($payload);
+
+			$service = new \Newsman\Service\Configuration\Integration\SaveListIntegrationSetup($this->registry);
+			$service->execute($context);
+
+			return true;
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
 
@@ -695,6 +759,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		// If the form is submitted
 		if (strcasecmp($this->request->server['REQUEST_METHOD'], 'POST') == 0 && $this->validate()) {
+			$previous_list_id = $data['newsman_list_id'];
 			$settings = array();
 			foreach ($this->field_names as $field) {
 				$settings[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
@@ -705,6 +770,37 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 			$this->model_extension_newsman_setting->editSetting($this->names['setting'], $settings, $this->store_id);
 			$this->model_extension_newsman_setting->editSetting('module_newsman', $settings_status, $this->store_id);
+
+			// Call saveListIntegrationSetup if the list ID changed.
+			$new_list_id = $settings['newsman_list_id'];
+			if (!empty($new_list_id) && $new_list_id !== $previous_list_id) {
+				$this->nzmconfig->init(true);
+				$authenticate_token = $this->nzmconfig->getAuthenticateToken($this->store_id);
+				if (empty($authenticate_token)) {
+					$authenticate_token = $this->generateRandomPassword(32);
+					$this->model_extension_newsman_setting->editSetting(
+						'newsman',
+						array('newsman_authenticate_token' => $authenticate_token),
+						$this->store_id
+					);
+				}
+				$integration_result = $this->saveListIntegrationSetup(
+					$new_list_id,
+					$this->getStorefrontUrl(),
+					$authenticate_token
+				);
+				if ($integration_result === false) {
+					// Revert the list ID to the previous value.
+					$this->model_extension_newsman_setting->editSetting(
+						'newsman',
+						array('newsman_list_id' => $previous_list_id),
+						$this->store_id
+					);
+					$this->session->data['error'] = 'Could not save integration setup. The list was not changed.';
+					$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module&store_id=' . $this->store_id, true));
+					return;
+				}
+			}
 
 			$this->session->data['success'] = $this->language->get('text_success');
 			$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module&store_id=' . $this->store_id, true));
