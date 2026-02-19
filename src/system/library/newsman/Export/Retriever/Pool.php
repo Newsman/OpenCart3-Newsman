@@ -53,6 +53,14 @@ class Pool extends \Newsman\Nzmbase {
 			'code'  => 'send-subscribers',
 			'class' => '\Newsman\Export\Retriever\SendSubscribers'
 		),
+		'subscriber-subscribe' => array(
+			'code'  => 'subscriber-subscribe',
+			'class' => '\Newsman\Export\Retriever\SubscriberSubscribe'
+		),
+		'subscriber-unsubscribe' => array(
+			'code'  => 'subscriber-unsubscribe',
+			'class' => '\Newsman\Export\Retriever\SubscriberUnsubscribe'
+		),
 		'subscribers'      => array(
 			'code'  => 'subscribers',
 			'class' => '\Newsman\Export\Retriever\Subscribers',
