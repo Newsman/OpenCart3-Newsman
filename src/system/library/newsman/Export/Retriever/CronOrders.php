@@ -5,6 +5,8 @@ namespace Newsman\Export\Retriever;
 /**
  * Class Export Retriever Cron Orders to API Newsman
  *
+ * @deprecated No longer triggered from admin UI.
+ *
  * @class \Newsman\Export\Retriever\CronOrders
  */
 class CronOrders extends SendOrders implements RetrieverInterface {

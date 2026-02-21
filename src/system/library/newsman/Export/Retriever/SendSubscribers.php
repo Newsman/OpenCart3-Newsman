@@ -6,6 +6,7 @@ namespace Newsman\Export\Retriever;
  * Class Export Retriever Cron Subscribers to API Newsman
  *
  * @class \Newsman\Export\Retriever\SendSubscribers
+ * @deprecated
  */
 class SendSubscribers extends Users {
 	/**

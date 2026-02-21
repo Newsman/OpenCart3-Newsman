@@ -36,14 +36,14 @@ class ControllerExtensionModuleNewsman extends Controller {
 	/**
 	 * @var string
 	 */
-	protected $module_name = "newsman";
+	protected $module_name = 'newsman';
 
 	/**
 	 * @var array
 	 */
 	protected $location = array(
 		'module'      => 'extension/module',
-		'marketplace' => 'marketplace/extension'
+		'marketplace' => 'marketplace/extension',
 	);
 
 	/**
@@ -53,7 +53,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'token'              => 'user_token',
 		'setting'            => 'newsman',
 		'action'             => 'action',
-		'template_extension' => ''
+		'template_extension' => '',
 	);
 
 	protected $field_names = array(
@@ -75,7 +75,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'checkout_newsletter_default',
 		'checkout_newsletter_label',
 		'export_subscribers_by_store',
-		'export_customers_by_store'
+		'export_customers_by_store',
 	);
 
 	/**
@@ -231,7 +231,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			'grant_type'   => 'authorization_code',
 			'code'         => $code,
 			'client_id'    => 'nzmplugin',
-			'redirect_uri' => ''
+			'redirect_uri' => '',
 		);
 		$ch = curl_init($this->nzmconfig->getOautTokenhUrl($this->store_id));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -254,7 +254,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$data['creds'] = json_encode(
 				array(
 					'newsman_userid' => $response->user_id,
-					'newsman_apikey' => $response->access_token
+					'newsman_apikey' => $response->access_token,
 				)
 			);
 
@@ -264,7 +264,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 				}
 				$email_lists[] = array(
 					'id'   => $l->list_id,
-					'name' => $l->name
+					'name' => $l->name,
 				);
 			}
 			$data['email_lists'] = $email_lists;
@@ -316,7 +316,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$settings = array(
 			'newsman_user_id' => $user_id,
 			'newsman_api_key' => $api_key,
-			'newsman_list_id' => $list_id
+			'newsman_list_id' => $list_id,
 		);
 		$this->model_extension_newsman_setting->editSetting('newsman', $settings, $this->store_id);
 		$this->model_extension_newsman_setting->editSetting('module_newsman', array('module_newsman_status' => 1), $this->store_id);
@@ -331,11 +331,11 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$remarketing_response = $this->getRemarketingSettings($list_id, $user_id, $api_key);
 		$remarketing_id = $remarketing_response['site_id'] . '-' . $remarketing_response['list_id'] . '-' .
 			$remarketing_response['form_id'] . '-' . $remarketing_response['control_list_hash'];
-		$settings = [
+		$settings = array(
 			'analytics_newsmanremarketing_register'   => 'newsmanremarketing',
 			'analytics_newsmanremarketing_trackingid' => $remarketing_id,
-			'analytics_newsmanremarketing_status'     => 1
-		];
+			'analytics_newsmanremarketing_status'     => 1,
+		);
 		$this->model_extension_newsman_setting->editSetting('analytics_newsmanremarketing', $settings, $this->store_id);
 
 		// Save integration setup in Newsman.
@@ -349,11 +349,12 @@ class ControllerExtensionModuleNewsman extends Controller {
 		);
 		if ($integration_result === false) {
 			$this->response->redirect($this->url->link('extension/module/newsman/step1', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&step3_error=1', true));
+
 			return;
 		}
 
 		// Install the product feed in Newsman.
-		$url = $this->getStorefrontUrl() . "/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=" . $api_key;
+		$url = $this->getStorefrontUrl() . '/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=' . $api_key;
 		$result = $this->setFeedOnList(
 			$list_id,
 			$url,
@@ -515,11 +516,11 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 			$version = new \Newsman\Util\Version($this->registry);
 			$payload = array(
-				'api_url'                  => $api_url,
-				'api_key'                  => $authenticate_token,
-				'plugin_version'           => $version->getVersion(),
-				'platform_version'         => VERSION,
-				'platform_language'        => 'PHP',
+				'api_url'                   => $api_url,
+				'api_key'                   => $authenticate_token,
+				'plugin_version'            => $version->getVersion(),
+				'platform_version'          => VERSION,
+				'platform_language'         => 'PHP',
 				'platform_language_version' => phpversion(),
 			);
 
@@ -630,7 +631,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 */
 	public function isStartOauth() {
 		$setting = $this->model_setting_setting->getSetting('newsman', $this->store_id);
-		if (empty($setting["newsman_user_id"]) || empty($setting["newsman_api_key"])) {
+		if (empty($setting['newsman_user_id']) || empty($setting['newsman_api_key'])) {
 			return true;
 		} else {
 			return false;
@@ -662,17 +663,17 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$breadcrumbs = array();
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/dashboard', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true)
+			'href' => $this->url->link('common/dashboard', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true),
 		);
 
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('text_extension'),
-			'href' => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true)
+			'href' => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true),
 		);
 
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true)
+			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true),
 		);
 
 		return $breadcrumbs;
@@ -691,7 +692,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		$data = array(
 			'breadcrumbs' => $this->breadcrumbs(),
-			'cancel'      => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true)
+			'cancel'      => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module', true),
 		);
 
 		$this->load->model('setting/store');
@@ -701,7 +702,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		$data['stores'][] = array(
 			'store_id' => 0,
 			'name'     => $this->config->get('config_name') . $this->language->get('text_default'),
-			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true)
+			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true),
 		);
 
 		$results = $this->model_setting_store->getStores();
@@ -710,7 +711,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$data['stores'][] = array(
 				'store_id' => $result['store_id'],
 				'name'     => $result['name'],
-				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true)
+				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true),
 			);
 		}
 
@@ -765,7 +766,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 				$settings[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
 			}
 			$settings_status = array(
-				'module_newsman_status' => $this->request->post['module_newsman_status']
+				'module_newsman_status' => $this->request->post['module_newsman_status'],
 			);
 
 			$this->model_extension_newsman_setting->editSetting($this->names['setting'], $settings, $this->store_id);
@@ -798,6 +799,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 					);
 					$this->session->data['error'] = 'Could not save integration setup. The list was not changed.';
 					$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module&store_id=' . $this->store_id, true));
+
 					return;
 				}
 			}
@@ -817,7 +819,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		foreach ($this->nzmlogger->getCodes() as $code => $type) {
 			$data['developer_log_severity_options'][] = array(
 				'code' => $code,
-				'type' => $type
+				'type' => $type,
 			);
 		}
 
@@ -860,7 +862,6 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'text_export_authorize_header_key_help',
 				'text_api_status_hint',
 				'text_remarketing_settings',
-				'text_cron',
 				'text_reconfigure',
 				'text_store',
 				'entry_api_status',
@@ -882,20 +883,13 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'entry_send_user_ip_help',
 				'entry_server_ip_help',
 				'entry_developer_active_user_ip_help',
-				'button_export_subscribers',
-				'button_export_orders',
-				'button_export_orders_60_days',
 				'button_reconfigure',
-				'error_permission'
+				'error_permission',
 			);
 			foreach ($translation_text as $text) {
 				$data[$text] = $this->language->get($text);
 			}
 		}
-
-		$data['export_subscribers'] = $this->url->link('extension/module/newsman/exportsubscribers', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true);
-		$data['export_orders'] = $this->url->link('extension/module/newsman/exportorders', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id, true);
-		$data['export_orders_60_days'] = $this->url->link('extension/module/newsman/exportorders', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->store_id . '&last-days=60', true);
 
 		$this->response->setOutput($this->load->view('extension/module/newsman', $data));
 	}
@@ -1006,7 +1000,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$children[] = array(
 				'name'     => $this->language->get('text_menu_settings'),
 				'children' => array(),
-				'href'     => $this->url->link('extension/module/newsman', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true)
+				'href'     => $this->url->link('extension/module/newsman', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true),
 			);
 		}
 
@@ -1014,7 +1008,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$children[] = array(
 				'name'     => $this->language->get('text_menu_remarketing'),
 				'children' => array(),
-				'href'     => $this->url->link('extension/analytics/newsmanremarketing', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true)
+				'href'     => $this->url->link('extension/analytics/newsmanremarketing', $token_param . '=' . $token_value . '&store_id=' . $this->store_id, true),
 			);
 		}
 
@@ -1024,10 +1018,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		$newsman_menu = array(
 			'id'       => 'menu-newsman',
-			'icon'	   => 'fa-envelope',
-			'name'	   => $this->language->get('heading_title'),
+			'icon'     => 'fa-envelope',
+			'name'     => $this->language->get('heading_title'),
 			'href'     => '',
-			'children' => $children
+			'children' => $children,
 		);
 
 		$data['menus'][] = $newsman_menu;
@@ -1045,6 +1039,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 * Exports subscribers from the store to the NewsMAN platform.
 	 *
 	 * @return void
+	 * @deprecated No longer exposed in admin UI.
+	 *
 	 */
 	public function exportsubscribers() {
 		if (!$this->validate()) {
@@ -1082,6 +1078,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 * Exports orders for synchronization with NewsMAN.
 	 *
 	 * @return void
+	 * @deprecated No longer exposed in admin UI.
+	 *
 	 */
 	public function exportorders() {
 		if (!$this->validate()) {
@@ -1097,8 +1095,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 			$data = array(
 				'created_at' => array(
-					'from' => $this->nzmconfig->getOrderDate($this->store_id)
-				)
+					'from' => $this->nzmconfig->getOrderDate($this->store_id),
+				),
 			);
 			$last_days = (isset($this->request->get['last-days'])) ? (int)$this->request->get['last-days'] : false;
 			if ($last_days !== false) {

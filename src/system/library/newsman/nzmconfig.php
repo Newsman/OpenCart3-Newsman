@@ -373,7 +373,7 @@ class Nzmconfig extends Library {
 			return $this->cached_store_ids;
 		}
 
-		$store_ids = [0];
+		$store_ids = array(0);
 		foreach ($this->model_setting_store->getStores() as $store) {
 			$store_ids[] = (int)$store['store_id'];
 		}
@@ -617,6 +617,8 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated No longer configured via admin UI.
+	 *
 	 */
 	public function getOrderDate($store_id = null) {
 		$date_string = $this->getConfigValue('analytics_newsmanremarketing_order_date', $store_id);

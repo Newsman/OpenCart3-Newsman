@@ -18,14 +18,14 @@ class Pool extends \Newsman\Nzmbase {
 			'code'  => 'coupons',
 			'class' => '\Newsman\Export\Retriever\Coupons'
 		),
-		'cron-orders' => array(
+		/*'cron-orders' => array(
 			'code'  => 'cron-orders',
 			'class' => '\Newsman\Export\Retriever\CronOrders'
 		),
 		'cron-subscribers' => array(
 			'code'  => 'cron-subscribers',
 			'class' => '\Newsman\Export\Retriever\CronSubscribers'
-		),
+		),*/
 		'customers'        => array(
 			'code'  => 'customers',
 			'class' => '\Newsman\Export\Retriever\Customers',

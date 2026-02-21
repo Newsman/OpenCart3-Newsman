@@ -8,6 +8,7 @@ use Newsman\Export\Order\Mapper as OrderMapper;
  * Class Export Retriever Send Orders
  *
  * @class \Newsman\Export\Retriever\SendOrders
+ * @deprecated
  */
 class SendOrders extends BaseOrders implements RetrieverInterface {
 	/**

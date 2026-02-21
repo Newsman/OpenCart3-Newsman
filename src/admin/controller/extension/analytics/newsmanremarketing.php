@@ -29,7 +29,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 	/**
 	 * @var string
 	 */
-	protected $module_name = "newsmanremarketing";
+	protected $module_name = 'newsmanremarketing';
 
 	/**
 	 * @var array
@@ -41,14 +41,14 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 	 */
 	protected $location = array(
 		'module'      => 'extension/analytics',
-		'marketplace' => 'marketplace/extension'
+		'marketplace' => 'marketplace/extension',
 	);
 
 	protected $names = array(
 		'token'              => 'user_token',
 		'setting'            => 'analytics_newsmanremarketing',
 		'action'             => 'action',
-		'template_extension' => ''
+		'template_extension' => '',
 	);
 
 	/**
@@ -59,7 +59,6 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		'trackingid',
 		'anonymize_ip',
 		'send_telephone',
-		'order_date'
 	);
 
 	/**
@@ -83,17 +82,17 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$breadcrumbs = array();
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/dashboard', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true)
+			'href' => $this->url->link('common/dashboard', $this->names['token'] . '=' . $this->session->data[$this->names['token']], true),
 		);
 
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('text_extension'),
-			'href' => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=analytics', true)
+			'href' => $this->url->link($this->location['marketplace'], $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=analytics', true),
 		);
 
 		$breadcrumbs[] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true)
+			'href' => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $this->store_id, true),
 		);
 
 		return $breadcrumbs;
@@ -146,7 +145,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$data['stores'][] = array(
 			'store_id' => 0,
 			'name'     => $this->config->get('config_name') . ' (' . $this->language->get('text_default') . ')',
-			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true)
+			'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=0', true),
 		);
 
 		$results = $this->model_setting_store->getStores();
@@ -155,7 +154,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 			$data['stores'][] = array(
 				'store_id' => $result['store_id'],
 				'name'     => $result['name'],
-				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true)
+				'href'     => $this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&store_id=' . $result['store_id'], true),
 			);
 		}
 
@@ -225,7 +224,6 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 				'entry_status',
 				'entry_anonymize_ip',
 				'entry_send_telephone',
-				'entry_order_date',
 				'error_permission',
 				'error_code',
 			);

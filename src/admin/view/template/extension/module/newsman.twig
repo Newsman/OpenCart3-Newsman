@@ -238,16 +238,7 @@
                         </div>
                     {% endif %}
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">{{ text_cron }}</label>
-                        <div style="padding-top: 7px;" class="col-sm-10">
-                            {yoursiteurl}/index.php?route=extension/module/newsman&cron=true&nzmhash={{ newsman_api_key }}
-                            <br>
-                            {yoursiteurl}/index.php?route=extension/module/newsman&cron-orders=true&last-days=60&nzmhash={{ newsman_api_key }}
-                            <br><br>
-                            <a href="{{ export_subscribers }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_subscribers }}</a>
-                            <a style="margin-left: 25px;" href="{{ export_orders }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_orders }}</a>
-                            <a style="margin-left: 25px;" href="{{ export_orders_60_days }}" class="btn btn-info"><i class="fa fa-upload"></i> {{ button_export_orders_60_days }}</a>
-                            <br><br>
+                        <div style="padding-top: 7px;" class="col-sm-10 col-sm-offset-2">
                             <a href="{{ reconfigure }}" class="btn btn-primary" onclick="return confirm('{{ text_reconfigure }} ?');"><i class="fa fa-cog"></i> {{ button_reconfigure }}</a>
                             <span style="font-size: 1.2em; vertical-align: middle; margin-left: 10px;"><b><i class="fa fa-cog"></i> {{ text_config_for_store }}</b></span>
                         </div>
