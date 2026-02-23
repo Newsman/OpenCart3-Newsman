@@ -354,6 +354,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		}
 
 		// Install the product feed in Newsman.
+		// @deprecated
 		$url = $this->getStorefrontUrl() . '/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=' . $api_key;
 		$result = $this->setFeedOnList(
 			$list_id,
@@ -366,6 +367,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->session->data['success'] = 'Products feed installed in Newsman.';
 			$auth_name = $this->generateRandomHeaderName();
 			$auth_value = $this->generateRandomPassword();
+			// @deprecated
 			$result = $this->updateFeedAuthorize(
 				$list_id,
 				$result['feed_id'],
