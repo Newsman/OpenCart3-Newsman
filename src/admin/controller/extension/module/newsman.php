@@ -355,39 +355,39 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		// Install the product feed in Newsman.
 		// @deprecated
-		$url = $this->getStorefrontUrl() . '/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=' . $api_key;
-		$result = $this->setFeedOnList(
-			$list_id,
-			$url,
-			$this->getStorefrontUrl(),
-			'NewsMAN',
-			true,
-		);
-		if (is_array($result) && !empty($result['feed_id'])) {
-			$this->session->data['success'] = 'Products feed installed in Newsman.';
-			$auth_name = $this->generateRandomHeaderName();
-			$auth_value = $this->generateRandomPassword();
-			// @deprecated
-			$result = $this->updateFeedAuthorize(
-				$list_id,
-				$result['feed_id'],
-				$auth_name,
-				$auth_value
-			);
-
-			if ($result !== false) {
-				$this->model_extension_newsman_setting->editSetting(
-					'newsman',
-					array(
-						'newsman_export_authorize_header_name' => $auth_name,
-						'newsman_export_authorize_header_key'  => $auth_value,
-					),
-					$this->store_id
-				);
-			}
-		} else {
-			$this->session->data['warning'] = 'Products feed could not be installed. It may already exist in Newsman.';
-		}
+		// $url = $this->getStorefrontUrl() . '/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=' . $api_key;
+		// $result = $this->setFeedOnList(
+		// 	$list_id,
+		// 	$url,
+		// 	$this->getStorefrontUrl(),
+		// 	'NewsMAN',
+		// 	true,
+		// );
+		// if (is_array($result) && !empty($result['feed_id'])) {
+		// 	$this->session->data['success'] = 'Products feed installed in Newsman.';
+		// 	$auth_name = $this->generateRandomHeaderName();
+		// 	$auth_value = $this->generateRandomPassword();
+		// 	// @deprecated
+		// 	$result = $this->updateFeedAuthorize(
+		// 		$list_id,
+		// 		$result['feed_id'],
+		// 		$auth_name,
+		// 		$auth_value
+		// 	);
+		//
+		// 	if ($result !== false) {
+		// 		$this->model_extension_newsman_setting->editSetting(
+		// 			'newsman',
+		// 			array(
+		// 				'newsman_export_authorize_header_name' => $auth_name,
+		// 				'newsman_export_authorize_header_key'  => $auth_value,
+		// 			),
+		// 			$this->store_id
+		// 		);
+		// 	}
+		// } else {
+		// 	$this->session->data['warning'] = 'Products feed could not be installed. It may already exist in Newsman.';
+		// }
 
 		$this->response->redirect($this->url->link('extension/module/newsman', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']], true));
 	}
