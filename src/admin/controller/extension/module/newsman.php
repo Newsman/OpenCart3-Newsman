@@ -761,6 +761,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 		// If the form is submitted
 		if (strcasecmp($this->request->server['REQUEST_METHOD'], 'POST') == 0 && $this->validate()) {
 			$previous_list_id = $data['newsman_list_id'];
+			$previous_user_id = $data['newsman_user_id'];
+			$previous_api_key = $data['newsman_api_key'];
 			$settings = array();
 			foreach ($this->field_names as $field) {
 				$settings[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
@@ -772,9 +774,15 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->model_extension_newsman_setting->editSetting($this->names['setting'], $settings, $this->store_id);
 			$this->model_extension_newsman_setting->editSetting('module_newsman', $settings_status, $this->store_id);
 
-			// Call saveListIntegrationSetup if the list ID changed.
+			// Call saveListIntegrationSetup if the list ID, user ID, or API key changed.
 			$new_list_id = $settings['newsman_list_id'];
-			if (!empty($new_list_id) && $new_list_id !== $previous_list_id) {
+			$new_user_id = $settings['newsman_user_id'];
+			$new_api_key = $settings['newsman_api_key'];
+			if (!empty($new_list_id) && (
+				$new_list_id !== $previous_list_id ||
+				$new_user_id !== $previous_user_id ||
+				$new_api_key !== $previous_api_key
+			)) {
 				$this->nzmconfig->init(true);
 				$authenticate_token = $this->nzmconfig->getAuthenticateToken($this->store_id);
 				if (empty($authenticate_token)) {
