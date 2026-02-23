@@ -363,6 +363,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			true,
 		);
 		if (is_array($result) && !empty($result['feed_id'])) {
+			$this->session->data['success'] = 'Products feed installed in Newsman.';
 			$auth_name = $this->generateRandomHeaderName();
 			$auth_value = $this->generateRandomPassword();
 			$result = $this->updateFeedAuthorize(
@@ -382,6 +383,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 					$this->store_id
 				);
 			}
+		} else {
+			$this->session->data['warning'] = 'Products feed could not be installed. It may already exist in Newsman.';
 		}
 
 		$this->response->redirect($this->url->link('extension/module/newsman', 'store_id=' . $this->store_id . '&' . $this->names['token'] . '=' . $this->session->data[$this->names['token']], true));
@@ -736,6 +739,11 @@ class ControllerExtensionModuleNewsman extends Controller {
 		if (!empty($this->session->data['error'])) {
 			$data['error'] = $this->session->data['error'];
 			unset($this->session->data['error']);
+		}
+
+		if (!empty($this->session->data['warning'])) {
+			$data['warning'] = $this->session->data['warning'];
+			unset($this->session->data['warning']);
 		}
 
 		if (!$this->user->hasPermission('modify', $this->location['module'] . '/' . $this->module_name)) {
