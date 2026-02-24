@@ -26,7 +26,16 @@ class PayloadParser {
 		'order.list'             => 'orders',
 		'coupon.create'          => 'coupons',
 		'custom.sql'             => 'custom-sql',
-		'version'                => 'version',
+		'platform.name'             => 'platform-name',
+		'platform.version'          => 'platform-version',
+		'platform.language'         => 'platform-language',
+		'platform.language_version' => 'platform-language-version',
+		'integration.name'          => 'integration-name',
+		'integration.version'       => 'integration-version',
+		'server.ip'                 => 'server-ip',
+		'server.cloudflare'         => 'server-cloudflare',
+		'sql.name'                  => 'sql-name',
+		'sql.version'               => 'sql-version',
 	);
 
 	/**

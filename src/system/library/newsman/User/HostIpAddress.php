@@ -58,6 +58,14 @@ class HostIpAddress extends \Newsman\Nzmbase {
 			return $this->ip;
 		}
 
+		$resolver = new \Newsman\Util\ServerIpResolver();
+		$ip = $resolver->resolve();
+		if (!empty($ip)) {
+			$this->setting->editSetting('newsman', array('newsman_server_ip' => $ip), $this->config->getCurrentStoreId());
+			$this->ip = $ip;
+			return $this->ip;
+		}
+
 		$url = $this->getUrl();
 		$ip = '';
 		if (false !== $url) {

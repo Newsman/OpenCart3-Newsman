@@ -524,9 +524,11 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'api_url'                   => $api_url,
 				'api_key'                   => $authenticate_token,
 				'plugin_version'            => $version->getVersion(),
+				'platform_name'             => 'OpenCart',
 				'platform_version'          => VERSION,
 				'platform_language'         => 'PHP',
 				'platform_language_version' => phpversion(),
+				'platform_server_ip'        => (new \Newsman\Util\ServerIpResolver())->resolve(),
 			);
 
 			$context = new \Newsman\Service\Context\Configuration\SaveListIntegrationSetup();

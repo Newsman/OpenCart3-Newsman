@@ -66,13 +66,45 @@ class Pool extends \Newsman\Nzmbase {
 			'class' => '\Newsman\Export\Retriever\Subscribers',
 			'has_filters' => true
 		),
-		'version'          => array(
-			'code'  => 'version',
-			'class' => '\Newsman\Export\Retriever\Version'
+		'platform-name'    => array(
+			'code'  => 'platform-name',
+			'class' => '\Newsman\Export\Retriever\PlatformName'
 		),
-		'newsman-version'          => array(
-			'code'  => 'newsman-version',
-			'class' => '\Newsman\Export\Retriever\NewsmanVersion'
+		'platform-version' => array(
+			'code'  => 'platform-version',
+			'class' => '\Newsman\Export\Retriever\PlatformVersion'
+		),
+		'platform-language' => array(
+			'code'  => 'platform-language',
+			'class' => '\Newsman\Export\Retriever\PlatformLanguage'
+		),
+		'platform-language-version' => array(
+			'code'  => 'platform-language-version',
+			'class' => '\Newsman\Export\Retriever\PlatformLanguageVersion'
+		),
+		'integration-name' => array(
+			'code'  => 'integration-name',
+			'class' => '\Newsman\Export\Retriever\IntegrationName'
+		),
+		'integration-version' => array(
+			'code'  => 'integration-version',
+			'class' => '\Newsman\Export\Retriever\IntegrationVersion'
+		),
+		'server-ip'        => array(
+			'code'  => 'server-ip',
+			'class' => '\Newsman\Export\Retriever\ServerIp'
+		),
+		'server-cloudflare' => array(
+			'code'  => 'server-cloudflare',
+			'class' => '\Newsman\Export\Retriever\ServerCloudflare'
+		),
+		'sql-name'         => array(
+			'code'  => 'sql-name',
+			'class' => '\Newsman\Export\Retriever\SqlName'
+		),
+		'sql-version'      => array(
+			'code'  => 'sql-version',
+			'class' => '\Newsman\Export\Retriever\SqlVersion'
 		),
 		'custom-sql'               => array(
 			'code'  => 'custom-sql',

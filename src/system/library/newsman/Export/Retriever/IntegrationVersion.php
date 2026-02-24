@@ -5,13 +5,13 @@ namespace Newsman\Export\Retriever;
 use Newsman\Util\Version;
 
 /**
- * Class Export Retriever Newsman Version
+ * Class Export Retriever Integration Version
  *
- * @class \Newsman\Export\Retriever\NewsmanVersion
+ * @class \Newsman\Export\Retriever\IntegrationVersion
  */
-class NewsmanVersion extends AbstractRetriever implements RetrieverInterface {
+class IntegrationVersion extends AbstractRetriever implements RetrieverInterface {
 	/**
-	 * Process newsman version retriever
+	 * Process integration version retriever
 	 *
 	 * @param array    $data Data to filter entities, to save entities, other.
 	 * @param null|int $store_id
