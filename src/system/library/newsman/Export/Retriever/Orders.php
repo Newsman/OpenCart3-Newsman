@@ -176,6 +176,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 			'billing_company_name' => $order['payment_company'],
 			'billing_phone'        => $this->telephone->clean($order['telephone']),
 			'customer_email'       => $order['email'],
+			'customer_id'          => !empty($order['customer_id']) ? (string)$order['customer_id'] : '',
 			'shipping_amount'      => (float)$shipping_amount,
 			'tax_amount'           => (float)$tax_amount,
 			'total_amount'         => (float)$order['total'],
