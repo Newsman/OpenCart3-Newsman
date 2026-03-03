@@ -125,7 +125,7 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 			if (isset($allowed_sort[$data['sort']])) {
 				$params['sort'] = $allowed_sort[$data['sort']];
 				$sort_found = true;
-			} elseif (!empty($data['_v1_filter_fields'])) {
+			} elseif (isset($data['_v1_filter_fields'])) {
 				throw new ApiV1Exception(1008, 'Invalid sort field: ' . $data['sort'], 400);
 			}
 		}
@@ -184,11 +184,11 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 				$is_quoted = false;
 			}
 
-			if (is_array($data[$request_name]) && !empty(array_intersect(array_keys($data[$request_name]), $operators))) {
+			if (is_array($data[$request_name]) && !empty($data[$request_name]) && is_string(array_keys($data[$request_name])[0])) {
 				$params['filters'][$field_name] = array();
 				foreach ($data[$request_name] as $operator => $value) {
 					if (!in_array($operator, $operators, true)) {
-						if (!empty($data['_v1_filter_fields'])) {
+						if (isset($data['_v1_filter_fields'])) {
 							throw new ApiV1Exception(1007, 'Invalid filter operator: ' . $operator, 400);
 						}
 						continue;
