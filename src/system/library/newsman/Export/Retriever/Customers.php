@@ -33,13 +33,19 @@ class Customers extends Users {
 	 */
 	public function processCustomer($customer, $store_id = null) {
 		$row = array(
-			'customer_id'  => $customer['customer_id'],
-			'firstname'    => $customer['firstname'],
-			'lastname'     => $customer['lastname'],
-			'email'        => $customer['email'],
-			'phone'        => $this->cleanPhone($customer['telephone']),
-			'date_created' => $customer['date_added'],
-			'source'       => 'Opencart3 customers'
+			'customer_id'    => $customer['customer_id'],
+			'firstname'      => $customer['firstname'],
+			'lastname'       => $customer['lastname'],
+			'email'          => $customer['email'],
+			'phone'          => $this->cleanPhone($customer['telephone']),
+			'date_created'   => $customer['date_added'],
+			'source'         => 'Opencart3 customers',
+			'customer_groups' => array(
+				array(
+					'id'   => (int)$customer['customer_group_id'],
+					'name' => $customer['customer_group'],
+				),
+			),
 		);
 
 		if (!$this->config->isSendTelephone($store_id)) {
