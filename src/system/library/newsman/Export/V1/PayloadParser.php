@@ -100,12 +100,15 @@ class PayloadParser {
 		// {"filter": {"created_at": {"from": "2025-01-01"}}} becomes
 		// $data['created_at'] = ['from' => '2025-01-01'].
 		$data = $params;
+		$filter_fields = array();
 		if (isset($params['filter']) && is_array($params['filter'])) {
 			foreach ($params['filter'] as $field_name => $field_value) {
 				$data[$field_name] = $field_value;
+				$filter_fields[] = $field_name;
 			}
 		}
 		unset($data['filter']);
+		$data['_v1_filter_fields'] = $filter_fields;
 
 		return array(
 			'code' => self::$method_map[$method],

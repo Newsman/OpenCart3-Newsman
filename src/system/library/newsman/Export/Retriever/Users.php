@@ -254,6 +254,9 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 	 */
 	public function processListParameters($data = array(), $store_id = null) {
 		if (isset($data['modified_at'])) {
+			if (!empty($data['_v1_filter_fields'])) {
+				throw new \Newsman\Export\V1\ApiV1Exception(1010, 'Filter not supported on this platform: modified_at', 400);
+			}
 			throw new \Exception('modified_at is not implemented.');
 		}
 
