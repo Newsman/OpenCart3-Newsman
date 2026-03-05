@@ -14,16 +14,6 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 	public const DEFAULT_PAGE_SIZE = 1000;
 
 	/**
-	 * Category separator
-	 */
-	public const CATEGORY_SEPARATOR = '>';
-
-	/**
-	 * Category separator
-	 */
-	public const CATEGORIES_SEPARATOR = '|';
-
-	/**
 	 * Additional product attributes
 	 *
 	 * @var array
@@ -456,15 +446,12 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		}
 
 		if ($max_category_level !== false) {
-			$row['category'] = implode(' ' . self::CATEGORY_SEPARATOR . ' ', array_column(array_reverse($categories[$max_category_level]), 'name'));
-			$row['category'] = html_entity_decode($row['category']);
-			$subcategories = '';
+			$row['category'] = html_entity_decode($categories[$max_category_level][0]['name']);
+			$subcategories = array();
 			foreach ($categories as $category) {
-				$subcategories .= implode(' ' . self::CATEGORY_SEPARATOR . ' ', array_column(array_reverse($category), 'name')) . ' ' . self::CATEGORIES_SEPARATOR . ' ';
+				$subcategories[] = array_map('html_entity_decode', array_column(array_reverse($category), 'name'));
 			}
-			$subcategories = trim($subcategories, ' ' . self::CATEGORIES_SEPARATOR . ' ');
-			$row['subcategories'] = trim($subcategories, self::CATEGORIES_SEPARATOR . ' ');
-			$row['subcategories'] = html_entity_decode($row['subcategories']);
+			$row['subcategories'] = $subcategories;
 		}
 
 		// Set stock data
