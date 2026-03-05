@@ -13,7 +13,7 @@ class SaveListIntegrationSetup extends EmailList {
 	 *
 	 * @var string
 	 */
-	protected $integration = 'opencart3';
+	protected $integration = 'opencart';
 
 	/**
 	 * Payload data for the integration setup

@@ -398,7 +398,7 @@ jt/modal_{{api_key}}.js';
 			$context->setUserId($this->nzmconfig->getUserId($store_id))
 				->setApiKey($this->nzmconfig->getApiKey($store_id))
 				->setListId($list_id)
-				->setIntegration('opencart3')
+				->setIntegration('opencart')
 				->setPayload($payload);
 
 			$service = new \Newsman\Service\Configuration\Integration\SaveListIntegrationSetup($this->registry);

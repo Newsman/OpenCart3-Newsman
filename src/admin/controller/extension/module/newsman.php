@@ -524,7 +524,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'api_url'                   => $api_url,
 				'api_key'                   => $authenticate_token,
 				'plugin_version'            => $version->getVersion(),
-				// 'platform_name'             => 'OpenCart',
+				'platform_name'             => 'OpenCart',
 				'platform_version'          => VERSION,
 				'platform_language'         => 'PHP',
 				'platform_language_version' => phpversion(),
@@ -535,7 +535,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$context->setUserId($user_id)
 				->setApiKey($api_key)
 				->setListId($list_id)
-				->setIntegration('opencart3')
+				->setIntegration('opencart')
 				->setPayload($payload);
 
 			$service = new \Newsman\Service\Configuration\Integration\SaveListIntegrationSetup($this->registry);
