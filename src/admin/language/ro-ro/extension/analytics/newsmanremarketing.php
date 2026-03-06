@@ -7,6 +7,7 @@ $_['text_success'] = 'Succes: Ați modificat NewsMAN Remarketing!';
 $_['text_edit'] = 'Editează NewsMAN Remarketing';
 $_['text_signup'] = 'Conectați-vă la <a href="https://www.newsman.app/" target="_blank"><u>contul NewsMAN</u></a> pentru a obține ID-ul';
 $_['text_default'] = 'Implicit';
+$_['text_version'] = 'Versiune extensie Newsman';
 $_['text_store'] = 'Magazin';
 $_['text_newsman_settings'] = 'Setări Newsman';
 $_['text_credentials_valid'] = 'ID-ul de Remarketing este valid';

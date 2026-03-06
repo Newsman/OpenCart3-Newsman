@@ -231,6 +231,11 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 				$data[$text] = $this->language->get($text);
 			}
 		}
+		$data['logo'] = HTTP_SERVER . 'view/image/newsman-logo.png';
+		$version = new \Newsman\Util\Version($this->registry);
+		$data['newsman_version'] = $version->getVersion();
+		$data['text_version'] = $this->language->get('text_version');
+
 		$this->response->setOutput($this->load->view($this->location['module'] . '/' . $this->module_name . $this->names['template_extension'], $data));
 	}
 

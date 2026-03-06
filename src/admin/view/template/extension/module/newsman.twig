@@ -7,7 +7,8 @@
                         class="btn btn-primary"><i class="fa fa-save"></i></button>
                 <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i
                             class="fa fa-reply"></i></a></div>
-            <h1>{{ heading_title }}</h1>
+            <h1><img src="{{ logo }}" alt="{{ heading_title }}" style="height: 30px;" /></h1>
+            <span class="help-block"><a href="https://www.newsman.com/" target="_blank">www.newsman.com</a></span>
             <ul class="breadcrumb">
                 {% for breadcrumb in breadcrumbs %}
                     <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
@@ -72,6 +73,12 @@
                                     <strong style="color: #D2042D;">{{ text_credentials_invalid }}</strong>
                                 {% endif %}
                             </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{ text_version }}</label>
+                        <div class="col-sm-10">
+                            <label class="control-label">{{ newsman_version }}</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -244,7 +251,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel-footer text-right">{{ text_version }}: {{ newsman_version }}</div>
+                <div class="panel-footer text-right"></div>
             </div>
         </div>
         <div class="container-fluid">

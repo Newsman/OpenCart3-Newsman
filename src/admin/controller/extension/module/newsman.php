@@ -122,6 +122,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		$data = array();
 		$data['heading_title'] = $this->language->get('heading_title');
+		$data['logo'] = HTTP_SERVER . 'view/image/newsman-logo.png';
+		$version = new \Newsman\Util\Version($this->registry);
+		$data['newsman_version'] = $version->getVersion();
+		$data['text_version'] = $this->language->get('text_version');
 		$data['breadcrumbs'] = $this->breadcrumbs();
 		$data['oauth_url'] = $this->getOauthUrl();
 
@@ -173,6 +177,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 			'show_retry_button' => false,
 		);
 		$data['heading_title'] = $this->language->get('heading_title');
+		$data['logo'] = HTTP_SERVER . 'view/image/newsman-logo.png';
+		$version = new \Newsman\Util\Version($this->registry);
+		$data['newsman_version'] = $version->getVersion();
+		$data['text_version'] = $this->language->get('text_version');
 		$data['breadcrumbs'] = $this->breadcrumbs();
 		$data['oauth_url'] = $this->getOauthUrl();
 
@@ -909,6 +917,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 				$data[$text] = $this->language->get($text);
 			}
 		}
+
+		$data['logo'] = HTTP_SERVER . 'view/image/newsman-logo.png';
 
 		$this->response->setOutput($this->load->view('extension/module/newsman', $data));
 	}
