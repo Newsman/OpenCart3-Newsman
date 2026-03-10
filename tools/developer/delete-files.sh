@@ -41,6 +41,13 @@ if [ ! -d "$UPLOAD_DIR" ]; then
     exit 1
 fi
 
+# Use sudo if available — may prompt for password if needed.
+if command -v sudo &>/dev/null; then
+    SUDO="sudo"
+else
+    SUDO=""
+fi
+
 file_count=0
 dir_count=0
 
@@ -65,7 +72,7 @@ delete_files() {
                 delete_files "$src_entry" "$upload_entry"
             fi
         elif [ -f "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
-            rm "$upload_entry"
+            $SUDO rm -f "$upload_entry"
             echo "Deleted file: $upload_entry"
             file_count=$((file_count + 1))
         fi
@@ -94,7 +101,7 @@ cleanup_dirs() {
                 cleanup_dirs "$src_entry" "$upload_entry"
 
                 # Try to remove the directory if it's now empty
-                if rmdir "$upload_entry" 2>/dev/null; then
+                if $SUDO rmdir "$upload_entry" 2>/dev/null; then
                     echo "Removed empty dir: $upload_entry"
                     dir_count=$((dir_count + 1))
                 fi
