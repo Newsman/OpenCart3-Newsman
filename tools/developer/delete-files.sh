@@ -48,13 +48,17 @@ else
     SUDO=""
 fi
 
+# Directories that should be deleted as a whole (not recursed into).
+# Paths are relative to the upload dir (e.g. system/library/newsman).
+DELETE_WHOLE_DIRS="system/library/newsman"
+
 file_count=0
 dir_count=0
 
 # Phase 1: Delete files.
 # Walk the extension's src/ tree. For each file in src/, check if the
 # corresponding path in upload/ exists as a real file (not a symlink).
-# If so, delete it.
+# If so, delete it. Directories in DELETE_WHOLE_DIRS are removed entirely.
 delete_files() {
     local src_dir="$1"
     local upload_dir="$2"
@@ -66,7 +70,21 @@ delete_files() {
         name="$(basename "$src_entry")"
         local upload_entry="$upload_dir/$name"
 
-        if [ -d "$src_entry" ] && [ ! -L "$src_entry" ]; then
+        # Compute relative path from UPLOAD_DIR for whole-dir check.
+        local rel_path="${upload_entry#"$UPLOAD_DIR"/}"
+
+        if [ "$rel_path" = "$DELETE_WHOLE_DIRS" ]; then
+            # Delete this directory entirely (real dir or symlink).
+            if [ -d "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
+                $SUDO rm -rf "$upload_entry"
+                echo "Deleted dir:  $upload_entry"
+                dir_count=$((dir_count + 1))
+            elif [ -L "$upload_entry" ]; then
+                $SUDO rm -f "$upload_entry"
+                echo "Deleted link: $upload_entry"
+                dir_count=$((dir_count + 1))
+            fi
+        elif [ -d "$src_entry" ] && [ ! -L "$src_entry" ]; then
             # Source is a directory — recurse if the upload dir exists
             if [ -d "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
                 delete_files "$src_entry" "$upload_entry"

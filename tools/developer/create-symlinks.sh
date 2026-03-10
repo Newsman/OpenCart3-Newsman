@@ -37,7 +37,12 @@ fi
 
 link_count=0
 
+# Directories that should be symlinked as a whole instead of recursed into.
+# Paths are relative to the upload dir (e.g. system/library/newsman).
+SYMLINK_WHOLE_DIRS="system/library/newsman"
+
 # Recursively walk src_dir. For each entry:
+#   - if the relative path is in SYMLINK_WHOLE_DIRS, symlink the whole dir
 #   - if it maps to a real directory in upload_dir, recurse
 #   - otherwise remove any existing symlink and create a new one
 process_dir() {
@@ -51,7 +56,21 @@ process_dir() {
         name="$(basename "$src_entry")"
         local upload_entry="$upload_dir/$name"
 
-        if [ -d "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
+        # Compute relative path from UPLOAD_DIR for whole-dir check.
+        local rel_path="${upload_entry#"$UPLOAD_DIR"/}"
+
+        if [ "$rel_path" = "$SYMLINK_WHOLE_DIRS" ]; then
+            # This directory should be symlinked as a whole.
+            if [ -d "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
+                rm -rf "$upload_entry"
+                echo "Removed real dir: $upload_entry"
+            elif [ -L "$upload_entry" ]; then
+                rm "$upload_entry"
+            fi
+            ln -s "$src_entry" "$upload_entry"
+            echo "Created:  $upload_entry -> $src_entry"
+            link_count=$((link_count + 1))
+        elif [ -d "$upload_entry" ] && [ ! -L "$upload_entry" ]; then
             # Real directory exists in upload/ — shared with OC3 core, recurse into it
             process_dir "$src_entry" "$upload_entry"
         else
