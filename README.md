@@ -6,44 +6,57 @@ NewsMAN Plugin for OpenCart 3 facilitates seamless synchronization of your OpenC
 
 # Installation
 
-## Newsman Sync
+## Older versions of Newsman extension before 3.x.x or without a version.
+1. In Admin -> Extensions -> Extensions -> Installer delete "newsmanremarketing.ocmod.zip" and "Oc 3.x Fix OCMOD.ocmod.zip", depending on which is installed.
+2. If Newsman plugin wasn't uploaded from admin than delete the files of the extension:
+```
+admin/controller/extension/analytics/newsmanremarketing.php
+admin/controller/extension/module/newsman.php
+admin/language/en-gb/extension/analytics/newsmanremarketing.php
+admin/language/en-gb/extension/module/newsman.php
+admin/view/stylesheet/newsman.css
+admin/view/template/extension/analytics/newsmanremarketing.twig
+admin/view/template/extension/module/newsman.twig
+catalog/controller/extension/analytics/newsmanremarketing.php
+catalog/controller/extension/module/newsman.php
+catalog/model/extension/module/newsman.php
+catalog/view/theme/default/template/extension/module/newsman.twig
+system/library/Newsman/Client/Exception.php
+system/library/Newsman/Client.php
+```
 
-Manual installation:
-1. Copy the contents of the src folder and paste them into your OpenCart 3 root directory.
-2. Navigate to admin -> Extensions -> Extension -> Choose extension type -> Modules -> Install the NewsMAN Newsletter Sync module.
-3. After installation, edit the NewsMAN Newsletter Sync module.
+Note: developers can use carefully the script https://github.com/Newsman/OpenCart3-Newsman/blob/master/tools/delete-old-v1.0.0-extension.sh
+3. If somone created an archive with the old version of extension than use the "Uninstall" button in Admin -> Extensions -> Extensions -> Installer. 
+4. Continue bellow with the installation of the new version of extension 3.x.x.
 
-## Newsman Remarketing
+## Manual installation (download archive and upload):
+1. Download the latest **newsman.ocmod.zip** archive from [releases](https://github.com/Newsman/OpenCart3-Newsman/releases) (Git tags 3.x.x-autoload, link in the right sidebar here on GitHub). The archive newsman.ocmod.zip contains the plugin and has the generated `system/library/newsman/vendor/autoload.php` which is required in non-composer Opencart 3 installations.
+2. Navigate to Admin -> Extensions -> Extension -> Choose extension type -> Modules -> click the "Install" button for NewsMAN module.
+3. Navigate to Admin -> Extensions -> Extensions -> Choose extension type -> Analytics -> NewsMAN Remarketing -> click the "Install" button for NewsMAN Remarketing module.
+4. After installation, click the "Edit" button for the "NewsMAN" module from Admin -> Extensions -> Extension -> Choose extension type -> Modules.
+5. At this step you will need to click on the "Login with NewsMAN" button and follow the 3 steps to complete the configuration:
+* Authenticate in newsman.app.
+* Allow access to your NewsMAN account in your store.
+* Configure the email list and save the settings.
+6. If there are any errors, repeat the configuration using "Login with NewsMAN". Also you can check OpenCart logs for more information in `storage/logs/newsman_*.log``.
+   You can increase the log level from extension configuration in Admin -> Newsman -> Settings -> Developer Settings -> Log level.
+7. Admin -> Extensions -> Extensions -> Installer, upload "Oc 3.x Fix OCMOD.ocmod.zip"
+8. Admin -> Extensions -> Modifications -> Refresh
 
-1. Extensions -> Installer -> Upload NewsMANremarketing.ocmod.zip
-2. Extensions -> Modifications -> Refresh
-3. Extensions -> Extensions -> Analytics -> NewsMAN Remarketing
+## Additional steps:
+1. Look in Admin > Newsman > * configurations for preferred changes.
+2. Verify the storefront for Newsman remarketing JavaScript code.
+3. You can also use the debugger in newsman.app > Integrations > NewsMAN Remarketing > "Check installation" button.
+   The debugger is similar to Google GTM debugger and shows if the events are tracked correctly by NewsMAN remarketing.
 
-If the default OCMOD doesn't work, upload Oc 3.x Fix OCMOD.ocmod.zip at Extensions -> Installer.
+## Manual installation (create archive from source):
+1. Download from Github repository > top right corner "Code" > Download ZIP. Unarchive the downloaded file.
+2. Go to downloaded directory `src/system/library/newsman/`. Run `composer install --no-dev` or `composer dump-autoload -o` to add the dependencies of this extension.
+   Clean up `src/system/library/newsman/` from any unnecessary files and folders. You can compare the contents of the `src/system/library/newsman/` folder with the contents of latest archive in [releases](https://github.com/Newsman/OpenCart3-Newsman/releases , see "Manual installation (download archive and upload)".
+3. Create an archive named newsman.ocmod.zip with a folder "upload" and add in it only the contents of the "src/*" folder.
+4. Please do the steps from above "Manual installation (download archive and upload)" from step 2 including to the end.
 
-# Setup
-
-## Newsman Sync
-
-The process is automated; log in with NewsMAN via OAuth, and the settings will be filled automatically based on your selection.
-
-![image](https://raw.githubusercontent.com/Newsman/OpenCart2.3-Newsman/master/assets/oauth1.png)
-![image](https://raw.githubusercontent.com/Newsman/OpenCart2.3-Newsman/master/assets/oauth2.png)
-
-![](https://raw.githubusercontent.com/Newsman/OpenCart3-Newsman/master/assets/api-setup-screen-opencart3.png)
-
-2.Choose a list for your newsletter subscribers by setting up your user ID and API key.
-
-For automatic synchronization, set up a webcron to run the URL:  {yoursiteurl}/index.php?route=extension/module/NewsMAN&cron=true
-
-## Newsman Remarketing
-
-1. Fill in your Newsman Remarketing ID and save
-![](https://raw.githubusercontent.com/Newsman/OpenCart3-Newsman/master/assets/nr1.png)
-
-Upon installation, the plugin provides feed products and events (product impressions, AddToCart, purchase) automatically.
-
-Description
+## Description
 
 The NewsMAN Plugin for OpenCart 3 empowers you to streamline email and SMS marketing efforts, offering features like subscription forms, contact list management, newsletters, email campaigns, SMS functionalities, smart automations, and detailed analytics. Access these capabilities through the NewsMAN platform for enhanced marketing efficiency.
 
