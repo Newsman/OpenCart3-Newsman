@@ -92,7 +92,7 @@ echo "=== Step 3: Cleaning non-runtime files from vendor ==="
 VENDOR_DIR="$LIBRARY_DIR/vendor"
 
 # Remove known non-runtime directories from packages
-for dir in tests test examples example libs wiki doc docs .github; do
+for dir in tests test examples example libs wiki doc docs .github .settings; do
     find "$VENDOR_DIR" -mindepth 2 -maxdepth 3 -type d -name "$dir" | while read -r d; do
         rm -rf "$d"
         echo "Removed: $d"
@@ -100,7 +100,7 @@ for dir in tests test examples example libs wiki doc docs .github; do
 done
 
 # Remove non-runtime files from package roots
-for pattern in phpunit.xml phpunit.xml.dist phpunit.xml.dist.bak .travis.yml .gitignore .gitattributes runtest.sh README.md CHANGELOG.md CONTRIBUTING.md; do
+for pattern in phpunit.xml phpunit.xml.dist phpunit.xml.dist.bak .travis.yml .gitignore .gitattributes .gitmodules .buildpath .project .eclipse-PHP-formatter.xml runtest.sh README.md CHANGELOG.md CONTRIBUTING.md; do
     find "$VENDOR_DIR" -mindepth 2 -maxdepth 3 -type f -name "$pattern" | while read -r f; do
         rm "$f"
         echo "Removed: $f"
