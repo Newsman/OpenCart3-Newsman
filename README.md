@@ -8,7 +8,7 @@ NewsMAN Plugin for OpenCart 3 facilitates seamless synchronization of your OpenC
 
 ## Older versions of Newsman extension before 3.x.x or without a version.
 1. In Admin -> Extensions -> Extensions -> Installer delete "newsmanremarketing.ocmod.zip" and "Oc 3.x Fix OCMOD.ocmod.zip", depending on which is installed.
-2. If Newsman plugin wasn't uploaded from admin than delete the files of the extension:
+2. If Newsman plugin wasn't uploaded from admin, then delete the files of the extension:
 ```
 admin/controller/extension/analytics/newsmanremarketing.php
 admin/controller/extension/module/newsman.php
