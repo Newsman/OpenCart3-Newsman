@@ -56,6 +56,11 @@ Note: developers can use carefully the script https://github.com/Newsman/OpenCar
 3. Create an archive named newsman.ocmod.zip with a folder "upload" and add in it only the contents of the "src/*" folder.
 4. Please do the steps from above "Manual installation (download archive and upload)" from step 2 including to the end.
 
+## Configuration
+
+- [Configuration Guide (English)](https://github.com/Newsman/OpenCart3-Newsman/blob/master/configuration-en.md)
+- [Ghid de Configurare (Romana)](https://github.com/Newsman/OpenCart3-Newsman/blob/master/configuration-ro.md)
+
 ## Description
 
 The NewsMAN Plugin for OpenCart 3 empowers you to streamline email and SMS marketing efforts, offering features like subscription forms, contact list management, newsletters, email campaigns, SMS functionalities, smart automations, and detailed analytics. Access these capabilities through the NewsMAN platform for enhanced marketing efficiency.
