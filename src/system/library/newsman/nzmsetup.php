@@ -19,7 +19,7 @@ class Nzmsetup extends \Newsman\Library {
 	 *
 	 * @var string
 	 */
-	protected $setup_version = '1.0.1';
+	protected $setup_version = '1.0.2';
 
 	/**
 	 * @param \Registry $registry
@@ -166,6 +166,15 @@ class Nzmsetup extends \Newsman\Library {
 			$this->model_extension_newsman_setting->editSetting(
 				'newsman',
 				array('newsman_setup_version' => '1.0.1'),
+				$store_id
+			);
+		}
+
+		if (version_compare($current_version, '1.0.2', '<')) {
+			$this->upgradeOptionsOneDotZeroDotTwo($store_id);
+			$this->model_extension_newsman_setting->editSetting(
+				'newsman',
+				array('newsman_setup_version' => '1.0.2'),
 				$store_id
 			);
 		}
@@ -409,6 +418,46 @@ jt/modal_{{api_key}}.js';
 	}
 
 	/**
+	 * Upgrade admin settings 1.0.2
+	 * Fetch remarketing script from Newsman API via remarketing.getSettings
+	 * and store it in analytics_newsmanremarketing_script_js.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeOptionsOneDotZeroDotTwo($store_id) {
+		if (!$this->nzmconfig->hasApiAccess($store_id)) {
+			return;
+		}
+
+		$list_id = $this->nzmconfig->getListId($store_id);
+		if (empty($list_id)) {
+			return;
+		}
+
+		try {
+			$context = new \Newsman\Service\Context\Configuration\EmailList();
+			$context->setUserId($this->nzmconfig->getUserId($store_id))
+				->setApiKey($this->nzmconfig->getApiKey($store_id))
+				->setListId($list_id);
+
+			$get_settings = new \Newsman\Service\Configuration\Remarketing\GetSettings($this->registry);
+			$settings = $get_settings->execute($context);
+
+			if (!empty($settings) && is_array($settings) && !empty($settings['javascript'])) {
+				$this->model_extension_newsman_setting->editSetting(
+					'analytics_newsmanremarketing',
+					array('analytics_newsmanremarketing_script_js' => $settings['javascript']),
+					$store_id
+				);
+			}
+		} catch (\Exception $e) {
+			// Do not block the upgrade on API failure.
+		}
+	}
+
+	/**
 	 * Get the storefront URL for a given store.
 	 *
 	 * @param int $store_id
@@ -419,15 +468,15 @@ jt/modal_{{api_key}}.js';
 		$is_secure = $this->config->get('config_secure');
 
 		if ($store_id == 0) {
-			return $is_secure ? HTTPS_CATALOG : HTTP_CATALOG;
+			return ($is_secure) ? HTTPS_CATALOG : HTTP_CATALOG;
 		}
 
 		$store_info = $this->model_setting_store->getStore($store_id);
 		if ($store_info) {
-			return $is_secure ? $store_info['ssl'] : $store_info['url'];
+			return ($is_secure) ? $store_info['ssl'] : $store_info['url'];
 		}
 
-		return $is_secure ? HTTPS_CATALOG : HTTP_CATALOG;
+		return ($is_secure) ? HTTPS_CATALOG : HTTP_CATALOG;
 	}
 
 	/**
@@ -438,10 +487,10 @@ jt/modal_{{api_key}}.js';
 	 * @return string
 	 */
 	protected function generateRandomPassword($length = 16) {
-		$lowercase    = 'abcdefghijklmnopqrstuvwxyz';
-		$uppercase    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$numbers      = '0123456789';
-		$all_chars    = $lowercase . $uppercase . $numbers;
+		$lowercase = 'abcdefghijklmnopqrstuvwxyz';
+		$uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$numbers = '0123456789';
+		$all_chars = $lowercase . $uppercase . $numbers;
 		$chars_length = strlen($all_chars);
 
 		$password = '';

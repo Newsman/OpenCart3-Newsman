@@ -361,6 +361,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 			return;
 		}
 
+		$this->fetchAndSaveRemarketingJs($list_id, $user_id, $api_key);
+
 		// Install the product feed in Newsman.
 		// @deprecated
 		// $url = $this->getStorefrontUrl() . '/index.php?route=extension/module/newsman&newsman=products.json&nzmhash=' . $api_key;
@@ -553,6 +555,45 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$this->nzmlogger->logException($e);
 
 			return false;
+		}
+	}
+
+	/**
+	 * Fetch remarketing settings from Newsman API and save the script JS.
+	 *
+	 * @param string      $list_id List ID.
+	 * @param null|string $user_id User ID.
+	 * @param null|string $api_key API key.
+	 *
+	 * @return void
+	 */
+	public function fetchAndSaveRemarketingJs($list_id, $user_id = null, $api_key = null) {
+		try {
+			if ($user_id === null) {
+				$user_id = $this->nzmconfig->getUserId($this->store_id);
+			}
+			if ($api_key === null) {
+				$api_key = $this->nzmconfig->getApiKey($this->store_id);
+			}
+
+			$context = new \Newsman\Service\Context\Configuration\EmailList();
+			$context->setUserId($user_id)
+				->setApiKey($api_key)
+				->setListId($list_id);
+
+			$get_settings = new \Newsman\Service\Configuration\Remarketing\GetSettings($this->registry);
+			$settings = $get_settings->execute($context);
+
+			if (!empty($settings) && is_array($settings) && !empty($settings['javascript'])) {
+				$this->load->model('extension/newsman/setting');
+				$this->model_extension_newsman_setting->editSetting(
+					'analytics_newsmanremarketing',
+					array('analytics_newsmanremarketing_script_js' => $settings['javascript']),
+					$this->store_id
+				);
+			}
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
 		}
 	}
 
@@ -815,7 +856,9 @@ class ControllerExtensionModuleNewsman extends Controller {
 				$integration_result = $this->saveListIntegrationSetup(
 					$new_list_id,
 					$this->getStorefrontUrl(),
-					$authenticate_token
+					$authenticate_token,
+					$new_user_id,
+					$new_api_key
 				);
 				if ($integration_result === false) {
 					// Revert the list ID to the previous value.
@@ -828,6 +871,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 					$this->response->redirect($this->url->link($this->location['module'] . '/' . $this->module_name, $this->names['token'] . '=' . $this->session->data[$this->names['token']] . '&type=module&store_id=' . $this->store_id, true));
 
 					return;
+				} else {
+					$this->fetchAndSaveRemarketingJs($new_list_id, $new_user_id, $new_api_key);
 				}
 			}
 

@@ -669,6 +669,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated
 	 */
 	public function getScriptUrl($store_id = null) {
 		return (string)$this->getConfigValue('analytics_newsmanremarketing_tracking_script_url', $store_id);
@@ -680,6 +681,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated
 	 */
 	public function getResourcesUrl($store_id = null) {
 		return (string)$this->getConfigValue('analytics_newsmanremarketing_http_resource_url', $store_id);
@@ -691,6 +693,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated
 	 */
 	public function getTrackingUrl($store_id = null) {
 		return (string)$this->getConfigValue('analytics_newsman_remarketing_http_tracking_url', $store_id);
@@ -702,6 +705,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated
 	 */
 	public function getJsTrackRunFunc($store_id = null) {
 		$return = (string)$this->getConfigValue('analytics_newsmanremarketing_js_track_run_func', $store_id);
@@ -718,6 +722,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return false
+	 * @deprecated No longer used. Remarketing script is fetched from Newsman API.
 	 */
 	public function useProxy($store_id = null) {
 		return false;
@@ -729,6 +734,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return array
+	 * @deprecated
 	 */
 	public function getRequiredFilePatterns($store_id = null) {
 		$str = (string)$this->getConfigValue('analytics_newsmanremarketing_http_required_file_patterns', $store_id);
@@ -757,6 +763,7 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
+	 * @deprecated
 	 */
 	public function getScriptRequestUriPath($store_id = null) {
 		$url = $this->getScriptUrl($store_id);

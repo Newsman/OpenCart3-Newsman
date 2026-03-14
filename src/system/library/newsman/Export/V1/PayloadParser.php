@@ -36,6 +36,7 @@ class PayloadParser {
 		'server.cloudflare'         => 'server-cloudflare',
 		'sql.name'                  => 'sql-name',
 		'sql.version'               => 'sql-version',
+		'refresh.remarketing'       => 'refresh-remarketing',
 	);
 
 	/**

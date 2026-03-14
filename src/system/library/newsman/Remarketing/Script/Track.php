@@ -17,32 +17,56 @@ class Track extends \Newsman\Nzmbase {
 	 * @return string
 	 */
 	public function getScript() {
-		$condition_tunnel_script = 'false';
-		$resources_base_url = '';
-		$tracking_base_url = '';
+		$script_js = $this->getConfig()->getScriptJs();
+		$this->event->trigger('newsmanremarketing/script_track_get_script_js/after', array(&$script_js));
 
-		if ($this->getConfig()->useProxy()) {
-			$condition_tunnel_script = 'true';
-			$resources_base_url = $this->escapeJs($this->escapeHtml($this->getResourcesUrl()));
-			$tracking_base_url = $this->escapeJs($this->escapeHtml($this->getScriptRequestUri()));
+		// The script tag is not present in the script, something went wrong.
+		if (stripos($script_js, '<script') === false) {
+			return '';
 		}
 
-		$nzm_js_config = "_nzm_config['disable_datalayer'] = 1;";
-		$nzm_js_config .= $this->getJsConfig();
+		$nzm_config_js = "_nzm_config['disable_datalayer'] = 1;";
+		$nzm_config_js .= $this->getJsConfig();
 
-		$script_js = strtr(
-			$this->getConfig()->getScriptJs(),
-			array(
-				'{{nzmConfigJs}}'           => $nzm_js_config,
-				'{{conditionTunnelScript}}' => $condition_tunnel_script,
-				'{{resourcesBaseUrl}}'      => $resources_base_url,
-				'{{trackingBaseUrl}}'       => $tracking_base_url,
-				'{{remarketingId}}'         => $this->escapeHtml($this->getConfig()->getRemarketingId()),
-				'{{trackingScriptUrl}}'     => $this->escapeHtml($this->getScriptFinalUrl())
-			)
+		$output = '';
+
+		if (!empty($nzm_config_js)) {
+			$output .= '<script' . $this->getScriptTagAdditionalAttributes() . '>';
+			$output .= 'var _nzm_config = _nzm_config || [];';
+			$output .= $nzm_config_js;
+			$output .= '</script>';
+		}
+
+		$script_js = str_replace(
+			'<script',
+			'<script ' . $this->escapeHtml($this->getScriptTagAdditionalAttributes()) . ' ',
+			$script_js
 		);
 
-		return $script_js;
+		// The script tag is not present in the script, something went wrong.
+		if (stripos($script_js, '<script') === false) {
+			return '';
+		}
+
+		$output .= $script_js;
+
+		return $output;
+	}
+
+	/**
+	 * Get script tag additional attributes.
+	 * Example: type="text/plain" used for GDPR scripts blocking cookies.
+	 *
+	 * @return string
+	 */
+	public function getScriptTagAdditionalAttributes() {
+		$attributes = '';
+		$this->event->trigger(
+			'newsmanremarketing/script_tracking_attributes/before',
+			array(&$attributes)
+		);
+
+		return $attributes;
 	}
 
 	/**
@@ -68,6 +92,7 @@ class Track extends \Newsman\Nzmbase {
 	 *
 	 * @return string
 	 * @throws \Exception Not implemented yet exception.
+	 * @deprecated No longer used. Remarketing script is fetched from Newsman API.
 	 */
 	public function getScriptFinalUrl() {
 		$url = '';
@@ -83,9 +108,9 @@ class Track extends \Newsman\Nzmbase {
 
 	/**
 	 * Get resources URL.
-	 * It will be implemented soon.
 	 *
 	 * @return string
+	 * @deprecated No longer used. Remarketing script is fetched from Newsman API.
 	 */
 	public function getResourcesUrl() {
 		return '';
@@ -93,9 +118,9 @@ class Track extends \Newsman\Nzmbase {
 
 	/**
 	 * Get script request uri.
-	 * It will be implemented soon.
 	 *
 	 * @return string
+	 * @deprecated No longer used. Remarketing script is fetched from Newsman API.
 	 */
 	public function getScriptRequestUri() {
 		return '';
