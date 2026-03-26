@@ -123,6 +123,10 @@ class Router extends \Newsman\Nzmbase {
 				$store_id = (int) $data['store_id'];
 			}
 
+			if (!$this->config->isEnabledWithApi($store_id)) {
+				throw new \Newsman\Export\V1\ApiV1Exception(1011, 'API not available', 403);
+			}
+
 			// Inject API key so the Processor authenticator can validate it.
 			if (!empty($api_key)) {
 				$data[\Newsman\Export\Retriever\Authenticator::API_KEY_PARAM] = $api_key;
