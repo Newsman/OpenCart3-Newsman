@@ -44,8 +44,19 @@ class Router extends \Newsman\Nzmbase {
 		try {
 			$parameters = $export_request->getRequestParameters();
 			$processor = new \Newsman\Export\Retriever\Processor($this->registry);
+			$code = $processor->getCodeByData($parameters);
+
+			// Block legacy access for endpoints available in API v1.
+			if ($code !== false && in_array($code, \Newsman\Export\V1\PayloadParser::$method_map, true)) {
+				$renderer = new \Newsman\Export\Renderer($this->registry);
+				$renderer->displayJson(array(
+					'error' => 'This endpoint is only available via API v1 (JSON POST).',
+				));
+				return;
+			}
+
 			$result = $processor->process(
-				$processor->getCodeByData($parameters),
+				$code,
 				$store_id,
 				$parameters
 			);
