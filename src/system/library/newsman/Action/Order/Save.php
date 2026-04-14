@@ -54,13 +54,15 @@ class Save extends \Newsman\Nzmbase {
 			$mapper = new \Newsman\Export\Order\Mapper($this->registry);
 			$order_data = $mapper->toArray($order_info, $order_products, $order_totals);
 
-			$context = new \Newsman\Service\Context\Remarketing\SaveOrder();
-			$context->setListId($this->config->getListId())
-				->setOrderDetails($order_data['details'])
-				->setOrderProducts($order_data['products']);
+			$order_row = $order_data['details'];
+			$order_row['products'] = $order_data['products'];
 
-			$save_order = new \Newsman\Service\Remarketing\SaveOrder($this->registry);
-			$save_order->execute($context);
+			$context = new \Newsman\Service\Context\Remarketing\SaveOrders();
+			$context->setListId($this->config->getListId())
+				->setOrders(array($order_row));
+
+			$save_orders = new \Newsman\Service\Remarketing\SaveOrders($this->registry);
+			$save_orders->execute($context);
 
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage());
