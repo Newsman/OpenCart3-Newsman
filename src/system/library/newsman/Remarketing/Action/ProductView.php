@@ -37,15 +37,14 @@ class ProductView extends \Newsman\Remarketing\Action\AbstractAction {
 			)
 		);
 
-		$js = $this->escapeHtml($this->getConfig()->getJsTrackRunFunc()) .
-			"('ec:addProduct', {
+		$js = "_nzm.run('ec:addProduct', {
 		        'id': '" . (isset($product['product_id']) ? $this->escapeHtml($product['product_id']) : '') . "',
 		        'name': '" . (isset($product['name']) ? $this->escapeHtml($product['name']) : '') . "',
 		        'category': '" . $this->escapeHtml($this->getCategoryName($this->getDeepestCategoryId())) . "',
 		        'price': '" . (isset($product['price']) ? $this->escapeHtml($product['price']) : '') . "',
 		        'list': 'Product Page'
 			}); ";
-		$js .= $this->escapeHtml($this->getConfig()->getJsTrackRunFunc()) . "('ec:setAction', 'detail');";
+		$js .= "_nzm.run('ec:setAction', 'detail');";
 
 		$this->getEvent()->trigger(
 			'newsmanremarketing/remarketing_action_product_view/after',

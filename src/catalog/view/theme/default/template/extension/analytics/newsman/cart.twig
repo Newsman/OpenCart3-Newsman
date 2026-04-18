@@ -1,5 +1,5 @@
 <script{{ tag_attrib }}>
-    {{ nzm_run }}('require', 'ec');
+    _nzm.run('require', 'ec');
 
     var ajaxurl = '{{ base_url }}/index.php?route=extension/module/newsman/cart';
     var isProd = true;
@@ -164,14 +164,14 @@
     }
 
     function nzmClearCart() {
-        {{ nzm_run }}('ec:setAction', 'clear_cart');
-        {{ nzm_run }}('send', 'event', 'detail view', 'click', 'clearCart');
+        _nzm.run('ec:setAction', 'clear_cart');
+        _nzm.run('send', 'event', 'detail view', 'click', 'clearCart');
         sessionStorage.setItem('lastCart', JSON.stringify([]));
         unlockClearCart = false;
     }
 
     function nzmAddToCart(response) {
-        {{ nzm_run }}('ec:setAction', 'clear_cart');
+        _nzm.run('ec:setAction', 'clear_cart');
         if (!isProd) {
             console.log('newsman remarketing: clear cart sent, add to cart function');
         }
@@ -182,19 +182,19 @@
         if (!isProd) {
             console.log('newsman remarketing: detailviewEvent execute');
         }
-        {{ nzm_run }}('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
+        _nzm.run('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
             if (!isProd) {
                 console.log('newsman remarketing: executing add to cart callback');
             }
             var products = [];
             for (var item in response) {
                 if (response[item].hasOwnProperty('id')) {
-                    {{ nzm_run }}('ec:addProduct', response[item]);
+                    _nzm.run('ec:addProduct', response[item]);
                     products.push(response[item]);
                 }
             }
-            {{ nzm_run }}('ec:setAction', 'add');
-            {{ nzm_run }}('send', 'event', 'UX', 'click', 'add to cart');
+            _nzm.run('ec:setAction', 'add');
+            _nzm.run('send', 'event', 'UX', 'click', 'add to cart');
             sessionStorage.setItem('lastCart', JSON.stringify(products));
             unlockClearCart = true;
             if (!isProd) {

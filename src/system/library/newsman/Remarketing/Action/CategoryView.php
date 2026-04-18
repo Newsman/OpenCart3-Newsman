@@ -58,8 +58,7 @@ class CategoryView extends \Newsman\Remarketing\Action\AbstractAction {
 		$position = 1;
 		$js = '';
 		foreach ($products as $product) {
-			$js .= $this->escapeHtml($this->getConfig()->getJsTrackRunFunc()) .
-				"('ec:addImpression', {" .
+			$js .= "_nzm.run('ec:addImpression', {" .
 				"id: " . (int)$product['product_id'] . "," .
 				"name: '" . $this->escapeHtml($product['name']) . "'," .
 				"category: '" . $this->escapeHtml($this->getCategoryName($category_id)) . "'," .

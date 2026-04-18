@@ -10,7 +10,7 @@ class PageView extends \Newsman\Remarketing\Action\AbstractAction {
 	 * @return string
 	 */
 	public function getJs() {
-		$js = $this->escapeHtml($this->getConfig()->getJsTrackRunFunc()) . "('send', 'pageview'); ";
+		$js = "_nzm.run('send', 'pageview'); ";
 		$this->getEvent()->trigger('newsmanremarketing/remarketing_action_page_view/after', array(&$js));
 		return $js;
 	}

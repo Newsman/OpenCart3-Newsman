@@ -20,7 +20,7 @@ class Purchase extends \Newsman\Remarketing\Action\AbstractAction {
 			return $page_view->getJs();
 		}
 
-		$run = $this->escapeHtml($this->getConfig()->getJsTrackRunFunc());
+		$run = '_nzm.run';
 
 		$email = $order['email'];
 		$first_name = $order['firstname'];

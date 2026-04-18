@@ -705,7 +705,8 @@ class Nzmconfig extends Library {
 	 * @param null|int $store_id
 	 *
 	 * @return string
-	 * @deprecated
+	 * @deprecated The run function name is now hard-coded to "_nzm.run" at
+	 *             every call site. Kept for backward compatibility only.
 	 */
 	public function getJsTrackRunFunc($store_id = null) {
 		$return = (string)$this->getConfigValue('analytics_newsmanremarketing_js_track_run_func', $store_id);
