@@ -14,6 +14,7 @@
  * @property \Document             $document
  * @property \Cart\Customer        $customer
  * @property \Cart\Cart            $cart
+ * @property \Cart\Tax             $tax
  * @property \DB                   $db
  * @property \Event                $event
  * @property \ModelCatalogProduct  $model_catalog_product
@@ -111,8 +112,12 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 			$data['nzm_time_diff'] = 1000;
 		}
 
+		$template = $this->nzmconfig->isThemeCartCompatibility()
+			? 'extension/analytics/newsman/cart'
+			: 'extension/analytics/newsman/minicart';
+
 		$this->event->trigger('newsmanremarketing/script_cart_render/before', array(&$data));
-		$output = $this->load->view('extension/analytics/newsman/cart', $data);
+		$output = $this->load->view($template, $data);
 		$this->event->trigger('newsmanremarketing/script_cart_render/after', array(&$data, &$output));
 
 		return $output;
@@ -282,5 +287,80 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$this->event->trigger('newsmanremarketing/remarketing_get_current_route/after', array(&$route));
 
 		return $route;
+	}
+
+	/**
+	 * Event handler for catalog/view/common/cart/after.
+	 *
+	 * Appends a JSON payload of the current cart products to the rendered minicart
+	 * HTML so that the minicart-DOM-based tracker (minicart.twig) can read it
+	 * without parsing theme markup.
+	 *
+	 * Skipped when Theme Cart Compatibility is enabled (cart.twig handles tracking
+	 * via XHR/fetch interception in that mode).
+	 *
+	 * @param string $route
+	 * @param array  $data
+	 * @param string $output
+	 *
+	 * @return void
+	 */
+	public function eventViewCommonCartAfter(&$route, &$data, &$output) {
+		if (!$this->nzmconfig->isRemarketingActive()) {
+			return;
+		}
+		if ($this->nzmconfig->isThemeCartCompatibility()) {
+			return;
+		}
+
+		$products = array();
+		try {
+			$cart_products = $this->cart->getProducts();
+		} catch (\Exception $e) {
+			return;
+		}
+
+		$show_price = ($this->customer->isLogged() || !$this->config->get('config_customer_price'));
+
+		foreach ($cart_products as $product) {
+			$price = 0.0;
+			if ($show_price && isset($product['price'], $product['tax_class_id'])) {
+				$unit_price = $this->tax->calculate(
+					$product['price'],
+					$product['tax_class_id'],
+					$this->config->get('config_tax')
+				);
+				$price = (float)$unit_price;
+			}
+
+			$products[] = array(
+				'id'       => isset($product['product_id']) ? (string)$product['product_id'] : '',
+				'name'     => isset($product['name']) ? (string)$product['name'] : '',
+				'price'    => $price,
+				'quantity' => isset($product['quantity']) ? (int)$product['quantity'] : 0,
+			);
+		}
+
+		$json = json_encode(
+			$products,
+			JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+		);
+		if ($json === false) {
+			return;
+		}
+
+		// Inject the JSON inside the minicart's <ul> as a hidden <li>. This makes
+		// it survive the OpenCart 3 default theme's selective refresh, which uses
+		// $('#cart > ul').load('...common/cart/info ul li') — only <li> elements
+		// inside a <ul> are kept. Insert before the last </ul> in the rendered view.
+		$tag = '<li class="newsman-cart-data" style="display:none">'
+			. '<script type="application/json" data-newsman-cart>' . $json . '</script>'
+			. '</li>';
+
+		$pos = strrpos($output, '</ul>');
+		if ($pos === false) {
+			return;
+		}
+		$output = substr_replace($output, $tag, $pos, 0);
 	}
 }

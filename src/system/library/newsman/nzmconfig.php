@@ -612,6 +612,30 @@ class Nzmconfig extends Library {
 	}
 
 	/**
+	 * Is theme cart compatibility enabled (default: true).
+	 *
+	 * When enabled, the cart-tracking script (cart.twig) polls the cart endpoint
+	 * and intercepts AJAX/fetch requests to detect cart changes — works in any theme.
+	 *
+	 * When disabled, a lighter minicart-DOM-based tracker (minicart.twig) is used
+	 * instead — only compatible with the OpenCart 3 default theme minicart block.
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isThemeCartCompatibility($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		$value = $this->getConfigValue('analytics_newsmanremarketing_theme_cart_compatibility', $store_id);
+		if ($value === null || $value === '') {
+			return true;
+		}
+
+		return (bool)$value;
+	}
+
+	/**
 	 * Get order date to export orders created after it, including.
 	 *
 	 * @param null|int $store_id

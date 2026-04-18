@@ -21,6 +21,8 @@ $_['entry_tracking'] = 'NewsMAN Remarketing-ID';
 $_['entry_status'] = 'Status';
 $_['entry_anonymize_ip'] = 'IP-Adresse anonymisieren';
 $_['entry_send_telephone'] = 'Telefonnummer senden';
+$_['entry_theme_cart_compatibility'] = 'Themen-Warenkorb-Kompatibilität';
+$_['entry_theme_cart_compatibility_help'] = 'Aktivieren Sie diese Option für die zuverlässigste Erkennung von Warenkorb-Änderungen in jedem Theme (verwendet Hintergrundabfragen und überwacht AJAX/fetch-Anfragen). Deaktivieren Sie sie, um einen leichteren Mechanismus zu verwenden, der den Warenkorb-Inhalt direkt aus dem Standard-Minicart-Block des OpenCart 3-Themes liest (keine Hintergrundabfragen, funktioniert jedoch nur, wenn Ihr Theme den Standard-Minicart-Block <code>#cart</code> verwendet). Wenn Sie diese Option deaktivieren, leeren Sie den OpenCart-Cache und verwenden Sie dann das Tool <strong>Check installation</strong> Remarketing von newsman.app, um zu überprüfen, ob die Warenkorb-Ereignisse korrekt erkannt werden.';
 $_['entry_order_date'] = 'Mindestbestelldatum';
 
 // Error

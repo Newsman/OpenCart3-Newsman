@@ -21,6 +21,8 @@ $_['entry_tracking'] = 'NewsMAN Remarketing ID';
 $_['entry_status'] = 'Status';
 $_['entry_anonymize_ip'] = 'Anonymize IP Address';
 $_['entry_send_telephone'] = 'Send Phone Number';
+$_['entry_theme_cart_compatibility'] = 'Theme Cart Compatibility';
+$_['entry_theme_cart_compatibility_help'] = 'Enable for the most reliable cart-change detection across any theme (uses background polling and listens for AJAX/fetch requests). Disable to use a lighter mechanism that reads cart contents directly from the OpenCart 3 default theme minicart (no background polling, but only works if your theme uses the standard <code>#cart</code> minicart block). If you disable this option, clear your OpenCart cache and then use the newsman.app Remarketing <strong>Check installation</strong> tool to verify cart events are detected correctly.';
 $_['entry_order_date'] = 'Minimum Order Date';
 
 // Error

@@ -19,7 +19,7 @@ class Nzmsetup extends \Newsman\Library {
 	 *
 	 * @var string
 	 */
-	protected $setup_version = '1.0.2';
+	protected $setup_version = '1.0.3';
 
 	/**
 	 * @param \Registry $registry
@@ -112,6 +112,7 @@ class Nzmsetup extends \Newsman\Library {
 		$this->model_setting_event->deleteEventByCode('newsman_admin_customer_add_after');
 		$this->model_setting_event->deleteEventByCode('newsman_account_register_after');
 		$this->model_setting_event->deleteEventByCode('newsman_admin_menu');
+		$this->model_setting_event->deleteEventByCode('newsman_view_common_cart_after');
 	}
 
 	/**
@@ -138,6 +139,10 @@ class Nzmsetup extends \Newsman\Library {
 
 		if (version_compare($current_version, '1.0.0', '<')) {
 			$this->upgradeEventsOneZeroZero($store_id);
+		}
+
+		if (version_compare($current_version, '1.0.3', '<')) {
+			$this->upgradeEventsOneDotZeroDotThree($store_id);
 		}
 	}
 
@@ -175,6 +180,15 @@ class Nzmsetup extends \Newsman\Library {
 			$this->model_extension_newsman_setting->editSetting(
 				'newsman',
 				array('newsman_setup_version' => '1.0.2'),
+				$store_id
+			);
+		}
+
+		if (version_compare($current_version, '1.0.3', '<')) {
+			$this->upgradeOptionsOneDotZeroDotThree($store_id);
+			$this->model_extension_newsman_setting->editSetting(
+				'newsman',
+				array('newsman_setup_version' => '1.0.3'),
 				$store_id
 			);
 		}
@@ -455,6 +469,46 @@ jt/modal_{{api_key}}.js';
 		} catch (\Exception $e) {
 			// Do not block the upgrade on API failure.
 		}
+	}
+
+	/**
+	 * Upgrade admin settings 1.0.3
+	 * Seed default value for theme cart compatibility option.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeOptionsOneDotZeroDotThree($store_id) {
+		$existing = $this->model_setting_setting->getSettingValue(
+			'analytics_newsmanremarketing_theme_cart_compatibility',
+			$store_id
+		);
+		if ($existing === null || $existing === '') {
+			$this->model_extension_newsman_setting->editSetting(
+				'analytics_newsmanremarketing',
+				array('analytics_newsmanremarketing_theme_cart_compatibility' => 1),
+				$store_id
+			);
+		}
+	}
+
+	/**
+	 * Upgrade events 1.0.3
+	 * Register the catalog/view/common/cart/after event handler used by the
+	 * minicart-DOM-based cart tracker (when Theme Cart Compatibility is disabled).
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeEventsOneDotZeroDotThree($store_id) {
+		$this->model_setting_event->deleteEventByCode('newsman_view_common_cart_after');
+		$this->model_setting_event->addEvent(
+			'newsman_view_common_cart_after',
+			'catalog/view/common/cart/after',
+			'extension/analytics/newsmanremarketing/eventViewCommonCartAfter'
+		);
 	}
 
 	/**

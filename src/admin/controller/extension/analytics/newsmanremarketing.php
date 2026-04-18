@@ -59,6 +59,7 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		'trackingid',
 		'anonymize_ip',
 		'send_telephone',
+		'theme_cart_compatibility',
 	);
 
 	/**
@@ -111,6 +112,13 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$data = array();
 		foreach ($this->field_names as $field) {
 			$data[$this->names['setting'] . '_' . $field] = $this->model_setting_setting->getSettingValue($this->names['setting'] . '_' . $field, $this->store_id);
+		}
+
+		// Default the new theme cart compatibility setting to enabled when it
+		// has never been saved, matching Nzmconfig::isThemeCartCompatibility().
+		$tcc_key = $this->names['setting'] . '_theme_cart_compatibility';
+		if ($data[$tcc_key] === null || $data[$tcc_key] === '') {
+			$data[$tcc_key] = 1;
 		}
 
 		// If the form is submitted
@@ -224,6 +232,8 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 				'entry_status',
 				'entry_anonymize_ip',
 				'entry_send_telephone',
+				'entry_theme_cart_compatibility',
+				'entry_theme_cart_compatibility_help',
 				'error_permission',
 				'error_code',
 			);

@@ -117,6 +117,11 @@ Remarketing-ul permite Newsman sa urmareasca ce pagini si produse vizualizeaza v
 
 - **Send Phone Number** - Include numerele de telefon ale clientilor in datele de remarketing. Se aplica doar clientilor autentificati care au furnizat un numar de telefon. Activat implicit.
 
+- **Theme Cart Compatibility** - Controleaza modul in care pixelul de remarketing detecteaza modificarile cosului. Activat implicit.
+  - **Activat** - Foloseste polling in fundal si asculta cererile AJAX/fetch pentru a detecta modificarile cosului. Acesta este modul cel mai fiabil si functioneaza pe orice tema, dar genereaza cereri suplimentare in fundal pe fiecare pagina.
+  - **Dezactivat** - Un mod mai usor care citeste continutul cosului direct din blocul standard de minicart al temei OpenCart 3 (`#cart`). Fara polling in fundal, dar functioneaza doar daca tema dvs. foloseste blocul standard de minicart.
+  - **Nota:** Daca dezactivati aceasta optiune, goliti cache-ul OpenCart si apoi folositi instrumentul **Check installation** Remarketing din newsman.app pentru a verifica daca evenimentele de adaugare/stergere/golire a cosului sunt detectate corect pe tema dvs.
+
 ### Ce se Urmareste
 
 Pixelul de remarketing urmareste automat activitatea vizitatorilor pe magazinul dvs.:

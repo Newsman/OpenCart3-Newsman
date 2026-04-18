@@ -1,0 +1,155 @@
+<script{{ tag_attrib }}>
+    _nzm.run('require', 'ec');
+
+    (function () {
+        var isProd = true;
+        var nzmCartSelector = 'script[data-newsman-cart]';
+        var observerTarget = document.getElementById('cart');
+
+        function readPayload() {
+            var node = null;
+            if (observerTarget) {
+                node = observerTarget.querySelector(nzmCartSelector);
+            }
+            if (!node) {
+                node = document.querySelector(nzmCartSelector);
+            }
+            if (!node) {
+                return null;
+            }
+            var text = (node.textContent || '').trim();
+            if (text === '') {
+                return [];
+            }
+            try {
+                var data = JSON.parse(text);
+                return Array.isArray(data) ? data : [];
+            } catch (e) {
+                if (!isProd) {
+                    console.log('newsman remarketing: cannot parse minicart JSON');
+                }
+                return null;
+            }
+        }
+
+        function readLastCart() {
+            try {
+                var raw = sessionStorage.getItem('lastCart');
+                if (raw === null || raw === '') {
+                    return [];
+                }
+                var parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function writeLastCart(products) {
+            try {
+                sessionStorage.setItem('lastCart', JSON.stringify(products));
+            } catch (e) {}
+        }
+
+        function nzmClearCart() {
+            _nzm.run('ec:setAction', 'clear_cart');
+            _nzm.run('send', 'event', 'detail view', 'click', 'clearCart');
+            writeLastCart([]);
+            if (!isProd) {
+                console.log('newsman remarketing: clear cart sent');
+            }
+        }
+
+        function nzmAddToCart(products) {
+            _nzm.run('ec:setAction', 'clear_cart');
+            if (!isProd) {
+                console.log('newsman remarketing: clear cart sent, add to cart function');
+            }
+            _nzm.run('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
+                if (!isProd) {
+                    console.log('newsman remarketing: executing add to cart callback');
+                }
+                var sent = [];
+                for (var i = 0; i < products.length; i++) {
+                    var item = products[i];
+                    if (item && item.hasOwnProperty('id')) {
+                        _nzm.run('ec:addProduct', item);
+                        sent.push(item);
+                    }
+                }
+                _nzm.run('ec:setAction', 'add');
+                _nzm.run('send', 'event', 'UX', 'click', 'add to cart');
+                writeLastCart(sent);
+                if (!isProd) {
+                    console.log('newsman remarketing: cart sent');
+                }
+            });
+        }
+
+        function processCart() {
+            var products = readPayload();
+            if (products === null) {
+                return;
+            }
+            var lastCart = readLastCart();
+            var lastJson = JSON.stringify(lastCart);
+            var nextJson = JSON.stringify(products);
+
+            if (lastJson === nextJson) {
+                if (!isProd) {
+                    console.log('newsman remarketing: minicart unchanged');
+                }
+                return;
+            }
+
+            if (products.length === 0) {
+                if (lastCart.length > 0) {
+                    nzmClearCart();
+                } else {
+                    writeLastCart([]);
+                }
+                return;
+            }
+
+            nzmAddToCart(products);
+        }
+
+        var scheduled = false;
+        function scheduleProcess() {
+            if (scheduled) {
+                return;
+            }
+            scheduled = true;
+            setTimeout(function () {
+                scheduled = false;
+                processCart();
+            }, 50);
+        }
+
+        function startObserver() {
+            observerTarget = document.getElementById('cart');
+            if (!observerTarget || typeof MutationObserver !== 'function') {
+                return;
+            }
+            var observer = new MutationObserver(function () {
+                scheduleProcess();
+            });
+            observer.observe(observerTarget, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
+
+        function boot() {
+            startObserver();
+            processCart();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot);
+        } else {
+            boot();
+        }
+    })();
+</script>

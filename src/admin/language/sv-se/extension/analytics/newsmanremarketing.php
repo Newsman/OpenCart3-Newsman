@@ -21,6 +21,8 @@ $_['entry_tracking'] = 'NewsMAN Remarketing-ID';
 $_['entry_status'] = 'Status';
 $_['entry_anonymize_ip'] = 'Anonymisera IP-adress';
 $_['entry_send_telephone'] = 'Skicka telefonnummer';
+$_['entry_theme_cart_compatibility'] = 'Temakompatibilitet Varukorg';
+$_['entry_theme_cart_compatibility_help'] = 'Aktivera för den mest tillförlitliga detekteringen av varukorgsändringar i alla teman (använder bakgrundspollning och lyssnar på AJAX/fetch-förfrågningar). Inaktivera för att använda en lättare mekanism som läser varukorgens innehåll direkt från standard-minikundvagnsblocket i OpenCart 3-temat (ingen bakgrundspollning, men fungerar endast om ditt tema använder standard-minikundvagnsblocket <code>#cart</code>). Om du inaktiverar detta alternativ, rensa OpenCart-cachen och använd sedan verktyget <strong>Check installation</strong> Remarketing från newsman.app för att verifiera att varukorgens händelser detekteras korrekt.';
 $_['entry_order_date'] = 'Minsta beställningsdatum';
 
 // Error

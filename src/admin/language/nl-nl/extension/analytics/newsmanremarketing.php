@@ -21,6 +21,8 @@ $_['entry_tracking'] = 'NewsMAN Remarketing-ID';
 $_['entry_status'] = 'Status';
 $_['entry_anonymize_ip'] = 'IP-adres anonimiseren';
 $_['entry_send_telephone'] = 'Telefoonnummer verzenden';
+$_['entry_theme_cart_compatibility'] = 'Themacompatibiliteit Winkelwagen';
+$_['entry_theme_cart_compatibility_help'] = 'Inschakelen voor de meest betrouwbare detectie van winkelwagenwijzigingen in elk thema (gebruikt achtergrondpolling en luistert naar AJAX/fetch-verzoeken). Uitschakelen om een lichter mechanisme te gebruiken dat de winkelwageninhoud rechtstreeks uit het standaard minicart-blok van het OpenCart 3-thema leest (geen achtergrondpolling, maar werkt alleen als uw thema het standaard minicart-blok <code>#cart</code> gebruikt). Als u deze optie uitschakelt, leeg dan de OpenCart-cache en gebruik vervolgens het hulpmiddel <strong>Check installation</strong> Remarketing van newsman.app om te controleren of winkelwagengebeurtenissen correct worden gedetecteerd.';
 $_['entry_order_date'] = 'Minimale besteldatum';
 
 // Error

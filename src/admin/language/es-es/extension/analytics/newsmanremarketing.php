@@ -21,6 +21,8 @@ $_['entry_tracking'] = 'ID de remarketing NewsMAN';
 $_['entry_status'] = 'Estado';
 $_['entry_anonymize_ip'] = 'Anonimizar dirección IP';
 $_['entry_send_telephone'] = 'Enviar número de teléfono';
+$_['entry_theme_cart_compatibility'] = 'Compatibilidad del Carrito con el Tema';
+$_['entry_theme_cart_compatibility_help'] = 'Active esta opción para la detección más fiable de cambios en el carrito en cualquier tema (utiliza sondeo en segundo plano y escucha las solicitudes AJAX/fetch). Desactívela para utilizar un mecanismo más ligero que lee el contenido del carrito directamente desde el bloque minicart del tema predeterminado de OpenCart 3 (sin sondeo en segundo plano, pero solo funciona si su tema utiliza el bloque minicart estándar <code>#cart</code>). Si desactiva esta opción, vacíe la caché de OpenCart y luego utilice la herramienta <strong>Check installation</strong> Remarketing de newsman.app para verificar que los eventos del carrito se detectan correctamente.';
 $_['entry_order_date'] = 'Fecha mínima de pedido';
 
 // Error
