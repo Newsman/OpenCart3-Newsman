@@ -73,8 +73,21 @@
                 for (var i = 0; i < products.length; i++) {
                     var item = products[i];
                     if (item && item.hasOwnProperty('id')) {
-                        _nzm.run('ec:addProduct', item);
-                        sent.push(item);
+                        // Pass a fresh copy to _nzm — Newsman's send pipeline mutates
+                        // queued product objects, which would otherwise strip "name"
+                        // from the entry we persist to sessionStorage.
+                        _nzm.run('ec:addProduct', {
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        });
+                        sent.push({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        });
                     }
                 }
                 _nzm.run('ec:setAction', 'add');
