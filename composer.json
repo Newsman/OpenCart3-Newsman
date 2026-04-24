@@ -1,6 +1,6 @@
 {
 	"name": "newsman/opencart3-extension",
-	"version": "3.1.7",
+	"version": "3.1.8",
 	"description": "Newsman extension for OpenCart 3.",
 	"license": "Apache-2.0",
 	"type": "opencart-plugin",

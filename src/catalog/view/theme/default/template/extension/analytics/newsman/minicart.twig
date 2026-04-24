@@ -154,8 +154,47 @@
             });
         }
 
+        function nzmGetCookie(name) {
+            var needle = name + '=';
+            var parts = document.cookie ? document.cookie.split(';') : [];
+            for (var i = 0; i < parts.length; i++) {
+                var p = parts[i].replace(/^\s+/, '');
+                if (p.indexOf(needle) === 0) {
+                    return p.substring(needle.length);
+                }
+            }
+            return null;
+        }
+
+        function nzmSetSessionCookie(name, value, path) {
+            // No Max-Age / Expires => browser-session lifetime. SameSite=Lax keeps
+            // it on ordinary same-site navigations. Cleared when the browser closes.
+            document.cookie = name + '=' + value + '; path=' + path + '; SameSite=Lax';
+        }
+
+        // Once per browser session (gated by nzm_cart_sync cookie), handle the
+        // edge case where the storefront cart is empty but the Newsman-side
+        // remarketing cart still holds items from a previous session. processCart
+        // early-returns when both lastCart and payload are empty, so without this
+        // hook the stale Newsman cart is never cleared. For a non-empty payload
+        // we skip the clear — processCart() will run immediately after and emit
+        // its own clear_cart + add sequence.
+        function nzmSessionBootstrap() {
+            var cookieName = 'nzm_cart_sync';
+            var cookiePath = '{{ nzm_cookie_path|escape('js') }}';
+            if (nzmGetCookie(cookieName)) {
+                return;
+            }
+            var payload = readPayload();
+            if (payload !== null && payload.length === 0) {
+                nzmClearCart();
+            }
+            nzmSetSessionCookie(cookieName, '1', cookiePath);
+        }
+
         function boot() {
             startObserver();
+            nzmSessionBootstrap();
             processCart();
         }
 
