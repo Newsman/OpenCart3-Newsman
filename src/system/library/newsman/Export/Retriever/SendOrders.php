@@ -190,7 +190,7 @@ class SendOrders extends BaseOrders implements RetrieverInterface {
 	 */
 	protected function getOrderProducts($order_id) {
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
 
 		return $query->rows;
 	}
@@ -204,7 +204,7 @@ class SendOrders extends BaseOrders implements RetrieverInterface {
 	 */
 	protected function getOrderTotals($order_id) {
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
 
 		return $query->rows;
 	}

@@ -142,16 +142,16 @@ class Coupons extends AbstractRetriever implements RetrieverInterface {
 
 		$this->event->trigger('newsman/export_retriever_coupons_process_coupon/before', array(&$coupon_data));
 
-		$this->registry->db->query("INSERT INTO " . DB_PREFIX . "coupon SET " .
-			"name = '" . $this->registry->db->escape($coupon_data['name']) . "', " .
-			"code = '" . $this->registry->db->escape($coupon_data['code']) . "', " .
+		$this->registry->get('db')->query("INSERT INTO " . DB_PREFIX . "coupon SET " .
+			"name = '" . $this->registry->get('db')->escape($coupon_data['name']) . "', " .
+			"code = '" . $this->registry->get('db')->escape($coupon_data['code']) . "', " .
 			"discount = '" . (float)$coupon_data['discount'] . "', " .
-			"type = '" . $this->registry->db->escape($coupon_data['type']) . "', " .
+			"type = '" . $this->registry->get('db')->escape($coupon_data['type']) . "', " .
 			"total = '" . (float)$coupon_data['total'] . "', " .
 			"logged = '" . (int)$coupon_data['logged'] . "', " .
 			"shipping = '" . (int)$coupon_data['shipping'] . "', " .
-			"date_start = '" . $this->registry->db->escape($coupon_data['date_start']) . "', " .
-			"date_end = '" . $this->registry->db->escape($coupon_data['date_end']) . "', " .
+			"date_start = '" . $this->registry->get('db')->escape($coupon_data['date_start']) . "', " .
+			"date_end = '" . $this->registry->get('db')->escape($coupon_data['date_end']) . "', " .
 			"uses_total = '" . (int)$coupon_data['uses_total'] . "', " .
 			"uses_customer = '" . (int)$coupon_data['uses_customer'] . "', " .
 			"status = '" . (int)$coupon_data['status'] . "'");
@@ -179,7 +179,7 @@ class Coupons extends AbstractRetriever implements RetrieverInterface {
 			$full_coupon_code = $prefix . $coupon_code;
 
 			/** @var \stdClass $query */
-			$query = $this->registry->db->query("SELECT coupon_id FROM " . DB_PREFIX . "coupon WHERE code = '" . $this->registry->db->escape($full_coupon_code) . "'");
+			$query = $this->registry->get('db')->query("SELECT coupon_id FROM " . DB_PREFIX . "coupon WHERE code = '" . $this->registry->get('db')->escape($full_coupon_code) . "'");
 			$existing_coupon_id = $query->num_rows > 0;
 		} while (!empty($existing_coupon_id) && $fail_safe < 3);
 

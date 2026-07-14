@@ -156,7 +156,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		$sql .= " LIMIT " . $start . "," . $limit;
 
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query($sql);
+		$query = $this->registry->get('db')->query($sql);
 
 		if ($query->num_rows < 1) {
 			return array();
@@ -191,7 +191,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		$seo_urls = array();
 		foreach ($batches as $batch) {
 			/** @var \stdClass $query */
-			$query = $this->registry->db->query(
+			$query = $this->registry->get('db')->query(
 				"SELECT query, keyword, store_id FROM " . DB_PREFIX . "seo_url " .
 				"WHERE `query` IN ('" . implode("','", $batch) . "')" .
 				"    AND store_id = " . $store_id . " " .
@@ -236,7 +236,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		foreach ($batches as $batch) {
 			$sql = "SELECT product_id, category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id IN (" . implode(',', array_map('intval', $batch)) . ")";
 			/** @var \stdClass $query */
-			$query = $this->registry->db->query($sql);
+			$query = $this->registry->get('db')->query($sql);
 
 			foreach ($query->rows as $row) {
 				if (!isset($product_categories[$row['product_id']])) {
@@ -270,7 +270,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 				AND cd.language_id = '" . $this->getLanguageIdByStoreId($store_id) . "'";
 
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query($sql);
+		$query = $this->registry->get('db')->query($sql);
 
 		$this->categories[$store_id] = array();
 		foreach ($query->rows as $row) {

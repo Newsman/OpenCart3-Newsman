@@ -75,7 +75,7 @@ class Nzmlogger extends \Newsman\Library {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->library('newsman/nzmconfig');
+		$this->registry->get('load')->library('newsman/nzmconfig');
 		$this->config = $this->registry->get('nzmconfig');
 
 		$this->logger = new \Log(str_replace('{date}', date('Y-m-d'), self::FILENAME));

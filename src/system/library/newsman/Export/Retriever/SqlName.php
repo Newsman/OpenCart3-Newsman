@@ -17,7 +17,7 @@ class SqlName extends AbstractRetriever implements RetrieverInterface {
 	 * @return array
 	 */
 	public function process($data = array(), $store_id = null) {
-		$query = $this->registry->db->query("SELECT VERSION() AS v");
+		$query = $this->registry->get('db')->query("SELECT VERSION() AS v");
 		$full  = isset($query->row['v']) ? (string)$query->row['v'] : '';
 		$name  = (stripos($full, 'mariadb') !== false) ? 'MariaDB' : 'MySQL';
 

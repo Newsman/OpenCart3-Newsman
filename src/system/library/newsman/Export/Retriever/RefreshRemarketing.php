@@ -56,7 +56,7 @@ class RefreshRemarketing extends AbstractRetriever implements RetrieverInterface
 		$old_remarketing_js = $this->config->getScriptJs($store_id);
 		$new_remarketing_js = $settings['javascript'];
 
-		$this->registry->load->model('extension/newsman/setting');
+		$this->registry->get('load')->model('extension/newsman/setting');
 		$setting_model = $this->registry->get('model_extension_newsman_setting');
 		$setting_model->editSetting(
 			'analytics_newsmanremarketing',

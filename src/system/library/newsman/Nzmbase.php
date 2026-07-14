@@ -33,10 +33,8 @@ class Nzmbase {
 	 */
 	public function __construct($registry) {
 		$this->registry = $registry;
-		//$this->registry->load->library('newsman/nzmconfig');
 		$this->registry->get('load')->library('newsman/nzmconfig');
 		$this->config = $this->registry->get('nzmconfig');
-		//$this->registry->load->library('newsman/nzmlogger');
 		$this->registry->get('load')->library('newsman/nzmlogger');
 		$this->logger = $this->registry->get('nzmlogger');
 		$this->event = $this->registry->get('event');

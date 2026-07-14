@@ -37,9 +37,9 @@ class SubscriberUnsubscribe extends AbstractRetriever implements RetrieverInterf
 			sprintf('subscriber.unsubscribe: %s, store %d', $email, $store_id)
 		);
 
-		$this->registry->db->query(
+		$this->registry->get('db')->query(
 			"UPDATE " . DB_PREFIX . "customer SET newsletter = '0' WHERE email = '" .
-			$this->registry->db->escape($email) . "'"
+			$this->registry->get('db')->escape($email) . "'"
 		);
 
 		return array('success' => true, 'email' => $email);

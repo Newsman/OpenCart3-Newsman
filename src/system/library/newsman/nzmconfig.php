@@ -90,7 +90,7 @@ class Nzmconfig extends Library {
 
 			if ($a_store_id === $store_id) {
 				// Assumes that config is loaded in the registry.
-				// Explanation: in getConfigValue we use $this->registry->config->get($key) to get config from cache.
+				// Explanation: in getConfigValue we use $this->registry->get('config')->get($key) to get config from cache.
 				// Target: it speeds up the storefront.
 				$this->config_loaded[$a_store_id] = true;
 				continue;
@@ -855,7 +855,7 @@ class Nzmconfig extends Library {
 		$current_store_id = $this->getCurrentStoreId();
 		$store_id = ($store_id !== null) ? $store_id : $current_store_id;
 		if ($current_store_id === $store_id) {
-			return $this->registry->config->get($key);
+			return $this->registry->get('config')->get($key);
 		}
 
 		if ($this->config_loaded[$store_id] && isset($this->nzm_config[$store_id][$key])) {
@@ -968,6 +968,6 @@ class Nzmconfig extends Library {
 	 * @return \Config
 	 */
 	public function getStorageConfig() {
-		return $this->registry->config;
+		return $this->registry->get('config');
 	}
 }

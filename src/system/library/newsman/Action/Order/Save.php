@@ -21,7 +21,7 @@ class Save extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->model('checkout/order');
+		$this->registry->get('load')->model('checkout/order');
 		$this->checkout_order = $this->registry->get('model_checkout_order');
 	}
 

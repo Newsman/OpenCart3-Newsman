@@ -21,7 +21,7 @@ class Status extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->model('checkout/order');
+		$this->registry->get('load')->model('checkout/order');
 		$this->checkout_order = $this->registry->get('model_checkout_order');
 	}
 
@@ -80,7 +80,7 @@ class Status extends \Newsman\Nzmbase {
 	 */
 	protected function getOrderStatusName($order_status_id, $language_id) {
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT name FROM " . DB_PREFIX . "order_status WHERE order_status_id = '" . (int)$order_status_id . "' AND language_id = '" . (int)$language_id . "'");
+		$query = $this->registry->get('db')->query("SELECT name FROM " . DB_PREFIX . "order_status WHERE order_status_id = '" . (int)$order_status_id . "' AND language_id = '" . (int)$language_id . "'");
 
 		return ($query->num_rows) ? $query->row['name'] : '';
 	}

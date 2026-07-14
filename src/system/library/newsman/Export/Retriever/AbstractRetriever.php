@@ -83,13 +83,13 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->model('localisation/language');
+		$this->registry->get('load')->model('localisation/language');
 		$this->localisation_language = $this->registry->get('model_localisation_language');
 
-		$this->registry->load->model('setting/setting');
+		$this->registry->get('load')->model('setting/setting');
 		$this->setting = $this->registry->get('model_setting_setting');
 
-		$this->registry->load->model('setting/store');
+		$this->registry->get('load')->model('setting/store');
 		$this->store_setting = $this->registry->get('model_setting_store');
 
 		$this->telephone = new Telephone($registry);
@@ -269,7 +269,7 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 				$value = (string)$value;
 			}
 
-			return $this->registry->db->escape($value);
+			return $this->registry->get('db')->escape($value);
 		} elseif (is_numeric($value)) {
 			if ($type === 'int') {
 				$value = (int)$value;
@@ -277,7 +277,7 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 				$value = (string)$value;
 			}
 
-			return $this->registry->db->escape($value);
+			return $this->registry->get('db')->escape($value);
 		} elseif (is_array($value)) {
 			$return = array();
 			foreach ($value as $item) {
@@ -293,7 +293,7 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 			$value = (string)$value;
 		}
 
-		return $this->registry->db->escape($value);
+		return $this->registry->get('db')->escape($value);
 	}
 
 	/**
@@ -374,8 +374,8 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	public function getConfigStoreBaseUrl($store_id) {
 		$this->event->trigger('newsman/export_retriever_products_get_store_url/before', array(&$url, $store_id));
 
-		$key_config = ($this->registry->request->server['HTTPS']) ? 'config_ssl' : 'config_url';
-		$key_store = ($this->registry->request->server['HTTPS']) ? 'ssl' : 'url';
+		$key_config = ($this->registry->get('request')->server['HTTPS']) ? 'config_ssl' : 'config_url';
+		$key_store = ($this->registry->get('request')->server['HTTPS']) ? 'ssl' : 'url';
 		$stores = $this->store_setting->getStores();
 		$found = false;
 		foreach ($stores as $store) {
@@ -386,14 +386,14 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 		}
 
 		if (!$found) {
-			return rtrim($this->registry->config->get($key_config), '/') . '/';
+			return rtrim($this->registry->get('config')->get($key_config), '/') . '/';
 		}
 
 		if (!empty($store[$key_store])) {
 			return rtrim($store[$key_store], '/') . '/';
 		}
 
-		return rtrim($this->registry->config->get($key_config), '/') . '/';
+		return rtrim($this->registry->get('config')->get($key_config), '/') . '/';
 	}
 
 	/**

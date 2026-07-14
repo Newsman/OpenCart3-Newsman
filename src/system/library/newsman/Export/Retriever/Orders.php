@@ -208,7 +208,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 		}
 
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id IN (" . implode(',', array_map('intval', $order_ids)) . ")");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id IN (" . implode(',', array_map('intval', $order_ids)) . ")");
 
 		$order_products = array();
 		foreach ($query->rows as $row) {
@@ -227,7 +227,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 	 */
 	protected function getOrderProducts($order_id) {
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
 
 		return $query->rows;
 	}
@@ -258,7 +258,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 
 			// Fetch images
 			/** @var \stdClass $query_images */
-			$query_images = $this->registry->db->query("SELECT product_id, image FROM " . DB_PREFIX . "product WHERE product_id IN (" . $ids_csv . ")");
+			$query_images = $this->registry->get('db')->query("SELECT product_id, image FROM " . DB_PREFIX . "product WHERE product_id IN (" . $ids_csv . ")");
 			foreach ($query_images->rows as $row) {
 				$data['images'][$row['product_id']] = $row['image'];
 			}
@@ -271,7 +271,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 				}
 
 				/** @var \stdClass $query_seo */
-				$query_seo = $this->registry->db->query(
+				$query_seo = $this->registry->get('db')->query(
 					"SELECT query, keyword FROM " . DB_PREFIX . "seo_url " .
 					"WHERE `query` IN ('" . implode("','", $query_params) . "') " .
 					"AND store_id = '" . (int)$store_id . "' " .
@@ -301,7 +301,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 		}
 
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id IN (" . implode(',', array_map('intval', $order_ids)) . ") ORDER BY sort_order ASC");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id IN (" . implode(',', array_map('intval', $order_ids)) . ") ORDER BY sort_order ASC");
 
 		$order_totals = array();
 		foreach ($query->rows as $row) {
@@ -320,7 +320,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 	 */
 	protected function getOrderTotals($order_id) {
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
+		$query = $this->registry->get('db')->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
 
 		return $query->rows;
 	}

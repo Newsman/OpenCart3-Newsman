@@ -103,7 +103,7 @@ class CustomSql extends AbstractRetriever implements RetrieverInterface {
 			)
 		);
 
-		$result = $this->registry->db->query($sql);
+		$result = $this->registry->get('db')->query($sql);
 
 		$this->logger->notice(
 			sprintf(

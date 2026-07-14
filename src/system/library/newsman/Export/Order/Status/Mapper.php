@@ -31,7 +31,7 @@ class Mapper extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->model('setting/setting');
+		$this->registry->get('load')->model('setting/setting');
 		$this->setting = $this->registry->get('model_setting_setting');
 	}
 

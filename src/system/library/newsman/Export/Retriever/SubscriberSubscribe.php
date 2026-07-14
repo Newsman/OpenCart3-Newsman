@@ -36,9 +36,9 @@ class SubscriberSubscribe extends AbstractRetriever implements RetrieverInterfac
 			sprintf('subscriber.subscribe: %s, store %d', $email, $store_id)
 		);
 
-		$this->registry->db->query(
+		$this->registry->get('db')->query(
 			"UPDATE " . DB_PREFIX . "customer SET newsletter = '1' WHERE email = '" .
-			$this->registry->db->escape($email) . "'"
+			$this->registry->get('db')->escape($email) . "'"
 		);
 
 		return array('success' => true, 'email' => $email);

@@ -79,7 +79,7 @@ class BaseOrders extends AbstractRetriever implements RetrieverInterface {
 		}
 
 		/** @var \stdClass $query */
-		$query = $this->registry->db->query($sql);
+		$query = $this->registry->get('db')->query($sql);
 
 		if ($is_count) {
 			return (int)$query->row['total'];

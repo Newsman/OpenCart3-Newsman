@@ -121,7 +121,7 @@ class Request extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->request = $this->registry->request;
+		$this->request = $this->registry->get('request');
 		$this->pool = new Pool($registry);
 	}
 

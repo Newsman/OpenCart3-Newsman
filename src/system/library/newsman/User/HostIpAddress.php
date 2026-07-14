@@ -33,7 +33,7 @@ class HostIpAddress extends \Newsman\Nzmbase {
 	public function __construct($registry) {
 		parent::__construct($registry);
 
-		$this->registry->load->model('extension/newsman/setting');
+		$this->registry->get('load')->model('extension/newsman/setting');
 		$this->setting = $this->registry->get('model_extension_newsman_setting');
 	}
 
