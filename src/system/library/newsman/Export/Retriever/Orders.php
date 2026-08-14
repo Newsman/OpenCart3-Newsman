@@ -337,15 +337,7 @@ class Orders extends BaseOrders implements RetrieverInterface {
 	protected function getProductImage($product_id, $products_extra_data, $store_id) {
 		$image = isset($products_extra_data['images'][$product_id]) ? $products_extra_data['images'][$product_id] : '';
 
-		if ($image) {
-			$info = pathinfo($image);
-			$dimension = $this->getImageWidth() . 'x' . $this->getImageHeight();
-			$path = 'image/cache/' . (($info['dirname'] !== '.') ? $info['dirname'] . '/' : '') . $info['filename'] . '-' . $dimension . '.' . $info['extension'];
-
-			return $this->stores_urls[$store_id] . $path;
-		}
-
-		return $this->stores_urls[$store_id] . 'image/placeholder.png';
+		return $this->buildImageUrl($image, $store_id);
 	}
 
 	/**

@@ -519,6 +519,35 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	}
 
 	/**
+	 * Build a product image URL.
+	 *
+	 * The resized variant in image/cache/ only exists for dimensions the
+	 * storefront theme has generated. When the configured width or height
+	 * is 0 (theme does not define the popup image size options), no such
+	 * variant can exist, so the original image URL is returned instead.
+	 *
+	 * @param string $image    Product image path, relative to the image dir.
+	 * @param int    $store_id
+	 *
+	 * @return string
+	 */
+	public function buildImageUrl($image, $store_id) {
+		if (empty($image)) {
+			return $this->stores_urls[$store_id] . 'image/placeholder.png';
+		}
+
+		if ($this->getImageWidth() <= 0 || $this->getImageHeight() <= 0) {
+			return $this->stores_urls[$store_id] . 'image/' . $image;
+		}
+
+		$info = pathinfo($image);
+		$dimension = $this->getImageWidth() . 'x' . $this->getImageHeight();
+		$path = 'image/cache/' . (($info['dirname'] !== '.') ? $info['dirname'] . '/' : '') . $info['filename'] . '-' . $dimension . '.' . $info['extension'];
+
+		return $this->stores_urls[$store_id] . $path;
+	}
+
+	/**
 	 * Get config stock checkout
 	 *
 	 * @param int $store_id

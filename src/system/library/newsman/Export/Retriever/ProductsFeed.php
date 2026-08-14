@@ -419,15 +419,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		}
 
 		// Set product image
-		if (!empty($product['image'])) {
-			$info = pathinfo($product['image']);
-			$dimension = $this->getImageWidth() . 'x' . $this->getImageHeight();
-			$path = 'image/cache/' . (($info['dirname'] !== '.') ? $info['dirname'] . '/' : '') . $info['filename'] . '-' . $dimension . '.' . $info['extension'];
-			$image_url = $this->stores_urls[$store_id] . $path;
-		} else {
-			$image_url = $this->stores_urls[$store_id] . 'image/placeholder.png';
-		}
-		$row['image_url'] = $image_url;
+		$row['image_url'] = $this->buildImageUrl($product['image'], $store_id);
 
 		// Set categories data
 		$row['category'] = array();
