@@ -963,6 +963,63 @@ class Nzmconfig extends Library {
 	}
 
 	/**
+	 * Is generating missing product feed images enabled?
+	 *
+	 * When enabled, the products feed creates the resized image/cache/ variant
+	 * on demand (through the OpenCart tool/image model) when it does not exist
+	 * on disk yet. Disabled by default: the feed then links the existing resized
+	 * file, or the original image when no resized variant exists.
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isFeedImageGenerate($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (bool)$this->getConfigValue('newsman_feed_image_generate', $store_id);
+	}
+
+	/**
+	 * Use custom product feed image dimensions instead of the theme popup size?
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isFeedImageCustomSize($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (bool)$this->getConfigValue('newsman_feed_image_custom_size', $store_id);
+	}
+
+	/**
+	 * Get the custom product feed image width
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return int
+	 */
+	public function getFeedImageWidth($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (int)$this->getConfigValue('newsman_feed_image_width', $store_id);
+	}
+
+	/**
+	 * Get the custom product feed image height
+	 *
+	 * @param null|int $store_id
+	 *
+	 * @return int
+	 */
+	public function getFeedImageHeight($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		return (int)$this->getConfigValue('newsman_feed_image_height', $store_id);
+	}
+
+	/**
 	 * Get storage config
 	 *
 	 * @return \Config

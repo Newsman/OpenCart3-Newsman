@@ -353,6 +353,15 @@ class Users extends AbstractRetriever implements RetrieverInterface {
 	}
 
 	/**
+	 * Get the SQL field used to keep paginated exports deterministic
+	 *
+	 * @return string
+	 */
+	public function getDefaultSortField() {
+		return 'c.customer_id';
+	}
+
+	/**
 	 * Set additional attributes
 	 *
 	 * @param array $attributes

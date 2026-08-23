@@ -3,7 +3,73 @@
 
     var ajaxurl = '{{ base_url }}/index.php?route=extension/module/newsman/cart';
     var isProd = true;
-    let lastCart = sessionStorage.getItem('lastCart');
+    // Durable cart fingerprint storage.
+    //
+    // Until 3.1.11 the last reported cart was kept in per-tab sessionStorage,
+    // which the browser drops when the tab closes. On the visitor's next visit
+    // the script found no fingerprint, considered the (unchanged) cart to be
+    // new and re-sent clear_cart + add to cart; Newsman saw a brand new cart
+    // and restarted the abandoned cart automation, so the same visitor received
+    // the same email after every return to the site.
+    //
+    // localStorage keeps the fingerprint across sessions and tabs; per-tab
+    // storage and an in-memory value remain as fallbacks when localStorage is
+    // unavailable (private mode, blocked). The server keeps its own fingerprint
+    // in the OpenCart session (see the /cart endpoint), so the cart is
+    // re-reported only when BOTH sides lost track of it.
+    var nzmCartStore = (function () {
+        var key = 'nzm_last_cart';
+        var memory = null;
+        var store = null;
+        try {
+            if (window.localStorage) {
+                window.localStorage.setItem('nzm_test', '1');
+                window.localStorage.removeItem('nzm_test');
+                store = window.localStorage;
+                // One-time migration of the pre-3.1.12 per-tab fingerprint, so
+                // an already-tracked tab does not re-report on upgrade.
+                try {
+                    if (store.getItem(key) === null && window.sessionStorage) {
+                        var legacy = window.sessionStorage.getItem('lastCart');
+                        if (legacy !== null) {
+                            store.setItem(key, legacy);
+                        }
+                    }
+                } catch (e) {}
+            }
+        } catch (e) {}
+        if (!store) {
+            try {
+                if (window.sessionStorage) {
+                    store = window.sessionStorage;
+                }
+            } catch (e) {}
+        }
+
+        return {
+            get: function () {
+                if (!store) {
+                    return memory;
+                }
+                try {
+                    return store.getItem(key);
+                } catch (e) {
+                    return memory;
+                }
+            },
+            set: function (value) {
+                memory = value;
+                if (!store) {
+                    return;
+                }
+                try {
+                    store.setItem(key, value);
+                } catch (e) {}
+            }
+        };
+    })();
+
+    let lastCart = nzmCartStore.get();
     if (lastCart === null) {
         lastCart = {};
     }
@@ -23,7 +89,7 @@
     function startTimePassed() {
         startTime = new Date();
     }
-    
+
     startTimePassed();
 
     function endTimePassed() {
@@ -38,7 +104,7 @@
         if (seconds >= secondsAllow) {
             flag = true;
         }
-        
+
         return flag;
     }
 
@@ -56,6 +122,21 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    // Confirm to the server that the current cart state was reported to
+    // Newsman, so the session-side fingerprint stays in sync with the
+    // localStorage one. Fire-and-forget.
+    function nzmConfirmReported(hash) {
+        if (!hash) {
+            return;
+        }
+        try {
+            var xhrConfirm = new XMLHttpRequest();
+            xhrConfirm.open('POST', ajaxurl, true);
+            xhrConfirm.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhrConfirm.send('reported_hash=' + encodeURIComponent(hash));
+        } catch (e) {}
+    }
+
     function NewsmanAutoEvents() {
         if (!endTimePassed()) {
             if (!isProd) {
@@ -69,9 +150,9 @@
         }
         let xhr = new XMLHttpRequest()
         if (bufferedXHR || firstLoad) {
-            var paramChar = '?t=';
+            var paramChar = '?v=2&t=';
             if (ajaxurl.indexOf('?') >= 0) {
-                paramChar = '&t=';
+                paramChar = '&v=2&t=';
             }
             var timestamp = paramChar + Date.now() + timestampGenerator(999, 999999999);
             try {
@@ -86,7 +167,7 @@
             xhr.onload = function () {
                 if (xhr.status == 200 || xhr.status == 201) {
                     try {
-                        var response = JSON.parse(xhr.responseText);
+                        var payload = JSON.parse(xhr.responseText);
                     } catch (error) {
                         if (!isProd) {
                             console.log('newsman remarketing: error occured json parsing response');
@@ -94,7 +175,18 @@
                         isError = true;
                         return;
                     }
-                    lastCart = JSON.parse(sessionStorage.getItem('lastCart'));
+                    var response;
+                    var serverHash = '';
+                    var serverReported = false;
+                    if (Object.prototype.toString.call(payload) === '[object Array]') {
+                        // Legacy shape (server without v=2 support).
+                        response = payload;
+                    } else {
+                        response = payload.items || [];
+                        serverHash = payload.hash || '';
+                        serverReported = !!payload.reported;
+                    }
+                    lastCart = JSON.parse(nzmCartStore.get());
                     if (lastCart === null) {
                         lastCart = {};
                         if (!isProd) {
@@ -128,14 +220,42 @@
                         }
                     }
                     if (response.length > 0 && lastCartFlag == false) {
-                        nzmAddToCart(response);
+                        if (serverReported) {
+                            // The server session already reported this exact cart
+                            // (the local fingerprint was lost, e.g. cleared
+                            // storage). Re-sync the local fingerprint without
+                            // re-sending, so the abandoned cart automation is
+                            // not restarted.
+                            nzmCartStore.set(JSON.stringify(response));
+                            if (!isProd) {
+                                console.log('newsman remarketing: cart already reported in this session, local fingerprint synced');
+                            }
+                        } else {
+                            nzmAddToCart(response, serverHash);
+                        }
                     } else if (response.length == 0 && lastCart.length > 0 && unlockClearCart) {
-                        //send only when on last request, products existed
-                        nzmClearCart();
-                        if (!isProd) {
-                            console.log('newsman remarketing: clear cart sent');
+                        if (serverReported) {
+                            // The empty cart was already reported in this session;
+                            // only re-sync the local fingerprint.
+                            nzmCartStore.set(JSON.stringify([]));
+                            if (!isProd) {
+                                console.log('newsman remarketing: empty cart already reported in this session, local fingerprint synced');
+                            }
+                        } else {
+                            //send only when on last request, products existed
+                            nzmClearCart(serverHash);
+                            if (!isProd) {
+                                console.log('newsman remarketing: clear cart sent');
+                            }
                         }
                     } else {
+                        if (lastCartFlag && serverHash && !serverReported) {
+                            // The local fingerprint says the cart was reported,
+                            // the session does not know it yet (e.g. new
+                            // session, same browser). Sync the session so both
+                            // guards agree.
+                            nzmConfirmReported(serverHash);
+                        }
                         if (!isProd) {
                             console.log('newsman remarketing: request not sent');
                         }
@@ -164,22 +284,23 @@
         }
     }
 
-    function nzmClearCart() {
+    function nzmClearCart(serverHash) {
         _nzm.run('ec:setAction', 'clear_cart');
         _nzm.run('send', 'event', 'detail view', 'click', 'clearCart');
-        sessionStorage.setItem('lastCart', JSON.stringify([]));
+        nzmCartStore.set(JSON.stringify([]));
+        nzmConfirmReported(serverHash);
         unlockClearCart = false;
     }
 
-    function nzmAddToCart(response) {
+    function nzmAddToCart(response, serverHash) {
         _nzm.run('ec:setAction', 'clear_cart');
         if (!isProd) {
             console.log('newsman remarketing: clear cart sent, add to cart function');
         }
-        detailviewEvent(response);
+        detailviewEvent(response, serverHash);
     }
 
-    function detailviewEvent(response) {
+    function detailviewEvent(response, serverHash) {
         if (!isProd) {
             console.log('newsman remarketing: detailviewEvent execute');
         }
@@ -192,7 +313,7 @@
                 if (response[item].hasOwnProperty('id')) {
                     // Pass a fresh copy to _nzm — Newsman's send pipeline mutates
                     // queued product objects, which would otherwise strip "name"
-                    // from the entry we persist to sessionStorage.
+                    // from the entry we persist in the cart fingerprint store.
                     _nzm.run('ec:addProduct', {
                         id: response[item].id,
                         name: response[item].name,
@@ -209,7 +330,8 @@
             }
             _nzm.run('ec:setAction', 'add');
             _nzm.run('send', 'event', 'UX', 'click', 'add to cart');
-            sessionStorage.setItem('lastCart', JSON.stringify(products));
+            nzmCartStore.set(JSON.stringify(products));
+            nzmConfirmReported(serverHash);
             unlockClearCart = true;
             if (!isProd) {
                 console.log('newsman remarketing: cart sent');

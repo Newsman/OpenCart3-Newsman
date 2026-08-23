@@ -3,7 +3,7 @@
 namespace Newsman\Util;
 
 class Version extends \Newsman\Nzmbase {
-	const VERSION = '3.1.10';
+	const VERSION = '3.1.12';
 
 	/**
 	 * @return string

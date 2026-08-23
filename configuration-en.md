@@ -81,6 +81,18 @@ These settings add a newsletter checkbox to your store's checkout page, so custo
 
 - **Newsletter Checkbox Label** - Customize the text shown next to the checkbox. The default is "I wish to subscribe to the newsletter".
 
+### Products Feed Images
+
+These settings control the product image URLs sent in the products feed to Newsman.
+
+By default, the feed links the resized product image from `image/cache/` only when that file already exists on the server, and falls back to the original image otherwise. Products without an image (or whose image file is missing from the server) use the store placeholder image.
+
+- **Products Feed: Generate Missing Images** - When enabled, the resized product image is created on the server during the feed export if it does not exist yet (the same way the storefront creates it). The first feed read after enabling can take longer while missing images are generated. Disabled by default.
+
+- **Products Feed: Custom Image Size** - When enabled, the feed uses the width and height below instead of the theme popup image size. Useful for themes (such as Journal) that do not use the standard OpenCart theme image size settings — set the values to match the image size configured in your theme. Disabled by default.
+
+- **Products Feed: Image Width** / **Products Feed: Image Height** - The custom dimensions in pixels, used only when Custom Image Size is enabled.
+
 ### Multi-Store Options
 
 These settings are only visible if you have multiple stores configured in OpenCart.

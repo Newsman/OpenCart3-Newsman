@@ -76,6 +76,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'checkout_newsletter_label',
 		'export_subscribers_by_store',
 		'export_customers_by_store',
+		'feed_image_generate',
+		'feed_image_custom_size',
+		'feed_image_width',
+		'feed_image_height',
 	);
 
 	/**
@@ -952,6 +956,12 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'entry_developer_api_timeout',
 				'entry_developer_active_user_ip',
 				'entry_developer_user_ip',
+				'entry_feed_image_generate',
+				'entry_feed_image_generate_help',
+				'entry_feed_image_custom_size',
+				'entry_feed_image_custom_size_help',
+				'entry_feed_image_width',
+				'entry_feed_image_height',
 				'entry_send_user_ip_help',
 				'entry_server_ip_help',
 				'entry_developer_active_user_ip_help',

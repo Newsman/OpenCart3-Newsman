@@ -371,12 +371,23 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 			return;
 		}
 
+		// The session keeps the fingerprint of the cart last reported to Newsman
+		// (see the extension/module/newsman/cart endpoint). Exposing it on the
+		// payload lets the tracking script skip re-reporting a cart this session
+		// already reported, even when its localStorage fingerprint was lost.
+		$hash = md5($json);
+		$reported = isset($this->session->data['newsman_reported_cart_hash']) &&
+			$this->session->data['newsman_reported_cart_hash'] === $hash;
+
 		// Inject the JSON inside the minicart's <ul> as a hidden <li>. This makes
 		// it survive the OpenCart 3 default theme's selective refresh, which uses
 		// $('#cart > ul').load('...common/cart/info ul li') — only <li> elements
 		// inside a <ul> are kept. Insert before the last </ul> in the rendered view.
 		$tag = '<li class="newsman-cart-data" style="display:none">'
-			. '<script type="application/json" data-newsman-cart>' . $json . '</script>'
+			. '<script type="application/json" data-newsman-cart'
+			. ' data-newsman-cart-hash="' . $hash . '"'
+			. ' data-newsman-cart-reported="' . ($reported ? '1' : '0') . '">'
+			. $json . '</script>'
 			. '</li>';
 
 		$pos = strrpos($output, '</ul>');

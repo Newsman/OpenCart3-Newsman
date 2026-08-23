@@ -218,6 +218,46 @@
                                    value="{{ newsman_checkout_newsletter_label }}">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-feed-image-generate">{{ entry_feed_image_generate }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_feed_image_generate" id="input-feed-image-generate" class="form-control">
+                                <option value="0"
+                                        {% if not newsman_feed_image_generate %}selected{% endif %}>{{ text_disabled }}</option>
+                                <option value="1"
+                                        {% if newsman_feed_image_generate %}selected{% endif %}>{{ text_enabled }}</option>
+                            </select>
+                            <span class="help-block">{{ entry_feed_image_generate_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-feed-image-custom-size">{{ entry_feed_image_custom_size }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_feed_image_custom_size" id="input-feed-image-custom-size" class="form-control">
+                                <option value="0"
+                                        {% if not newsman_feed_image_custom_size %}selected{% endif %}>{{ text_disabled }}</option>
+                                <option value="1"
+                                        {% if newsman_feed_image_custom_size %}selected{% endif %}>{{ text_enabled }}</option>
+                            </select>
+                            <span class="help-block">{{ entry_feed_image_custom_size_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-feed-image-width">{{ entry_feed_image_width }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_feed_image_width" placeholder="{{ entry_feed_image_width }}"
+                                   id="input-feed-image-width" class="form-control" type="number" min="0"
+                                   value="{{ newsman_feed_image_width }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-feed-image-height">{{ entry_feed_image_height }}</label>
+                        <div class="col-sm-10">
+                            <input name="newsman_feed_image_height" placeholder="{{ entry_feed_image_height }}"
+                                   id="input-feed-image-height" class="form-control" type="number" min="0"
+                                   value="{{ newsman_feed_image_height }}">
+                        </div>
+                    </div>
                     {% if is_multistore %}
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="input-export-subscribers-by-store">{{ entry_export_subscribers_by_store }}</label>
@@ -343,6 +383,23 @@
 
             checkoutNewsletter.on('change', toggleCheckoutNewsletter);
             toggleCheckoutNewsletter();
+
+            var feedImageCustomSize = $('#input-feed-image-custom-size');
+            var feedImageWidthRow = $('#input-feed-image-width').closest('.form-group');
+            var feedImageHeightRow = $('#input-feed-image-height').closest('.form-group');
+
+            function toggleFeedImageSize() {
+                if (feedImageCustomSize.val() == '0') {
+                    feedImageWidthRow.hide();
+                    feedImageHeightRow.hide();
+                } else {
+                    feedImageWidthRow.show();
+                    feedImageHeightRow.show();
+                }
+            }
+
+            feedImageCustomSize.on('change', toggleFeedImageSize);
+            toggleFeedImageSize();
 
             // 3. When "Enable User IP" is Disabled hide "Test IP"
             var activeUserIp = $('#input-developer-active-user-ip');

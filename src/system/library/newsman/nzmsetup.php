@@ -19,7 +19,7 @@ class Nzmsetup extends \Newsman\Library {
 	 *
 	 * @var string
 	 */
-	protected $setup_version = '1.0.3';
+	protected $setup_version = '1.0.4';
 
 	/**
 	 * @param \Registry $registry
@@ -189,6 +189,15 @@ class Nzmsetup extends \Newsman\Library {
 			$this->model_extension_newsman_setting->editSetting(
 				'newsman',
 				array('newsman_setup_version' => '1.0.3'),
+				$store_id
+			);
+		}
+
+		if (version_compare($current_version, '1.0.4', '<')) {
+			$this->upgradeOptionsOneDotZeroDotFour($store_id);
+			$this->model_extension_newsman_setting->editSetting(
+				'newsman',
+				array('newsman_setup_version' => '1.0.4'),
 				$store_id
 			);
 		}
@@ -490,6 +499,37 @@ jt/modal_{{api_key}}.js';
 				array('analytics_newsmanremarketing_theme_cart_compatibility' => 1),
 				$store_id
 			);
+		}
+	}
+
+	/**
+	 * Upgrade admin settings 1.0.4
+	 *
+	 * Defaults for the product feed image settings. Both switches default to
+	 * disabled: the feed does not generate missing images and uses the theme
+	 * popup image size, matching the pre-3.1.12 behaviour.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeOptionsOneDotZeroDotFour($store_id) {
+		$defaults = array(
+			'newsman_feed_image_generate'    => 0,
+			'newsman_feed_image_custom_size' => 0,
+			'newsman_feed_image_width'       => '',
+			'newsman_feed_image_height'      => '',
+		);
+
+		foreach ($defaults as $key => $value) {
+			$existing = $this->model_setting_setting->getSettingValue($key, $store_id);
+			if ($existing === null) {
+				$this->model_extension_newsman_setting->editSetting(
+					'newsman',
+					array($key => $value),
+					$store_id
+				);
+			}
 		}
 	}
 

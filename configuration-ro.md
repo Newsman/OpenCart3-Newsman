@@ -81,6 +81,18 @@ Aceste setari adauga un checkbox de newsletter pe pagina de checkout a magazinul
 
 - **Newsletter Checkbox Label** - Personalizati textul afisat langa checkbox. Valoarea implicita este "I wish to subscribe to the newsletter".
 
+### Imagini Feed Produse
+
+Aceste setari controleaza URL-urile imaginilor de produs trimise in feed-ul de produse catre Newsman.
+
+Implicit, feed-ul foloseste imaginea redimensionata din `image/cache/` doar cand acel fisier exista deja pe server, altfel foloseste imaginea originala. Produsele fara imagine (sau cu fisierul imaginii lipsa de pe server) folosesc imaginea placeholder a magazinului.
+
+- **Products Feed: Generate Missing Images** - Cand este activat, imaginea redimensionata a produsului este creata pe server in timpul exportului de feed daca nu exista inca (in acelasi mod in care o creeaza magazinul). Prima citire a feed-ului dupa activare poate dura mai mult cat timp se genereaza imaginile lipsa. Dezactivat implicit.
+
+- **Products Feed: Custom Image Size** - Cand este activat, feed-ul foloseste latimea si inaltimea de mai jos in locul dimensiunii popup din tema. Util pentru teme (cum ar fi Journal) care nu folosesc setarile standard de dimensiuni de imagine din OpenCart — setati valorile la dimensiunea imaginilor configurata in tema. Dezactivat implicit.
+
+- **Products Feed: Image Width** / **Products Feed: Image Height** - Dimensiunile personalizate in pixeli, folosite doar cand Custom Image Size este activat.
+
 ### Optiuni Multi-Magazin
 
 Aceste setari sunt vizibile doar daca aveti mai multe magazine configurate in OpenCart.

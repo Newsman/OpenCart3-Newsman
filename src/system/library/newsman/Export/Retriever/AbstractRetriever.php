@@ -134,8 +134,19 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 			$params['order'] = 'DESC';
 		}
 		if (!$sort_found) {
-			unset($params['sort']);
-			unset($params['order']);
+			// Without an explicit ORDER BY, MySQL does not guarantee a stable row
+			// order between two LIMIT pages of the same query. Paginated exports
+			// then repeat some rows and skip others, so part of the catalog never
+			// reaches Newsman. Fall back to the deterministic sort field of the
+			// retriever when it defines one.
+			$default_sort = $this->getDefaultSortField();
+			if (!empty($default_sort)) {
+				$params['sort'] = $default_sort;
+				$params['order'] = 'ASC';
+			} else {
+				unset($params['sort']);
+				unset($params['order']);
+			}
 		}
 
 		if (!isset($data['default_page_size'])) {
@@ -251,6 +262,18 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	 */
 	public function getAllowedSortFields() {
 		return array();
+	}
+
+	/**
+	 * Get the SQL field used to keep paginated exports deterministic
+	 *
+	 * Returns an empty string when the retriever builds its own ORDER BY clause
+	 * or when it is not paginated.
+	 *
+	 * @return string
+	 */
+	public function getDefaultSortField() {
+		return '';
 	}
 
 	/**
@@ -519,12 +542,55 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	}
 
 	/**
+	 * Resolve and set the product image dimensions for a store
+	 *
+	 * The admin "custom feed image size" settings win when enabled and valid;
+	 * otherwise the theme popup image size is used (which may be 0 on themes
+	 * that do not define it).
+	 *
+	 * @param int $store_id
+	 *
+	 * @return $this
+	 */
+	public function setupImageDimensions($store_id) {
+		$width = $this->getConfigImageWidth($store_id);
+		$height = $this->getConfigImageHeight($store_id);
+
+		if ($this->config->isFeedImageCustomSize($store_id)) {
+			$custom_width = $this->config->getFeedImageWidth($store_id);
+			$custom_height = $this->config->getFeedImageHeight($store_id);
+			if ($custom_width > 0 && $custom_height > 0) {
+				$width = $custom_width;
+				$height = $custom_height;
+			}
+		}
+
+		$this->setImageWidth($width, $store_id);
+		$this->setImageHeight($height, $store_id);
+
+		return $this;
+	}
+
+	/**
 	 * Build a product image URL.
 	 *
-	 * The resized variant in image/cache/ only exists for dimensions the
-	 * storefront theme has generated. When the configured width or height
-	 * is 0 (theme does not define the popup image size options), no such
-	 * variant can exist, so the original image URL is returned instead.
+	 * A resized variant under image/cache/ exists only after something has
+	 * actually generated it (the storefront renders it on demand). Guessing its
+	 * file name from the configured dimensions produces 404 URLs whenever that
+	 * exact variant was never rendered, and produces "-0x0" URLs on themes that
+	 * do not use the OpenCart theme_[code]_image_popup_width / _height settings
+	 * (for example Journal).
+	 *
+	 * The URL is resolved in this order:
+	 *   1. the original file must exist under DIR_IMAGE, otherwise placeholder;
+	 *   2. dimensions come from the admin "custom feed image size" settings when
+	 *      enabled, otherwise from the theme popup size; without valid
+	 *      dimensions the original image URL is returned;
+	 *   3. a resized variant already present on disk is used as-is;
+	 *   4. when the admin "generate missing feed images" setting is enabled, the
+	 *      variant is generated through the OpenCart "tool/image" model (which
+	 *      creates the file and returns its real URL);
+	 *   5. otherwise the URL of the original file.
 	 *
 	 * @param string $image    Product image path, relative to the image dir.
 	 * @param int    $store_id
@@ -533,18 +599,150 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	 */
 	public function buildImageUrl($image, $store_id) {
 		if (empty($image)) {
-			return $this->stores_urls[$store_id] . 'image/placeholder.png';
+			return $this->getPlaceholderImageUrl($store_id);
 		}
 
-		if ($this->getImageWidth() <= 0 || $this->getImageHeight() <= 0) {
-			return $this->stores_urls[$store_id] . 'image/' . $image;
+		if (!$this->isExistingImageFile($image)) {
+			$this->logger->info(sprintf('Product image file is missing: %s', $image));
+
+			return $this->getPlaceholderImageUrl($store_id);
 		}
 
-		$info = pathinfo($image);
-		$dimension = $this->getImageWidth() . 'x' . $this->getImageHeight();
-		$path = 'image/cache/' . (($info['dirname'] !== '.') ? $info['dirname'] . '/' : '') . $info['filename'] . '-' . $dimension . '.' . $info['extension'];
+		$width = (int)$this->getImageWidth();
+		$height = (int)$this->getImageHeight();
+		$this->event->trigger('newsman/export_retriever_build_image_url/before', array(&$image, &$width, &$height, $store_id));
 
-		return $this->stores_urls[$store_id] . $path;
+		if ($width <= 0 || $height <= 0) {
+			return $this->stores_urls[$store_id] . 'image/' . $this->encodeImagePath($image);
+		}
+
+		$cache_image = $this->getCacheImagePath($image, $width, $height);
+		if ($this->isExistingImageFile($cache_image)) {
+			return $this->stores_urls[$store_id] . 'image/' . $this->encodeImagePath($cache_image);
+		}
+
+		if ($this->config->isFeedImageGenerate($store_id)) {
+			$resized_url = $this->resizeImage($image, $width, $height, $store_id);
+			if (!empty($resized_url)) {
+				return $resized_url;
+			}
+		}
+
+		return $this->stores_urls[$store_id] . 'image/' . $this->encodeImagePath($image);
+	}
+
+	/**
+	 * Get the placeholder image URL of a store
+	 *
+	 * @param int $store_id
+	 *
+	 * @return string
+	 */
+	public function getPlaceholderImageUrl($store_id) {
+		return $this->stores_urls[$store_id] . 'image/placeholder.png';
+	}
+
+	/**
+	 * Check that an image path points to an existing file inside the image dir
+	 *
+	 * When DIR_IMAGE is not defined the check cannot be performed, so the image
+	 * is assumed to exist and the caller keeps its previous behaviour.
+	 *
+	 * @param string $image Image path, relative to the image dir.
+	 *
+	 * @return bool
+	 */
+	public function isExistingImageFile($image) {
+		if (!defined('DIR_IMAGE')) {
+			return true;
+		}
+
+		return is_file(DIR_IMAGE . $image);
+	}
+
+	/**
+	 * Get the image/cache/ path of a resized variant
+	 *
+	 * Mirrors the naming used by the OpenCart "tool/image" model, so an
+	 * existence check on this path finds exactly the file that model would
+	 * create.
+	 *
+	 * @param string $image  Image path, relative to the image dir.
+	 * @param int    $width
+	 * @param int    $height
+	 *
+	 * @return string Path relative to the image dir.
+	 */
+	public function getCacheImagePath($image, $width, $height) {
+		$dot = strrpos($image, '.');
+		if ($dot === false) {
+			$base = $image;
+			$extension = '';
+		} else {
+			$base = substr($image, 0, $dot);
+			$extension = substr($image, $dot + 1);
+		}
+
+		return 'cache/' . $base . '-' . (int)$width . 'x' . (int)$height . '.' . $extension;
+	}
+
+	/**
+	 * Generate the resized variant of an image and return its URL
+	 *
+	 * Uses the OpenCart "tool/image" model, which writes the file under
+	 * image/cache/ when it does not exist yet. The URL returned by the model is
+	 * rebased on the store base URL of the export, because the model builds it
+	 * from the currently loaded store configuration.
+	 *
+	 * @param string $image  Image path, relative to the image dir.
+	 * @param int    $width
+	 * @param int    $height
+	 * @param int    $store_id
+	 *
+	 * @return string Empty string when the resize is not possible.
+	 */
+	protected function resizeImage($image, $width, $height, $store_id) {
+		try {
+			$this->registry->get('load')->model('tool/image');
+			$model = $this->registry->get('model_tool_image');
+			// OpenCart wraps loaded models in a __call-based Proxy, so
+			// method_exists() cannot be used here.
+			if (!is_object($model) || !is_callable(array($model, 'resize'))) {
+				return '';
+			}
+
+			$url = $model->resize($image, $width, $height);
+			if (empty($url) || !is_string($url)) {
+				return '';
+			}
+
+			$position = strpos($url, 'image/cache/');
+			if ($position === false) {
+				return $url;
+			}
+
+			return $this->stores_urls[$store_id] . substr($url, $position);
+		} catch (\Exception $e) {
+			$this->logger->logException($e);
+
+			return '';
+		}
+	}
+
+	/**
+	 * URL encode an image path, segment by segment
+	 *
+	 * Product image paths may contain spaces or other characters that are not
+	 * valid inside a URL. The directory separators must stay unencoded.
+	 *
+	 * @param string $image Image path, relative to the image dir.
+	 *
+	 * @return string
+	 */
+	protected function encodeImagePath($image) {
+		$segments = explode('/', str_replace('\\', '/', $image));
+
+		return implode('/', array_map('rawurlencode', $segments));
 	}
 
 	/**

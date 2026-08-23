@@ -48,8 +48,7 @@ class SendOrders extends BaseOrders implements RetrieverInterface {
 		$data['default_page_size'] = self::DEFAULT_PAGE_SIZE;
 
 		$this->stores_urls[$store_id] = $this->getConfigStoreBaseUrl($store_id);
-		$this->setImageWidth($this->getConfigImageWidth($store_id), $store_id);
-		$this->setImageHeight($this->getConfigImageHeight($store_id), $store_id);
+		$this->setupImageDimensions($store_id);
 
 		$this->event->trigger('newsman/export_retriever_orders_process_params/before', array(&$data, $store_id));
 		$parameters = $this->processListParameters($data, $store_id);

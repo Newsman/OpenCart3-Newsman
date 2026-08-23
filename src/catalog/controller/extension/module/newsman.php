@@ -41,8 +41,38 @@ class ControllerExtensionmoduleNewsman extends Controller {
 
 	/**
 	 * Get cart items AJAX action.
+	 *
+	 * The server keeps a fingerprint (hash) of the cart contents last reported
+	 * to Newsman in the OpenCart session. It is one half of the duplicate
+	 * abandoned-cart guard: the client keeps its own durable fingerprint in
+	 * localStorage, and the cart is reported again only when BOTH sides lost
+	 * track of it — which genuinely looks like a new visitor.
+	 *
+	 * - GET (legacy, no "v" parameter): bare JSON array of cart items, kept for
+	 *   cached copies of the old tracking script.
+	 * - GET with v=2: {"items": [...], "hash": "<md5>", "reported": bool} where
+	 *   "reported" tells whether this exact cart was already reported to
+	 *   Newsman during this session.
+	 * - POST with reported_hash=<md5>: the tracking script confirms it has
+	 *   reported the cart; the hash is stored in the session.
 	 */
 	public function cart() {
+		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+		header("Cache-Control: post-check=0, pre-check=0", false); // Older IE browsers
+		header("Pragma: no-cache");
+		header('Content-Type:application/json');
+
+		if ($this->request->server['REQUEST_METHOD'] == 'POST' && isset($this->request->post['reported_hash'])) {
+			$hash = (string)$this->request->post['reported_hash'];
+			if (preg_match('/^[a-f0-9]{32}$/i', $hash)) {
+				$this->session->data['newsman_reported_cart_hash'] = strtolower($hash);
+				echo json_encode(array('ok' => true));
+			} else {
+				echo json_encode(array('ok' => false));
+			}
+			exit;
+		}
+
 		$items = array();
 		$cart = $this->cart->getProducts();
 		foreach ($cart as $cart_item) {
@@ -54,10 +84,22 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			);
 		}
 
-		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-		header("Cache-Control: post-check=0, pre-check=0", false); // Older IE browsers
-		header("Pragma: no-cache");
-		header('Content-Type:application/json');
+		if (isset($this->request->get['v']) && $this->request->get['v'] == '2') {
+			$hash = md5(json_encode($items));
+			$reported = isset($this->session->data['newsman_reported_cart_hash']) &&
+				$this->session->data['newsman_reported_cart_hash'] === $hash;
+
+			echo json_encode(
+				array(
+					'items'    => $items,
+					'hash'     => $hash,
+					'reported' => $reported
+				),
+				JSON_PRETTY_PRINT
+			);
+			exit;
+		}
+
 		echo json_encode($items, JSON_PRETTY_PRINT);
 		exit;
 	}

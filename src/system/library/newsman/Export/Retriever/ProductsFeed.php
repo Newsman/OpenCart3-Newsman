@@ -42,8 +42,7 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 		$data['default_page_size'] = self::DEFAULT_PAGE_SIZE;
 
 		$this->stores_urls[$store_id] = $this->getConfigStoreBaseUrl($store_id);
-		$this->setImageWidth($this->getConfigImageWidth($store_id), $store_id);
-		$this->setImageHeight($this->getConfigImageHeight($store_id), $store_id);
+		$this->setupImageDimensions($store_id);
 
 		$this->event->trigger('newsman/export_retriever_' . $this->trigger_prefix . '_process_params/before', array(&$data, $store_id));
 		$parameters = $this->processListParameters($data, $store_id);
@@ -63,7 +62,12 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 			try {
 				$result[] = $this->processProduct($product, $store_id);
 			} catch (\Exception $e) {
+				// A product that cannot be fully processed must still occupy its
+				// place in the page. Dropping it here shortens the response, loses
+				// the product, and can make the caller believe the catalog ended
+				// before it did.
 				$this->logger->logException($e);
+				$result[] = $this->processProductFallback($product, $store_id);
 			}
 		}
 
@@ -361,6 +365,51 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface {
 				'product_id'  => 'p.product_id'
 			)
 		);
+	}
+
+	/**
+	 * Get the SQL field used to keep paginated exports deterministic
+	 *
+	 * @return string
+	 */
+	public function getDefaultSortField() {
+		return 'p.product_id';
+	}
+
+	/**
+	 * Build a minimal product row for a product that failed processing
+	 *
+	 * Uses only the raw values already fetched by getProducts(), so it cannot
+	 * throw for the same reason processProduct() did.
+	 *
+	 * @param array    $product
+	 * @param null|int $store_id
+	 *
+	 * @return array
+	 */
+	public function processProductFallback($product, $store_id = null) {
+		$product_id = isset($product['product_id']) ? $product['product_id'] : '';
+		$quantity = isset($product['quantity']) ? (int)$product['quantity'] : 0;
+		$status = !empty($product['status']);
+
+		$row = array(
+			'id'             => $product_id,
+			'url'            => $this->stores_urls[$store_id] . 'index.php?route=product/product&product_id=' . $product_id,
+			'name'           => isset($product['name']) ? $product['name'] : '',
+			'price'          => isset($product['price']) ? round((float)$product['price'], 2) : 0,
+			'image_url'      => $this->getPlaceholderImageUrl($store_id),
+			'category'       => array(),
+			'subcategories'  => array(),
+			'in_stock'       => ($status && $quantity > 0) ? 1 : 0,
+			'stock_quantity' => $quantity,
+			'variants'       => ''
+		);
+
+		foreach ($this->getAdditionalAttributes() as $attribute_name) {
+			$row[$attribute_name] = isset($product[$attribute_name]) ? $product[$attribute_name] : '';
+		}
+
+		return $row;
 	}
 
 	/**
