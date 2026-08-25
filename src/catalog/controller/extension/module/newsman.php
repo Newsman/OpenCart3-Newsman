@@ -110,6 +110,35 @@ class ControllerExtensionmoduleNewsman extends Controller {
 	 *
 	 * @return void
 	 */
+	/**
+	 * Event handler for catalog/controller/checkout/success/before.
+	 *
+	 * @param string $route
+	 * @param array  $data
+	 *
+	 * @return void
+	 */
+	public function eventCheckoutSuccessBefore($route, $data) {
+		if (empty($this->session->data['order_id'])) {
+			return;
+		}
+
+		try {
+			$this->load->model('checkout/order');
+
+			$order_id = (int)$this->session->data['order_id'];
+			$order_info = $this->model_checkout_order->getOrder($order_id);
+			if (empty($order_info)) {
+				return;
+			}
+
+			$this->session->data['ga_orderDetails'] = $order_info;
+			$this->session->data['ga_orderProducts'] = $this->model_checkout_order->getOrderProducts($order_id);
+		} catch (\Exception $e) {
+			return;
+		}
+	}
+
 	public function eventAccountNewsletterBefore($route, $data) {
 		if (!$this->customer->isLogged()) {
 			return;
