@@ -224,12 +224,25 @@ class Nzmsetup extends \Newsman\Library {
 		}
 
 		if (version_compare($current_version, '1.0.5', '<')) {
+			$this->upgradeOptionsOneDotZeroDotFive($store_id);
 			$this->model_extension_newsman_setting->editSetting(
 				'newsman',
 				array('newsman_setup_version' => '1.0.5'),
 				$store_id
 			);
 		}
+	}
+
+	/**
+	 * Upgrade admin settings 1.0.5
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeOptionsOneDotZeroDotFive($store_id) {
+		$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+		$reported_cart->createTable();
 	}
 
 	/**
