@@ -66,6 +66,16 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			$hash = (string)$this->request->post['reported_hash'];
 			if (preg_match('/^[a-f0-9]{32}$/i', $hash)) {
 				$this->session->data['newsman_reported_cart_hash'] = strtolower($hash);
+
+				if ($this->customer->isLogged()) {
+					$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+					$reported_cart->set(
+						$this->customer->getId(),
+						(int)$this->config->get('config_store_id'),
+						$hash
+					);
+				}
+
 				echo json_encode(array('ok' => true));
 			} else {
 				echo json_encode(array('ok' => false));
@@ -88,6 +98,18 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			$hash = md5(json_encode($items));
 			$reported = isset($this->session->data['newsman_reported_cart_hash']) &&
 				$this->session->data['newsman_reported_cart_hash'] === $hash;
+
+			if (!$reported && $this->customer->isLogged()) {
+				$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+				$reported = $reported_cart->isReported(
+					$this->customer->getId(),
+					(int)$this->config->get('config_store_id'),
+					$hash
+				);
+				if ($reported) {
+					$this->session->data['newsman_reported_cart_hash'] = strtolower($hash);
+				}
+			}
 
 			echo json_encode(
 				array(
