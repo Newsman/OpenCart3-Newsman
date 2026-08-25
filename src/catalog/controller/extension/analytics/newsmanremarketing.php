@@ -379,6 +379,18 @@ class ControllerExtensionAnalyticsNewsmanremarketing extends Controller {
 		$reported = isset($this->session->data['newsman_reported_cart_hash']) &&
 			$this->session->data['newsman_reported_cart_hash'] === $hash;
 
+		if (!$reported && $this->customer->isLogged()) {
+			$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+			$reported = $reported_cart->isReported(
+				$this->customer->getId(),
+				(int)$this->config->get('config_store_id'),
+				$hash
+			);
+			if ($reported) {
+				$this->session->data['newsman_reported_cart_hash'] = $hash;
+			}
+		}
+
 		// Inject the JSON inside the minicart's <ul> as a hidden <li>. This makes
 		// it survive the OpenCart 3 default theme's selective refresh, which uses
 		// $('#cart > ul').load('...common/cart/info ul li') — only <li> elements
