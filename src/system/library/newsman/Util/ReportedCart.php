@@ -3,7 +3,7 @@
 namespace Newsman\Util;
 
 /**
- * Cart fingerprint stored per customer, so it survives a change of device.
+ * Class Reported Cart
  */
 class ReportedCart {
 	/**
@@ -26,8 +26,6 @@ class ReportedCart {
 	}
 
 	/**
-	 * Creeaza tabela, daca nu exista.
-	 *
 	 * @return void
 	 */
 	public function createTable() {
@@ -46,7 +44,7 @@ class ReportedCart {
 	 * @param int $customer_id
 	 * @param int $store_id
 	 *
-	 * @return string Hash-ul stocat sau sir gol.
+	 * @return string
 	 */
 	public function get($customer_id, $store_id = 0) {
 		$customer_id = (int)$customer_id;
