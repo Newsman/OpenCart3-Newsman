@@ -132,14 +132,6 @@ class ControllerExtensionmoduleNewsman extends Controller {
 	 *
 	 * @return void
 	 */
-	/**
-	 * Event handler for catalog/controller/checkout/success/before.
-	 *
-	 * @param string $route
-	 * @param array  $data
-	 *
-	 * @return void
-	 */
 	public function eventCheckoutSuccessBefore($route, $data) {
 		if (empty($this->session->data['order_id'])) {
 			return;
@@ -161,6 +153,12 @@ class ControllerExtensionmoduleNewsman extends Controller {
 		}
 	}
 
+	/**
+	 * @param string $route
+	 * @param array  $data
+	 *
+	 * @return void
+	 */
 	public function eventAccountNewsletterBefore($route, $data) {
 		if (!$this->customer->isLogged()) {
 			return;
