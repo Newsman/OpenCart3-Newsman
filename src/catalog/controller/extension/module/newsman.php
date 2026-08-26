@@ -43,18 +43,22 @@ class ControllerExtensionmoduleNewsman extends Controller {
 	 * Get cart items AJAX action.
 	 *
 	 * The server keeps a fingerprint (hash) of the cart contents last reported
-	 * to Newsman in the OpenCart session. It is one half of the duplicate
-	 * abandoned-cart guard: the client keeps its own durable fingerprint in
-	 * localStorage, and the cart is reported again only when BOTH sides lost
-	 * track of it — which genuinely looks like a new visitor.
+	 * to Newsman in the OpenCart session, and for logged-in customers also in
+	 * the newsman_reported_cart table, so the guard survives a new session or
+	 * a change of device. It is one half of the duplicate abandoned-cart
+	 * guard: the client keeps its own durable fingerprint in localStorage,
+	 * and the cart is reported again only when BOTH sides lost track of it —
+	 * which genuinely looks like a new visitor.
 	 *
 	 * - GET (legacy, no "v" parameter): bare JSON array of cart items, kept for
 	 *   cached copies of the old tracking script.
 	 * - GET with v=2: {"items": [...], "hash": "<md5>", "reported": bool} where
 	 *   "reported" tells whether this exact cart was already reported to
-	 *   Newsman during this session.
+	 *   Newsman by this session or, for logged-in customers, by any earlier
+	 *   session recorded in the database.
 	 * - POST with reported_hash=<md5>: the tracking script confirms it has
-	 *   reported the cart; the hash is stored in the session.
+	 *   reported the cart; the hash is stored in the session (and in the
+	 *   database when the customer is logged in).
 	 */
 	public function cart() {
 		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
