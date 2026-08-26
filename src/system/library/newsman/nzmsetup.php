@@ -241,7 +241,7 @@ class Nzmsetup extends \Newsman\Library {
 	 * @return void
 	 */
 	protected function upgradeOptionsOneDotZeroDotFive($store_id) {
-		$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+		$reported_cart = new \Newsman\Nzmreportedcart($this->registry);
 		$reported_cart->createTable();
 	}
 
