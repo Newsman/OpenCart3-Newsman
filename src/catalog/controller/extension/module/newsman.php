@@ -68,7 +68,7 @@ class ControllerExtensionmoduleNewsman extends Controller {
 				$this->session->data['newsman_reported_cart_hash'] = strtolower($hash);
 
 				if ($this->customer->isLogged()) {
-					$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+					$reported_cart = new \Newsman\Nzmreportedcart($this->registry);
 					$reported_cart->set(
 						$this->customer->getId(),
 						(int)$this->config->get('config_store_id'),
@@ -100,7 +100,7 @@ class ControllerExtensionmoduleNewsman extends Controller {
 				$this->session->data['newsman_reported_cart_hash'] === $hash;
 
 			if (!$reported && $this->customer->isLogged()) {
-				$reported_cart = new \Newsman\Util\ReportedCart($this->registry);
+				$reported_cart = new \Newsman\Nzmreportedcart($this->registry);
 				$reported = $reported_cart->isReported(
 					$this->customer->getId(),
 					(int)$this->config->get('config_store_id'),
