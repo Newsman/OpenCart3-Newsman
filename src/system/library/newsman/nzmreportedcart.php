@@ -3,7 +3,9 @@
 namespace Newsman;
 
 /**
- * Class Reported Cart
+ * Reported cart storage
+ *
+ * @property \DB $db
  */
 class Nzmreportedcart extends \Newsman\Library {
 	/**
