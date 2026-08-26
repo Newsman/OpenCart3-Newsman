@@ -24,6 +24,17 @@ class Nzmreportedcart extends \Newsman\Library {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function dropTable() {
+		try {
+			$this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "newsman_reported_cart`");
+		} catch (\Exception $e) {
+			return;
+		}
+	}
+
+	/**
 	 * @param int $customer_id
 	 * @param int $store_id
 	 *

@@ -114,6 +114,9 @@ class Nzmsetup extends \Newsman\Library {
 		$this->model_setting_event->deleteEventByCode('newsman_admin_menu');
 		$this->model_setting_event->deleteEventByCode('newsman_view_common_cart_after');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_success_before');
+
+		$reported_cart = new \Newsman\Nzmreportedcart($this->registry);
+		$reported_cart->dropTable();
 	}
 
 	/**
