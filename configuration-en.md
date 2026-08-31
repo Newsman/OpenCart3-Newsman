@@ -81,6 +81,14 @@ These settings add a newsletter checkbox to your store's checkout page, so custo
 
 - **Newsletter Checkbox Label** - Customize the text shown next to the checkbox. The default is "I wish to subscribe to the newsletter".
 
+### Order Status Reporting
+
+When an order is placed and every time its status changes afterwards, the extension reports the order status to Newsman. OpenCart status names are translated first: statuses listed in **System > Settings > edit store > Option > Checkout > Complete Order Status** are reported as `complete`, statuses listed in **Processing Order Status** are reported as `processing`, and any other status is sent to Newsman under its own name in lower case (`shipped`, `comanda expediata`, and so on).
+
+- **Order Statuses Reported as Complete** - Tick the statuses that Newsman should treat as a completed purchase, in addition to the ones in the store's Complete Order Status setting. Use it when the final status of an order in your shop is one the store itself does not count as complete - a shipped or handed-to-courier status, for example, or a courier-specific status added by a shipping extension. Nothing is ticked by default, and the store setting is never overridden - the two lists are merged.
+
+- **Order Statuses Reported as Processing** - Tick the statuses that Newsman should treat as a purchase in progress, in addition to the ones in the store's Processing Order Status setting. A status ticked as complete wins over one ticked here. Nothing is ticked by default.
+
 ### Products Feed Images
 
 These settings control the product image URLs sent in the products feed to Newsman.

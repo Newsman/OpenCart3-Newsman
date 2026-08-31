@@ -367,43 +367,36 @@ class ControllerExtensionmoduleNewsman extends Controller {
 	}
 
 	/**
-	 * Event API order history before
+	 * Event checkout order history after
+	 *
+	 * Runs on every order status change that goes through the checkout order
+	 * model, whichever code path writes the history row: the store API behind
+	 * the admin order pages, the storefront payment confirmation, a payment
+	 * gateway callback or a courier extension. It replaces the event on the
+	 * api/order/history controller, which saw only the changes made from the
+	 * admin order pages.
 	 *
 	 * @param string $route
-	 * @param array  $data
+	 * @param array  $args Arguments addOrderHistory() was called with.
+	 * @param mixed  $output
 	 *
 	 * @return void
 	 */
-	public function eventApiOrderHistoryBefore($route, $data) {
-		if ($this->request->server['REQUEST_METHOD'] != 'POST') {
+	public function eventCheckoutOrderHistoryAfter($route, $args, $output) {
+		if (empty($args[0])) {
 			return;
 		}
 
-		if (!isset($this->request->get['order_id'])) {
-			return;
-		}
+		$order_id = (int)$args[0];
+		// Fall back to the status stored on the order when none was passed.
+		$order_status_id = (!empty($args[1])) ? (int)$args[1] : false;
 
-		$order_id = $this->request->get['order_id'];
-
-		if (!isset($this->request->post['order_status_id'])) {
-			return;
-		}
-
+		$this->autoloadNewsman();
 		$this->load->library('newsman/nzmlogger');
+
 		try {
-			$this->load->model('checkout/order');
-			$order_info = $this->model_checkout_order->getOrder($order_id);
-
-			if (!$order_info) {
-				return;
-			}
-
-			if ($this->request->post['order_status_id'] != $order_info['order_status_id']) {
-				$this->autoloadNewsman();
-
-				$status_action = new \Newsman\Action\Order\Status($this->registry);
-				$status_action->execute($order_id, $this->request->post['order_status_id'], true);
-			}
+			$status_action = new \Newsman\Action\Order\Status($this->registry);
+			$status_action->execute($order_id, $order_status_id);
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
 		}

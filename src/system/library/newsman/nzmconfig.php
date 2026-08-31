@@ -193,6 +193,49 @@ class Nzmconfig extends Library {
 	}
 
 	/**
+	 * Get the order statuses reported to Newsman as a completed purchase.
+	 *
+	 * These are merged with the OpenCart "Complete Order Status" setting, for
+	 * shops whose final status is something the store does not count as
+	 * complete - a shipped or handed-to-courier status, for instance.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return array Order status IDs.
+	 */
+	public function getCompleteOrderStatuses($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		$statuses = $this->getConfigValue('newsman_complete_order_status', $store_id);
+		if (empty($statuses) || !is_array($statuses)) {
+			return array();
+		}
+
+		return array_map('intval', $statuses);
+	}
+
+	/**
+	 * Get the order statuses reported to Newsman as a purchase in progress.
+	 *
+	 * These are merged with the OpenCart "Processing Order Status" setting. A
+	 * status listed as complete wins over one listed here.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return array Order status IDs.
+	 */
+	public function getProcessingOrderStatuses($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+
+		$statuses = $this->getConfigValue('newsman_processing_order_status', $store_id);
+		if (empty($statuses) || !is_array($statuses)) {
+			return array();
+		}
+
+		return array_map('intval', $statuses);
+	}
+
+	/**
 	 * Get API URL
 	 *
 	 * @param int $store_id

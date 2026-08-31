@@ -19,7 +19,7 @@ class Nzmsetup extends \Newsman\Library {
 	 *
 	 * @var string
 	 */
-	protected $setup_version = '1.0.5';
+	protected $setup_version = '1.0.6';
 
 	/**
 	 * @param \Registry $registry
@@ -101,6 +101,7 @@ class Nzmsetup extends \Newsman\Library {
 		$this->model_setting_event->deleteEventByCode('newsman_account_newsletter_before');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_order_add_after');
 		$this->model_setting_event->deleteEventByCode('newsman_api_order_history_before');
+		$this->model_setting_event->deleteEventByCode('newsman_checkout_order_history_after');
 		$this->model_setting_event->deleteEventByCode('newsman_api_order_edit_after');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_register_save_after');
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_guest_save_after');
@@ -152,22 +153,10 @@ class Nzmsetup extends \Newsman\Library {
 		if (version_compare($current_version, '1.0.5', '<')) {
 			$this->upgradeEventsOneDotZeroDotFive($store_id);
 		}
-	}
 
-	/**
-	 * Upgrade events 1.0.5
-	 *
-	 * @param int $store_id
-	 *
-	 * @return void
-	 */
-	protected function upgradeEventsOneDotZeroDotFive($store_id) {
-		$this->model_setting_event->deleteEventByCode('newsman_checkout_success_before');
-		$this->model_setting_event->addEvent(
-			'newsman_checkout_success_before',
-			'catalog/controller/checkout/success/before',
-			'extension/module/newsman/eventCheckoutSuccessBefore'
-		);
+		if (version_compare($current_version, '1.0.6', '<')) {
+			$this->upgradeEventsOneDotZeroDotSix($store_id);
+		}
 	}
 
 	/**
@@ -231,6 +220,15 @@ class Nzmsetup extends \Newsman\Library {
 			$this->model_extension_newsman_setting->editSetting(
 				'newsman',
 				array('newsman_setup_version' => '1.0.5'),
+				$store_id
+			);
+		}
+
+		// 1.0.6 only changes events, there are no settings to migrate.
+		if (version_compare($current_version, '1.0.6', '<')) {
+			$this->model_extension_newsman_setting->editSetting(
+				'newsman',
+				array('newsman_setup_version' => '1.0.6'),
 				$store_id
 			);
 		}
@@ -389,9 +387,6 @@ jt/modal_{{api_key}}.js';
 
 		$this->model_setting_event->deleteEventByCode('newsman_checkout_order_add_after');
 		$this->model_setting_event->addEvent('newsman_checkout_order_add_after', 'catalog/model/checkout/order/addOrder/after', 'extension/module/newsman/eventCheckoutOrderAddAfter');
-
-		$this->model_setting_event->deleteEventByCode('newsman_api_order_history_before');
-		$this->model_setting_event->addEvent('newsman_api_order_history_before', 'catalog/controller/api/order/history/before', 'extension/module/newsman/eventApiOrderHistoryBefore');
 
 		$this->model_setting_event->deleteEventByCode('newsman_api_order_edit_after');
 		$this->model_setting_event->addEvent('newsman_api_order_edit_after', 'catalog/controller/api/order/edit/after', 'extension/module/newsman/eventApiOrderEditAfter');
@@ -593,6 +588,47 @@ jt/modal_{{api_key}}.js';
 			'newsman_view_common_cart_after',
 			'catalog/view/common/cart/after',
 			'extension/analytics/newsmanremarketing/eventViewCommonCartAfter'
+		);
+	}
+
+	/**
+	 * Upgrade events 1.0.5
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeEventsOneDotZeroDotFive($store_id) {
+		$this->model_setting_event->deleteEventByCode('newsman_checkout_success_before');
+		$this->model_setting_event->addEvent(
+			'newsman_checkout_success_before',
+			'catalog/controller/checkout/success/before',
+			'extension/module/newsman/eventCheckoutSuccessBefore'
+		);
+	}
+
+	/**
+	 * Upgrade events 1.0.6
+	 *
+	 * Replace the api/order/history controller event with the addOrderHistory
+	 * model event. Order status changes reach the checkout order model from
+	 * every code path that moves an order along - the store API behind the
+	 * admin order pages, the storefront payment confirmation, payment gateway
+	 * callbacks and courier extensions - while the controller event only saw
+	 * the admin ones, and saw them before the history row was written.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return void
+	 */
+	protected function upgradeEventsOneDotZeroDotSix($store_id) {
+		$this->model_setting_event->deleteEventByCode('newsman_api_order_history_before');
+
+		$this->model_setting_event->deleteEventByCode('newsman_checkout_order_history_after');
+		$this->model_setting_event->addEvent(
+			'newsman_checkout_order_history_after',
+			'catalog/model/checkout/order/addOrderHistory/after',
+			'extension/module/newsman/eventCheckoutOrderHistoryAfter'
 		);
 	}
 

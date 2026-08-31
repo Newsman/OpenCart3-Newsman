@@ -80,6 +80,21 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'feed_image_custom_size',
 		'feed_image_width',
 		'feed_image_height',
+		'complete_order_status',
+		'processing_order_status',
+	);
+
+	/**
+	 * Module settings whose value is a list rather than a scalar.
+	 *
+	 * They are stored JSON encoded, and a checkbox group posts nothing at all
+	 * when every box is cleared, so both ends need to be handled apart.
+	 *
+	 * @var array
+	 */
+	protected $array_field_names = array(
+		'complete_order_status',
+		'processing_order_status',
 	);
 
 	/**
@@ -743,6 +758,42 @@ class ControllerExtensionModuleNewsman extends Controller {
 	 *
 	 * @return void
 	 */
+	/**
+	 * Get a module setting value as stored in the database.
+	 *
+	 * @param string $field Field name without the setting prefix.
+	 *
+	 * @return mixed
+	 */
+	protected function getStoredFieldValue($field) {
+		$value = $this->model_setting_setting->getSettingValue($this->names['setting'] . '_' . $field, $this->store_id);
+
+		if (!in_array($field, $this->array_field_names, true)) {
+			return $value;
+		}
+
+		$value = json_decode((string)$value, true);
+
+		return is_array($value) ? array_map('intval', $value) : array();
+	}
+
+	/**
+	 * Get a module setting value as submitted by the settings form.
+	 *
+	 * @param string $field Field name without the setting prefix.
+	 *
+	 * @return mixed
+	 */
+	protected function getPostedFieldValue($field) {
+		$key = $this->names['setting'] . '_' . $field;
+
+		if (isset($this->request->post[$key])) {
+			return $this->request->post[$key];
+		}
+
+		return in_array($field, $this->array_field_names, true) ? array() : '';
+	}
+
 	public function editModule() {
 		$this->load->model('setting/setting');
 		$this->load->model('extension/newsman/setting');
@@ -817,7 +868,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		// Initialize $data with values from the settings
 		foreach ($this->field_names as $field) {
-			$data[$this->names['setting'] . '_' . $field] = $this->model_setting_setting->getSettingValue($this->names['setting'] . '_' . $field, $this->store_id);
+			$data[$this->names['setting'] . '_' . $field] = $this->getStoredFieldValue($field);
 		}
 
 		$data['module_newsman_status'] = $this->model_setting_setting->getSettingValue('module_newsman_status', $this->store_id);
@@ -829,7 +880,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$previous_api_key = $data['newsman_api_key'];
 			$settings = array();
 			foreach ($this->field_names as $field) {
-				$settings[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
+				$settings[$this->names['setting'] . '_' . $field] = $this->getPostedFieldValue($field);
 			}
 			$settings_status = array(
 				'module_newsman_status' => $this->request->post['module_newsman_status'],
@@ -886,9 +937,17 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		if (strcasecmp($this->request->server['REQUEST_METHOD'], 'POST') == 0) {
 			foreach ($this->field_names as $field) {
-				$data[$this->names['setting'] . '_' . $field] = $this->request->post[$this->names['setting'] . '_' . $field];
+				$data[$this->names['setting'] . '_' . $field] = $this->getPostedFieldValue($field);
 			}
 			$data['module_newsman_status'] = $this->request->post['module_newsman_status'];
+		}
+
+		$this->load->model('localisation/order_status');
+		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+
+		foreach ($this->array_field_names as $field) {
+			$key = $this->names['setting'] . '_' . $field;
+			$data[$key] = array_map('intval', (array)$data[$key]);
 		}
 
 		$data['developer_log_severity_options'] = array();

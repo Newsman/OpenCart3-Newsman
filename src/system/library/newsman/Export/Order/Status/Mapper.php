@@ -65,10 +65,16 @@ class Mapper extends \Newsman\Nzmbase {
 			$complete_status = (array)$config_data['config_complete_status'];
 		}
 
+		// Statuses the merchant marked as complete for Newsman only.
+		$complete_status = array_merge($complete_status, $this->config->getCompleteOrderStatuses($store_id));
+
 		$processing_status = array();
 		if (isset($config_data['config_processing_status'])) {
 			$processing_status = (array)$config_data['config_processing_status'];
 		}
+
+		// Statuses the merchant marked as processing for Newsman only.
+		$processing_status = array_merge($processing_status, $this->config->getProcessingOrderStatuses($store_id));
 
 		$normalized = strtolower((string)$order_status);
 

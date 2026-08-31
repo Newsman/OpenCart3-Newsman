@@ -219,6 +219,42 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-complete-order-status">{{ entry_complete_order_status }}</label>
+                        <div class="col-sm-10">
+                            <div id="input-complete-order-status" class="well well-sm" style="height: 150px; overflow: auto;">
+                                {% for order_status in order_statuses %}
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="newsman_complete_order_status[]"
+                                                   value="{{ order_status.order_status_id }}"
+                                                   {% if order_status.order_status_id in newsman_complete_order_status %}checked="checked"{% endif %} />
+                                            {{ order_status.name }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <span class="help-block">{{ entry_complete_order_status_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-processing-order-status">{{ entry_processing_order_status }}</label>
+                        <div class="col-sm-10">
+                            <div id="input-processing-order-status" class="well well-sm" style="height: 150px; overflow: auto;">
+                                {% for order_status in order_statuses %}
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="newsman_processing_order_status[]"
+                                                   value="{{ order_status.order_status_id }}"
+                                                   {% if order_status.order_status_id in newsman_processing_order_status %}checked="checked"{% endif %} />
+                                            {{ order_status.name }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <span class="help-block">{{ entry_processing_order_status_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="input-feed-image-generate">{{ entry_feed_image_generate }}</label>
                         <div class="col-sm-10">
                             <select name="newsman_feed_image_generate" id="input-feed-image-generate" class="form-control">

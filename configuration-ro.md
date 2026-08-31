@@ -81,6 +81,14 @@ Aceste setari adauga un checkbox de newsletter pe pagina de checkout a magazinul
 
 - **Newsletter Checkbox Label** - Personalizati textul afisat langa checkbox. Valoarea implicita este "I wish to subscribe to the newsletter".
 
+### Raportarea Starii Comenzii
+
+Cand o comanda este plasata si la fiecare schimbare de stare ulterioara, extensia raporteaza starea comenzii catre Newsman. Denumirile de stari din OpenCart sunt traduse mai intai: starile din **System > Settings > editare magazin > Option > Checkout > Complete Order Status** sunt raportate ca `complete`, starile din **Processing Order Status** sunt raportate ca `processing`, iar orice alta stare este trimisa catre Newsman sub propriul nume cu litere mici (`shipped`, `comanda expediata` si asa mai departe).
+
+- **Order Statuses Reported as Complete** - Bifati starile pe care Newsman ar trebui sa le trateze ca achizitie finalizata, pe langa cele din setarea Complete Order Status a magazinului. Folositi aceasta optiune cand starea finala a unei comenzi in magazinul dumneavoastra este una pe care magazinul nu o considera finalizata - de exemplu o stare de expediere sau de predare catre curier, ori o stare specifica adaugata de o extensie de curierat. Implicit nu este bifata nicio stare, iar setarea magazinului nu este niciodata suprascrisa - cele doua liste sunt combinate.
+
+- **Order Statuses Reported as Processing** - Bifati starile pe care Newsman ar trebui sa le trateze ca achizitie in curs, pe langa cele din setarea Processing Order Status a magazinului. O stare bifata ca finalizata are prioritate fata de una bifata aici. Implicit nu este bifata nicio stare.
+
 ### Imagini Feed Produse
 
 Aceste setari controleaza URL-urile imaginilor de produs trimise in feed-ul de produse catre Newsman.
