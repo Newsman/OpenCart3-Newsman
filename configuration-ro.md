@@ -83,11 +83,17 @@ Aceste setari adauga un checkbox de newsletter pe pagina de checkout a magazinul
 
 ### Raportarea Starii Comenzii
 
-Cand o comanda este plasata si la fiecare schimbare de stare ulterioara, extensia raporteaza starea comenzii catre Newsman. Denumirile de stari din OpenCart sunt traduse mai intai: starile din **System > Settings > editare magazin > Option > Checkout > Complete Order Status** sunt raportate ca `complete`, starile din **Processing Order Status** sunt raportate ca `processing`, iar orice alta stare este trimisa catre Newsman sub propriul nume cu litere mici (`shipped`, `comanda expediata` si asa mai departe).
+Extensia raporteaza starea comenzii catre Newsman atunci cand comanda este plasata si din nou la fiecare schimbare de stare ulterioara, indiferent de unde vine acea schimbare - paginile de comenzi din admin, confirmarea platii din magazin, un callback de la un procesator de plati precum mobilPay sau o extensie de curierat.
 
-- **Order Statuses Reported as Complete** - Bifati starile pe care Newsman ar trebui sa le trateze ca achizitie finalizata, pe langa cele din setarea Complete Order Status a magazinului. Folositi aceasta optiune cand starea finala a unei comenzi in magazinul dumneavoastra este una pe care magazinul nu o considera finalizata - de exemplu o stare de expediere sau de predare catre curier, ori o stare specifica adaugata de o extensie de curierat. Implicit nu este bifata nicio stare, iar setarea magazinului nu este niciodata suprascrisa - cele doua liste sunt combinate.
+Newsman lucreaza cu doua stari de comanda, `complete` pentru o achizitie finalizata si `processing` pentru una inca in curs, asa ca starea din OpenCart trebuie tradusa inainte de a fi trimisa. Starile din setarea magazinului **Complete Order Status** (System > Settings > editare magazin > Option > Checkout) sunt raportate ca `complete`, iar starile din **Processing Order Status** sunt raportate ca `processing`. O stare care nu apare in niciuna dintre cele doua setari este trimisa sub propriul nume, cu litere mici si in limba comenzii - `shipped`, `comanda expediata`, `comanda expediata (sameday)`. Newsman nu recunoaste aceste denumiri, asa ca o comanda ramasa intr-o astfel de stare nu este niciodata considerata achizitie finalizata in campaniile dumneavoastra.
 
-- **Order Statuses Reported as Processing** - Bifati starile pe care Newsman ar trebui sa le trateze ca achizitie in curs, pe langa cele din setarea Processing Order Status a magazinului. O stare bifata ca finalizata are prioritate fata de una bifata aici. Implicit nu este bifata nicio stare.
+Cele doua setari de mai jos extind aceasta traducere fara a modifica nimic in setarile magazinului. Folositi-le cand starea pe care magazinul dumneavoastra finalizeaza efectiv o comanda este una pe care OpenCart nu o considera finalizata - o stare de expediere sau de predare catre curier, ori o stare specifica adaugata de o extensie de curierat precum Sameday. Bifati acea stare aici si Newsman va incepe sa primeasca `complete` pentru ea.
+
+- **Order Statuses Reported as Complete** - Starile raportate catre Newsman ca achizitie finalizata, pe langa setarea Complete Order Status a magazinului. Cele doua liste sunt combinate, deci setarea magazinului functioneaza mai departe exact ca inainte si nu trebuie modificata. Implicit nu este bifata nicio stare.
+
+- **Order Statuses Reported as Processing** - Starile raportate catre Newsman ca achizitie in curs, pe langa setarea Processing Order Status a magazinului. O stare bifata in ambele liste Newsman este raportata ca `complete` - starea finalizata are prioritate. Implicit nu este bifata nicio stare.
+
+Ambele liste sunt salvate per magazin, deci intr-o configuratie multi-magazin fiecare magazin isi poate mapa separat starile, in timp ce setarile Complete/Processing Order Status ale magazinului sunt citite din magazinul implicit. O modificare se aplica de la urmatoarea schimbare de stare - comenzile deja trimise catre Newsman pastreaza ultima stare raportata pana cand se schimba din nou.
 
 ### Imagini Feed Produse
 

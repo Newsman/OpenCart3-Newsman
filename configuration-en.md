@@ -83,11 +83,17 @@ These settings add a newsletter checkbox to your store's checkout page, so custo
 
 ### Order Status Reporting
 
-When an order is placed and every time its status changes afterwards, the extension reports the order status to Newsman. OpenCart status names are translated first: statuses listed in **System > Settings > edit store > Option > Checkout > Complete Order Status** are reported as `complete`, statuses listed in **Processing Order Status** are reported as `processing`, and any other status is sent to Newsman under its own name in lower case (`shipped`, `comanda expediata`, and so on).
+The extension reports the order status to Newsman when the order is placed, and again on every status change afterwards, wherever that change comes from - the admin order pages, the storefront payment confirmation, a payment gateway callback such as mobilPay, or a courier extension.
 
-- **Order Statuses Reported as Complete** - Tick the statuses that Newsman should treat as a completed purchase, in addition to the ones in the store's Complete Order Status setting. Use it when the final status of an order in your shop is one the store itself does not count as complete - a shipped or handed-to-courier status, for example, or a courier-specific status added by a shipping extension. Nothing is ticked by default, and the store setting is never overridden - the two lists are merged.
+Newsman works with two order states, `complete` for a purchase that went through and `processing` for one still in progress, so the OpenCart status has to be translated before it is sent. Statuses in the store's **Complete Order Status** setting (System > Settings > edit store > Option > Checkout) are reported as `complete`, and statuses in **Processing Order Status** are reported as `processing`. A status in neither setting is sent under its own name, lower cased and in the language of the order - `shipped`, `comanda expediata`, `comanda expediata (sameday)`. Newsman does not recognise those names, so an order left on such a status never counts as a finished purchase in your campaigns.
 
-- **Order Statuses Reported as Processing** - Tick the statuses that Newsman should treat as a purchase in progress, in addition to the ones in the store's Processing Order Status setting. A status ticked as complete wins over one ticked here. Nothing is ticked by default.
+The two settings below extend that translation without changing anything in the store settings. Use them when the status your shop actually finishes an order on is one OpenCart does not count as complete - a shipped or handed-to-courier status, or a courier-specific status added by a shipping extension such as Sameday. Tick that status here and Newsman starts receiving `complete` for it.
+
+- **Order Statuses Reported as Complete** - Statuses reported to Newsman as a completed purchase, on top of the store's Complete Order Status setting. The two lists are merged, so the store setting keeps working exactly as before and nothing has to change there. Nothing is ticked by default.
+
+- **Order Statuses Reported as Processing** - Statuses reported to Newsman as a purchase in progress, on top of the store's Processing Order Status setting. A status ticked in both Newsman lists is reported as `complete` - complete wins. Nothing is ticked by default.
+
+Both lists are saved per store, so a multi-store setup can map each store's statuses separately, while the store's own Complete/Processing Order Status settings are read from the default store. A change takes effect from the next status change onwards - orders already sent to Newsman keep the status they were last reported with until they move again.
 
 ### Products Feed Images
 
