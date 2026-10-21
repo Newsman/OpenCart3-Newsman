@@ -66,6 +66,11 @@ class AbstractRetriever extends \Newsman\Nzmbase {
 	protected $image_width;
 
 	/**
+	 * @var int
+	 */
+	protected $image_height;
+
+	/**
 	 * @var array
 	 */
 	protected $cache_stock_checkout = array();

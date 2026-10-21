@@ -270,7 +270,9 @@ class ControllerExtensionModuleNewsman extends Controller {
 			$data['show_retry_button'] = true;
 			$data['error'] .= ' Response error: ' . curl_error($ch);
 		}
-		curl_close($ch);
+		if (PHP_VERSION_ID < 80000) {
+			curl_close($ch);
+		}
 
 		// Assign lists to view variable.
 		if ($response !== false) {

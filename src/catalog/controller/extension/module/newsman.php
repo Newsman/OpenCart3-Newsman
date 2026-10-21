@@ -205,6 +205,10 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			return;
 		}
 
+		if (!$this->isCheckoutStepSaved()) {
+			return;
+		}
+
 		try {
 			$this->subscribeCustomer(
 				$this->request->post['email'],
@@ -217,6 +221,17 @@ class ControllerExtensionmoduleNewsman extends Controller {
 			$this->load->library('newsman/nzmlogger');
 			$this->nzmlogger->logException($e);
 		}
+	}
+
+	/**
+	 * Whether the checkout step was saved. On a validation error the controller answers with an error JSON.
+	 *
+	 * @return bool
+	 */
+	protected function isCheckoutStepSaved() {
+		$json = json_decode($this->response->getOutput(), true);
+
+		return !(is_array($json) && isset($json['error']));
 	}
 
 	/**
@@ -266,6 +281,10 @@ class ControllerExtensionmoduleNewsman extends Controller {
 		}
 
 		if (!(isset($this->request->post['newsletter']) && $this->request->post['newsletter'])) {
+			return;
+		}
+
+		if (!$this->isCheckoutStepSaved()) {
 			return;
 		}
 

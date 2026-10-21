@@ -67,7 +67,9 @@ class ServerIpResolver {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 		$result   = curl_exec($ch);
 		$httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
+		if (PHP_VERSION_ID < 80000) {
+			curl_close($ch);
+		}
 
 		if ($result === false || $httpCode !== 200) {
 			return '';
