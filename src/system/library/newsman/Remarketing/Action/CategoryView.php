@@ -60,8 +60,8 @@ class CategoryView extends \Newsman\Remarketing\Action\AbstractAction {
 		foreach ($products as $product) {
 			$js .= "_nzm.run('ec:addImpression', {" .
 				"id: " . (int)$product['product_id'] . "," .
-				"name: '" . $this->escapeHtml($product['name']) . "'," .
-				"category: '" . $this->escapeHtml($this->getCategoryName($category_id)) . "'," .
+				"name: '" . $this->escapeJs($product['name']) . "'," .
+				"category: '" . $this->escapeJs($this->getCategoryName($category_id)) . "'," .
 				"price: " . number_format((float)$product['price'], 2, '.', '') . "," .
 				"list: 'Category Page'," .
 				"position: '" . ($position++) . "'" .

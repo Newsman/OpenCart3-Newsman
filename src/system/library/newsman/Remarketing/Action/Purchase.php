@@ -40,10 +40,10 @@ class Purchase extends \Newsman\Remarketing\Action\AbstractAction {
 		foreach ($products as $product) {
 			$products_event .=
 				$run . "( 'ec:addProduct', {" .
-				"'id': '" . $this->escapeHtml($product['id']) . "'," .
-				"'name': '" . $this->escapeHtml($product['name']) . "'," .
-				"'price': '" . $this->escapeHtml($product['price']) . "'," .
-				"'quantity': '" . $this->escapeHtml($product['quantity']) . "'" .
+				"'id': '" . $this->escapeJs($product['id']) . "'," .
+				"'name': '" . $this->escapeJs($product['name']) . "'," .
+				"'price': '" . $this->escapeJs($product['price']) . "'," .
+				"'quantity': '" . $this->escapeJs($product['quantity']) . "'" .
 				"} ); ";
 		}
 
@@ -77,14 +77,14 @@ class Purchase extends \Newsman\Remarketing\Action\AbstractAction {
 		$page_view = new \Newsman\Remarketing\Action\PageView($this->registry);
 		$page_view->setEvent($this->getEvent());
 
-		$js = '_nzm.identify({email: "' . $this->escapeHtml($email) . '", ';
+		$js = '_nzm.identify({email: "' . $this->escapeJs($email) . '", ';
 		if ($this->config->isSendTelephone() && !empty($telephone)) {
-			$js .= 'phone: "' . $this->escapeHtml($telephone) . '", ';
+			$js .= 'phone: "' . $this->escapeJs($telephone) . '", ';
 		}
-		$js .= 'first_name: "' . $this->escapeHtml($first_name) . '", ' .
-			'last_name: "' . $this->escapeHtml($last_name) . '"});';
+		$js .= 'first_name: "' . $this->escapeJs($first_name) . '", ' .
+			'last_name: "' . $this->escapeJs($last_name) . '"});';
 
-		$js .= ' ' . $run . "( 'set', 'currencyCode', '" . $this->escapeHtml($currency_code) . "' ); ";
+		$js .= ' ' . $run . "( 'set', 'currencyCode', '" . $this->escapeJs($currency_code) . "' ); ";
 
 		$js .= "setTimeout(function() { " .
 			$products_event . " " .
