@@ -9,6 +9,16 @@ namespace Newsman\Api;
  */
 class Client extends \Newsman\Nzmbase implements ClientInterface {
 	/**
+	 * Error code when Newsman cannot be reached (connection refused, timeout, DNS error) and there is no HTTP status
+	 */
+	const ERROR_CODE_CONNECTION = 599;
+
+	/**
+	 * Error code of an error answer without a code
+	 */
+	const ERROR_CODE_UNKNOWN = 1;
+
+	/**
 	 * HTTP status code
 	 *
 	 * @var int|string|null
@@ -150,7 +160,7 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 			);
 
 			if (!empty($remote_result['error'])) {
-				throw new \Exception($remote_result['error'], (int)$remote_result['status']);
+				throw new \Exception((string)$remote_result['error'], (int)$remote_result['status']);
 			}
 
 			$this->status = (int)$remote_result['status'];
@@ -159,7 +169,7 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 					$result = json_decode($remote_result['body'], true);
 					$api_error = $this->parseApiError($result);
 					if (false !== $api_error) {
-						$this->error_code = (int)$api_error['code'];
+						$this->error_code = ((int)$api_error['code'] > 0) ? (int)$api_error['code'] : self::ERROR_CODE_UNKNOWN;
 						$this->error_message = $api_error['message'];
 						$this->logger->warning($this->error_code . ' | ' . $this->error_message);
 					} else {
@@ -179,7 +189,10 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 						$body = json_decode($remote_result['body'], true);
 						$api_error = $this->parseApiError($body);
 						if (false !== $api_error) {
-							$this->error_code = (int)$api_error['code'];
+							// Without a Newsman code the HTTP status stays the error code.
+							if ((int)$api_error['code'] > 0) {
+								$this->error_code = (int)$api_error['code'];
+							}
 							$this->error_message = $api_error['message'];
 						} else {
 							$this->error_message = 'Error: ' . $this->error_code;
@@ -191,7 +204,8 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 				$this->logger->error($this->status . ' | ' . $remote_result['body']);
 			}
 		} catch (\Exception $e) {
-			$this->error_code = (int)$e->getCode();
+			// Newsman could not be reached (no HTTP status): still an error, not a success.
+			$this->error_code = ((int)$e->getCode() > 0) ? (int)$e->getCode() : self::ERROR_CODE_CONNECTION;
 			$this->error_message = $e->getMessage();
 			$this->logger->logException($e);
 		}
@@ -251,12 +265,8 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 		$response = curl_exec($ch);
 
 		if (curl_errno($ch)) {
-			$curl_code = curl_errno($ch);
-
-			$constant = get_defined_constants(true);
-			$curl_constant = preg_grep('/^CURLE_/', array_flip($constant['curl']));
-
-			$error = array('name' => $curl_constant[$curl_code], 'message' => curl_strerror($curl_code));
+			// A string: it becomes the message of the exception thrown by the caller.
+			$error = 'cURL error ' . curl_errno($ch) . ': ' . curl_error($ch);
 		}
 
 		$head = '';
