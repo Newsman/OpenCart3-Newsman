@@ -63,6 +63,8 @@ Accesati **Admin > Extensions > Modules > NewsMAN > Edit** pentru a configura co
 
 - **Double Opt-in** - Cand este activat (valoarea implicita), noii abonati primesc un email de confirmare si trebuie sa faca click pe un link pentru a-si confirma abonarea. Aceasta optiune este recomandata pentru conformitatea GDPR. Cand este dezactivat, abonatii sunt adaugati imediat in lista.
 
+- **Anonymise in NewsMAN when customers are deleted** - Cand este activat (valoarea implicita), stergerea unui client din **Admin > Customers > Customers** anonimizeaza adresa de email in Newsman. Cand este dezactivat, adresa de email este doar dezabonata din lista acestui magazin (nu se trimite email de confirmare). Vedeti "Ce se intampla in Newsman cand sterg un client?" in intrebarile de mai jos.
+
 - **Send User IP Address** - Cand este activat, adresa IP a vizitatorului este trimisa catre Newsman cand se aboneaza sau dezaboneaza. Acest lucru poate ajuta la analiza si conformitate. Cand este dezactivat, se trimite in schimb adresa **Server IP**.
 
 - **Server IP** - O adresa IP de rezerva folosita cand "Send User IP Address" este dezactivat. De obicei puteti lasa acest camp gol.
@@ -185,6 +187,8 @@ Cand un client se aboneaza prin checkbox-ul de checkout, inregistrarea contului 
 ### Ce se intampla in Newsman cand sterg un client?
 
 Cand stergeti clienti din **Admin > Customers > Customers** (unul sau mai multi deodata), extensia cere Newsman sa anonimizeze adresa de email a fiecarui client sters. Newsman inlocuieste adresa de email cu una anonima si dezaboneaza contactul, de obicei in mai putin de un minut.
+
+Setarea **Anonymise in NewsMAN when customers are deleted** (activata implicit) se citeste pentru fiecare magazin: in lista unui magazin unde este dezactivata, adresa de email a clientului sters este doar dezabonata (nu se trimite email de confirmare). Cand magazine cu valori diferite folosesc aceeasi lista Newsman, adresa de email este doar dezabonata din acea lista.
 
 - Se face indiferent de optiunea de newsletter a clientului, deoarece adresa de email poate fi inca intr-o lista Newsman dintr-o abonare mai veche.
 - Clientii OpenCart sunt comuni tuturor magazinelor, deci se face pe lista fiecarui magazin in care extensia este activata, o singura data pe lista.

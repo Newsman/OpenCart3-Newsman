@@ -63,6 +63,8 @@ Go to **Admin > Extensions > Modules > NewsMAN > Edit** to configure the core ex
 
 - **Double Opt-in** - When enabled (the default), new subscribers receive a confirmation email and must click a link to confirm their subscription. This is recommended for GDPR compliance. When disabled, subscribers are added to the list immediately.
 
+- **Anonymise in NewsMAN when customers are deleted** - When enabled (the default), deleting a customer in **Admin > Customers > Customers** anonymises the email address in Newsman. When disabled, the email address is only unsubscribed from the list of this store (no confirmation email is sent). See "What happens in Newsman when I delete a customer?" in the questions below.
+
 - **Send User IP Address** - When enabled, the visitor's IP address is sent to Newsman when they subscribe or unsubscribe. This can help with analytics and compliance. When disabled, the **Server IP** address is sent instead.
 
 - **Server IP** - A fallback IP address used when "Send User IP Address" is turned off. You can usually leave this empty.
@@ -185,6 +187,8 @@ When a customer subscribes through the checkout checkbox, account registration, 
 ### What happens in Newsman when I delete a customer?
 
 When you delete customers in **Admin > Customers > Customers** (one or several at once), the extension asks Newsman to anonymise the email address of each deleted customer. Newsman replaces the email address with an anonymous one and unsubscribes the contact, usually within a minute.
+
+The **Anonymise in NewsMAN when customers are deleted** setting (on by default) is read for each store: on the list of a store where it is turned off, the email address of a deleted customer is only unsubscribed (no confirmation email is sent). When stores with different values use the same Newsman list, the email address is only unsubscribed on that list.
 
 - This is done whatever the customer's newsletter option is, because the email address can still be on a Newsman list from an earlier subscription.
 - OpenCart customers are shared by all stores, so it is done on the list of every store where the extension is enabled, once per list.

@@ -406,6 +406,25 @@ class Nzmconfig extends Library {
 	}
 
 	/**
+	 * Anonymise in Newsman when customers are deleted (otherwise unsubscribe).
+	 * On by default: a store that never saved the setting anonymises.
+	 *
+	 * @param int $store_id
+	 *
+	 * @return bool
+	 */
+	public function isAnonymiseOnCustomerDelete($store_id = null) {
+		$store_id = ($store_id !== null) ? $store_id : $this->getCurrentStoreId();
+		$value = $this->getConfigValue('newsman_anonymise_on_customer_delete', $store_id);
+
+		if ($value === null || $value === '') {
+			return true;
+		}
+
+		return (bool)$value;
+	}
+
+	/**
 	 * Get all available store IDs.
 	 * Cache the store IDs in this class instance.
 	 *

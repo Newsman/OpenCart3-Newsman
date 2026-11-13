@@ -146,6 +146,18 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-anonymise-on-customer-delete">{{ entry_anonymise_on_customer_delete }}</label>
+                        <div class="col-sm-10">
+                            <select name="newsman_anonymise_on_customer_delete" id="input-anonymise-on-customer-delete" class="form-control">
+                                <option value="1"
+                                        {% if newsman_anonymise_on_customer_delete %}selected{% endif %}>{{ text_enabled }}</option>
+                                <option value="0"
+                                        {% if not newsman_anonymise_on_customer_delete %}selected{% endif %}>{{ text_disabled }}</option>
+                            </select>
+                            <span class="help-block">{{ entry_anonymise_on_customer_delete_help }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="input-send-user-ip">{{ entry_send_user_ip }}</label>
                         <div class="col-sm-10">
                             <select name="newsman_send_user_ip" id="input-send-user-ip" class="form-control">

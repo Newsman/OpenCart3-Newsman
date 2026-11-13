@@ -16,6 +16,31 @@ class UnsubscribeEmail extends AbstractService {
 	public const ENDPOINT = 'subscriber.saveUnsubscribe';
 
 	/**
+	 * Newsman API error code: the email is not on the list (nothing to unsubscribe)
+	 */
+	public const ERROR_NO_SUCH_SUBSCRIBER = 121;
+
+	/**
+	 * Newsman error codes the caller handles as a normal answer: they are logged as info, not as errors
+	 *
+	 * @var array
+	 */
+	protected $expected_error_codes = array();
+
+	/**
+	 * Set the Newsman error codes the caller handles as a normal answer (logged as info, not as errors)
+	 *
+	 * @param array $codes Newsman error codes.
+	 *
+	 * @return $this
+	 */
+	public function setExpectedErrorCodes($codes) {
+		$this->expected_error_codes = (array)$codes;
+
+		return $this;
+	}
+
+	/**
 	 * Unsubscribe email
 	 *
 	 * @param Context\UnsubscribeEmail $context Unsubscribe email context.
@@ -39,6 +64,7 @@ class UnsubscribeEmail extends AbstractService {
 		);
 
 		$client = $this->createApiClient();
+		$client->setExpectedErrorCodes($this->expected_error_codes);
 		$this->event->trigger('newsman/service_unsubscribe_email/before', array($context));
 		$result = $client->post(
 			$api_context,

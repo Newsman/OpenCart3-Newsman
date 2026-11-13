@@ -62,6 +62,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 		'list_id',
 		'segment',
 		'newsletter_double_optin',
+		'anonymise_on_customer_delete',
 		'send_user_ip',
 		'server_ip',
 		'export_authorize_header_name',
@@ -95,6 +96,16 @@ class ControllerExtensionModuleNewsman extends Controller {
 	protected $array_field_names = array(
 		'complete_order_status',
 		'processing_order_status',
+	);
+
+	/**
+	 * Default values of the module settings that are not empty by default. A store that
+	 * never saved the setting uses its default, so no upgrade step is needed.
+	 *
+	 * @var array
+	 */
+	protected $default_field_values = array(
+		'anonymise_on_customer_delete' => '1',
 	);
 
 	/**
@@ -770,6 +781,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 	protected function getStoredFieldValue($field) {
 		$value = $this->model_setting_setting->getSettingValue($this->names['setting'] . '_' . $field, $this->store_id);
 
+		if (($value === null || $value === '') && isset($this->default_field_values[$field])) {
+			return $this->default_field_values[$field];
+		}
+
 		if (!in_array($field, $this->array_field_names, true)) {
 			return $value;
 		}
@@ -791,6 +806,10 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		if (isset($this->request->post[$key])) {
 			return $this->request->post[$key];
+		}
+
+		if (isset($this->default_field_values[$field])) {
+			return $this->default_field_values[$field];
 		}
 
 		return in_array($field, $this->array_field_names, true) ? array() : '';
@@ -1008,6 +1027,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 				'entry_list_id',
 				'entry_segment',
 				'entry_newsletter_double_optin',
+				'entry_anonymise_on_customer_delete',
+				'entry_anonymise_on_customer_delete_help',
 				'entry_send_user_ip',
 				'entry_server_ip',
 				'entry_export_authorize_header_name',
@@ -1337,7 +1358,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 	/**
 	 * Event handler for customer delete before.
 	 * Anonymises the email of every deleted customer in Newsman, whatever the newsletter status,
-	 * on the lists of all stores (customers are shared by all stores).
+	 * on the lists of all stores (customers are shared by all stores). A list used by a store with
+	 * "Anonymise in Newsman when customers are deleted" off gets an unsubscribe instead.
 	 *
 	 * @param string $route
 	 * @param array  $args
@@ -1363,7 +1385,7 @@ class ControllerExtensionModuleNewsman extends Controller {
 				continue;
 			}
 
-			$this->anonymiseCustomer($customer_info['email']);
+			$this->anonymiseOrUnsubscribeCustomer($customer_info['email']);
 		}
 	}
 
@@ -1488,19 +1510,20 @@ class ControllerExtensionModuleNewsman extends Controller {
 	}
 
 	/**
-	 * Helper method to anonymise a deleted customer in Newsman.
+	 * Helper method to anonymise a deleted customer in Newsman, or to unsubscribe it on the lists
+	 * of the stores that do not anonymise when customers are deleted.
 	 * Errors are logged and never stop the delete.
 	 *
 	 * @param string $email
 	 *
 	 * @return void
 	 */
-	protected function anonymiseCustomer($email) {
+	protected function anonymiseOrUnsubscribeCustomer($email) {
 		try {
 			$this->autoloadNewsman();
 
 			$anonymise = new \Newsman\Action\Anonymise\Email($this->registry);
-			$anonymise->execute($email);
+			$anonymise->executeCustomerDelete($email);
 		} catch (\Exception $e) {
 			$this->nzmlogger->logException($e);
 		} catch (\Throwable $e) {
