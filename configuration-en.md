@@ -181,3 +181,18 @@ Yes. All settings support OpenCart's multi-store system. Configure different lis
 ### What happens when a customer subscribes to the newsletter?
 
 When a customer subscribes through the checkout checkbox, account registration, or their account settings page, the extension automatically sends the subscription to Newsman using the configured list and segment. If Double Opt-in is enabled, Newsman will send a confirmation email first.
+
+### What happens in Newsman when I delete a customer?
+
+When you delete customers in **Admin > Customers > Customers** (one or several at once), the extension asks Newsman to anonymise the email address of each deleted customer. Newsman replaces the email address with an anonymous one and unsubscribes the contact, usually within a minute.
+
+- This is done whatever the customer's newsletter option is, because the email address can still be on a Newsman list from an earlier subscription.
+- OpenCart customers are shared by all stores, so it is done on the list of every store where the extension is enabled, once per list.
+- An email address that is not on a list is skipped (it is only written to the log).
+- If Newsman cannot be reached, the error is written to the extension log and the customer is still deleted.
+
+Unsubscribing does not anonymise: the customer's account newsletter page and the **Newsletter** option on the customer's admin page still only unsubscribe the email address in Newsman.
+
+An anonymised email address that is subscribed or imported again (a new registration, a CSV import, another integration) is added to the list again. The subscribers sync of this extension sends only existing customers with the newsletter option on, so a deleted customer is not sent again; remove the email address from any other data you import into Newsman.
+
+Deleting a store in OpenCart keeps its customers, so nothing is sent to Newsman. To remove the contacts of a whole list, do it in Newsman.

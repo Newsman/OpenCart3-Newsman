@@ -181,3 +181,18 @@ Da. Toate setarile suporta sistemul multi-magazin al OpenCart. Configurati liste
 ### Ce se intampla cand un client se aboneaza la newsletter?
 
 Cand un client se aboneaza prin checkbox-ul de checkout, inregistrarea contului sau pagina de setari a contului, extensia trimite automat abonarea catre Newsman folosind lista si segmentul configurate. Daca Double Opt-in este activat, Newsman va trimite mai intai un email de confirmare.
+
+### Ce se intampla in Newsman cand sterg un client?
+
+Cand stergeti clienti din **Admin > Customers > Customers** (unul sau mai multi deodata), extensia cere Newsman sa anonimizeze adresa de email a fiecarui client sters. Newsman inlocuieste adresa de email cu una anonima si dezaboneaza contactul, de obicei in mai putin de un minut.
+
+- Se face indiferent de optiunea de newsletter a clientului, deoarece adresa de email poate fi inca intr-o lista Newsman dintr-o abonare mai veche.
+- Clientii OpenCart sunt comuni tuturor magazinelor, deci se face pe lista fiecarui magazin in care extensia este activata, o singura data pe lista.
+- O adresa de email care nu este in lista este ignorata (este doar scrisa in log).
+- Daca Newsman nu poate fi contactat, eroarea este scrisa in logul extensiei si clientul este sters oricum.
+
+Dezabonarea nu anonimizeaza: pagina de newsletter din contul clientului si optiunea **Newsletter** din pagina clientului din admin doar dezaboneaza adresa de email in Newsman, ca pana acum.
+
+O adresa de email anonimizata care este abonata sau importata din nou (o inregistrare noua, un import CSV, alta integrare) este adaugata din nou in lista. Sincronizarea abonatilor din aceasta extensie trimite doar clientii existenti cu optiunea de newsletter activa, deci un client sters nu mai este trimis; scoateti adresa de email din orice alte date pe care le importati in Newsman.
+
+Stergerea unui magazin din OpenCart pastreaza clientii lui, deci nu se trimite nimic catre Newsman. Pentru a sterge contactele unei liste intregi, faceti asta in Newsman.

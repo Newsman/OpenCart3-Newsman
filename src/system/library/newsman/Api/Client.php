@@ -40,6 +40,13 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 	protected $error_message;
 
 	/**
+	 * Newsman error codes the caller handles as a normal answer: they are logged as info, not as errors
+	 *
+	 * @var array
+	 */
+	protected $expected_error_codes = array();
+
+	/**
 	 * Make API GET request
 	 *
 	 * @param ContextInterface $context API request context.
@@ -171,7 +178,11 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 					if (false !== $api_error) {
 						$this->error_code = ((int)$api_error['code'] > 0) ? (int)$api_error['code'] : self::ERROR_CODE_UNKNOWN;
 						$this->error_message = $api_error['message'];
-						$this->logger->warning($this->error_code . ' | ' . $this->error_message);
+						if ($this->isExpectedErrorCode($this->error_code)) {
+							$this->logger->info($this->error_code . ' | ' . $this->error_message);
+						} else {
+							$this->logger->warning($this->error_code . ' | ' . $this->error_message);
+						}
 					} else {
 						$this->logger->notice(json_encode($result));
 					}
@@ -201,7 +212,11 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 				} catch (\Exception $e) {
 					$this->error_message = 'Error: ' . $this->error_code;
 				}
-				$this->logger->error($this->status . ' | ' . $remote_result['body']);
+				if ($this->isExpectedErrorCode($this->error_code)) {
+					$this->logger->info($this->status . ' | ' . $remote_result['body']);
+				} else {
+					$this->logger->error($this->status . ' | ' . $remote_result['body']);
+				}
 			}
 		} catch (\Exception $e) {
 			// Newsman could not be reached (no HTTP status): still an error, not a success.
@@ -325,6 +340,30 @@ class Client extends \Newsman\Nzmbase implements ClientInterface {
 			'code'    => isset($result['code']) ? $result['code'] : 0,
 			'message' => $result['message'] ?? '',
 		);
+	}
+
+	/**
+	 * Set the Newsman error codes the caller handles as a normal answer (logged as info, not as errors)
+	 *
+	 * @param array $codes Newsman error codes.
+	 *
+	 * @return $this
+	 */
+	public function setExpectedErrorCodes($codes) {
+		$this->expected_error_codes = array_map('intval', (array)$codes);
+
+		return $this;
+	}
+
+	/**
+	 * Is the error code one the caller handles as a normal answer?
+	 *
+	 * @param int $code Error code.
+	 *
+	 * @return bool
+	 */
+	protected function isExpectedErrorCode($code) {
+		return in_array((int)$code, $this->expected_error_codes, true);
 	}
 
 	/**

@@ -1336,6 +1336,8 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 	/**
 	 * Event handler for customer delete before.
+	 * Anonymises the email of every deleted customer in Newsman, whatever the newsletter status,
+	 * on the lists of all stores (customers are shared by all stores).
 	 *
 	 * @param string $route
 	 * @param array  $args
@@ -1347,20 +1349,21 @@ class ControllerExtensionModuleNewsman extends Controller {
 			return;
 		}
 
+		// The same permission check as the delete itself, which runs after this event.
+		if (!$this->user->hasPermission('modify', 'customer/customer')) {
+			return;
+		}
+
 		$this->load->model('customer/customer');
 
-		foreach ($this->request->post['selected'] as $customer_id) {
+		foreach ((array)$this->request->post['selected'] as $customer_id) {
 			$customer_info = $this->model_customer_customer->getCustomer($customer_id);
 
-			if (!(is_array($customer_info) && !empty($customer_info['email']) && !empty($customer_info['newsletter']))) {
+			if (!(is_array($customer_info) && !empty($customer_info['email']))) {
 				continue;
 			}
 
-			try {
-				$this->unsubscribeCustomer($customer_info['email'], (int)$customer_info['store_id']);
-			} catch (\Exception $e) {
-				$this->nzmlogger->logException($e);
-			}
+			$this->anonymiseCustomer($customer_info['email']);
 		}
 	}
 
@@ -1482,5 +1485,26 @@ class ControllerExtensionModuleNewsman extends Controller {
 
 		$email_action = new \Newsman\Action\Subscribe\Email($this->registry);
 		$email_action->unsubscribe($email, $store_id);
+	}
+
+	/**
+	 * Helper method to anonymise a deleted customer in Newsman.
+	 * Errors are logged and never stop the delete.
+	 *
+	 * @param string $email
+	 *
+	 * @return void
+	 */
+	protected function anonymiseCustomer($email) {
+		try {
+			$this->autoloadNewsman();
+
+			$anonymise = new \Newsman\Action\Anonymise\Email($this->registry);
+			$anonymise->execute($email);
+		} catch (\Exception $e) {
+			$this->nzmlogger->logException($e);
+		} catch (\Throwable $e) {
+			$this->nzmlogger->logException($e);
+		}
 	}
 }
